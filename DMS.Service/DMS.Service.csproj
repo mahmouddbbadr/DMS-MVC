@@ -10,11 +10,4 @@
     <ProjectReference Include="..\DMS.Infrastructure\DMS.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="IService\" />
-    <Folder Include="MapperHelper\" />
-    <Folder Include="ModelViews\" />
-    <Folder Include="Service\" />
-  </ItemGroup>
-
 </Project>

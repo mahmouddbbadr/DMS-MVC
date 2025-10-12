@@ -10,11 +10,4 @@
     <ProjectReference Include="..\DMS.Domain\DMS.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DataContext\" />
-    <Folder Include="IRepository\" />
-    <Folder Include="ModelsConfiguration\" />
-    <Folder Include="Repository\" />
-  </ItemGroup>
-
 </Project>
