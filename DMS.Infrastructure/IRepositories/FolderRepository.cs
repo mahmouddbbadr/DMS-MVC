@@ -1,5 +1,6 @@
 ﻿using DMS.Domain.Models;
 using DMS.Infrastructure.DataContext;
+using Microsoft.EntityFrameworkCore;
 
 namespace DMS.Infrastructure.IRepositories
 {
@@ -9,5 +10,6 @@ namespace DMS.Infrastructure.IRepositories
         {
             
         }
+
     }
 }
