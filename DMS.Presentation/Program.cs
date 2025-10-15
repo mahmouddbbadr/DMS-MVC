@@ -1,3 +1,8 @@
+using DMS.Domain.Models;
+using DMS.Infrastructure.DataContext;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
 namespace DMS.Presentation
 {
     public class Program
@@ -8,6 +13,14 @@ namespace DMS.Presentation
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddDbContext<DMSContext>(op =>
+            {
+                op.UseSqlServer(builder.Configuration.GetConnectionString("defaultconn"));
+            });
+
+            builder.Services.AddIdentity<AppUser, IdentityRole>()
+                .AddEntityFrameworkStores<DMSContext>();
 
             var app = builder.Build();
 
@@ -22,9 +35,11 @@ namespace DMS.Presentation
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();
+
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")
