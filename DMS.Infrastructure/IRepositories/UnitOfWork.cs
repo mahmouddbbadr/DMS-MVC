@@ -14,6 +14,7 @@ namespace DMS.Infrastructure.IRepositories
         public IAppUserRepository appUserRepository;
         public IFolderRepository folderRepository;
         public IDocumentRepository documentRepository;
+        public ISharedItemRepository sharedItemRepository;
 
         public UnitOfWork(DMSContext context)
         {
@@ -45,6 +46,15 @@ namespace DMS.Infrastructure.IRepositories
                 if (documentRepository == null)
                     documentRepository = new DocumentRepository(context);
                 return documentRepository;
+            }
+        }
+        public ISharedItemRepository SharedItemRepository
+        {
+            get
+            {
+                if (sharedItemRepository == null)
+                    sharedItemRepository = new SharedItemRepository(context);
+                return sharedItemRepository;
             }
         }
         public void Save()

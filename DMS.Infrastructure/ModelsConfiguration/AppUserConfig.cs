@@ -26,6 +26,9 @@ namespace DMS.Infrastructure.ModelsConfiguration
                 .HasColumnType("VARCHAR(20)")
                 .IsRequired();
 
+            builder.Property(u => u.UserName)
+                .HasComputedColumnSql("[FName] + ' ' + [LName] ", stored: true);
+
             builder.Property(u => u.Address)
                 .HasColumnType("VARCHAR(20)")
                 .IsRequired(false);
@@ -37,13 +40,16 @@ namespace DMS.Infrastructure.ModelsConfiguration
                 .HasColumnType("VARCHAR(20)")
                 .IsRequired();
 
+            builder.Property(u => u.TotalSize)
+                .IsRequired(false);
+
             builder.Property(u => u.CreatedAt)
                 .HasColumnType("datetime2")
                 .HasDefaultValueSql("GETDATE()");
 
             builder.HasMany(u => u.Folders)
                 .WithOne(f => f.AppUser)
-                .HasForeignKey(f => f.AppUserId);
+                .HasForeignKey(f => f.OwnerId);
 
         }
     }

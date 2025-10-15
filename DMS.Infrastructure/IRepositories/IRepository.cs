@@ -12,9 +12,9 @@ namespace DMS.Infrastructure.IRepositorys
         public List<TEntity> GetAll();
         public IQueryable<TEntity> GetAllAsQuarable();
         public List<TEntity> GetAllWithPagination(IQueryable<TEntity> query, int pageNum = 1, int pageSize = 5);
-        public TEntity? GetById(int id);
+        public TEntity? GetById(string id);
         public void Add(TEntity entity);
         public void Update(TEntity entity);
-        public void Delete(int id);
+        public void Delete(string id);
     }
 }

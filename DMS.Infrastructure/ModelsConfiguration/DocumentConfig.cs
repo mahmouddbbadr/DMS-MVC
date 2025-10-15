@@ -10,18 +10,20 @@ namespace DMS.Infrastructure.ModelsConfiguration
         {
             builder.ToTable("Documents");
 
+            builder.HasQueryFilter(d => !d.IsDeleted);
+
             builder.HasKey(d => d.Id);
 
             builder.Property(d => d.Name)
-                .HasColumnType("VARCHAR(20)")
+                .HasMaxLength(20)
                 .IsRequired();
 
             builder.Property(d => d.FilePath)
-                .HasColumnType("VARCHAR(255)")
+                .HasMaxLength(500)
                 .IsRequired();
 
             builder.Property(d => d.FileType)
-                .HasColumnType("VARCHAR(20)")
+                .HasMaxLength(50)
                 .IsRequired();
 
             builder.Property(d => d.IsDeleted)
@@ -31,7 +33,7 @@ namespace DMS.Infrastructure.ModelsConfiguration
                 .HasColumnType("int")
                 .IsRequired();
 
-            builder.Property(d => d.UploadedAt)
+            builder.Property(d => d.AddedAt)
                 .HasColumnType("datetime2")
                 .HasDefaultValueSql("GETDATE()");
 

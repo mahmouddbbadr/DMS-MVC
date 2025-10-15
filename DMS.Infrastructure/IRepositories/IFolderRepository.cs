@@ -3,7 +3,7 @@ using DMS.Infrastructure.IRepositorys;
 
 namespace DMS.Infrastructure.IRepositories
 {
-    public interface IFolderRepository: IRepository<Folder>
+    public interface IFolderRepository: ISortSearch<Folder>, IRepository<Folder>
     {
 
     }

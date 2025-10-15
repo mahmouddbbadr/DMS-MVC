@@ -88,12 +88,17 @@ namespace DMS.Infrastructure.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long?>("TotalSize")
+                        .HasColumnType("bigint");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
                     b.Property<string>("UserName")
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(256)")
+                        .HasComputedColumnSql("[FName] + ' ' + [LName] ", true);
 
                     b.Property<string>("WorkSpaceName")
                         .IsRequired()
@@ -117,37 +122,43 @@ namespace DMS.Infrastructure.Migrations
 
             modelBuilder.Entity("DMS.Domain.Models.Document", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("AddedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("FilePath")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(255)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("FileType")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
-                    b.Property<Guid>("FolderId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("FolderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<bool>("IsStarred")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(20)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int>("Size")
                         .HasColumnType("int");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
 
                     b.HasKey("Id");
 
@@ -158,38 +169,83 @@ namespace DMS.Infrastructure.Migrations
 
             modelBuilder.Entity("DMS.Domain.Models.Folder", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
+                    b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime>("AddedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
 
-                    b.Property<Guid>("FolderId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("FolderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<bool>("IsStarred")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("VARCHAR(20)");
 
-                    b.HasKey("Id");
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
-                    b.HasIndex("AppUserId");
+                    b.HasKey("Id");
 
                     b.HasIndex("FolderId");
 
+                    b.HasIndex("OwnerId");
+
                     b.ToTable("Folders", (string)null);
+                });
+
+            modelBuilder.Entity("DMS.Domain.Models.SharedItem", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("AddedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("DocumentId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FolderId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("PermissionLevel")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("SharedByUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SharedWithUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DocumentId");
+
+                    b.HasIndex("FolderId");
+
+                    b.HasIndex("SharedByUserId");
+
+                    b.HasIndex("SharedWithUserId");
+
+                    b.ToTable("SharedItem", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -338,21 +394,54 @@ namespace DMS.Infrastructure.Migrations
 
             modelBuilder.Entity("DMS.Domain.Models.Folder", b =>
                 {
-                    b.HasOne("DMS.Domain.Models.AppUser", "AppUser")
-                        .WithMany("Folders")
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("DMS.Domain.Models.Folder", "ParentFolder")
                         .WithMany("Folders")
                         .HasForeignKey("FolderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DMS.Domain.Models.AppUser", "AppUser")
+                        .WithMany("Folders")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("AppUser");
 
                     b.Navigation("ParentFolder");
+                });
+
+            modelBuilder.Entity("DMS.Domain.Models.SharedItem", b =>
+                {
+                    b.HasOne("DMS.Domain.Models.Document", "Document")
+                        .WithMany("SharedDocument")
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DMS.Domain.Models.Folder", "Folder")
+                        .WithMany("SharedFolder")
+                        .HasForeignKey("FolderId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("DMS.Domain.Models.AppUser", "SharedByUser")
+                        .WithMany("SharedItems")
+                        .HasForeignKey("SharedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("DMS.Domain.Models.AppUser", "SharedWithUser")
+                        .WithMany("ReceivedSharedItems")
+                        .HasForeignKey("SharedWithUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Document");
+
+                    b.Navigation("Folder");
+
+                    b.Navigation("SharedByUser");
+
+                    b.Navigation("SharedWithUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -409,6 +498,15 @@ namespace DMS.Infrastructure.Migrations
             modelBuilder.Entity("DMS.Domain.Models.AppUser", b =>
                 {
                     b.Navigation("Folders");
+
+                    b.Navigation("ReceivedSharedItems");
+
+                    b.Navigation("SharedItems");
+                });
+
+            modelBuilder.Entity("DMS.Domain.Models.Document", b =>
+                {
+                    b.Navigation("SharedDocument");
                 });
 
             modelBuilder.Entity("DMS.Domain.Models.Folder", b =>
@@ -416,6 +514,8 @@ namespace DMS.Infrastructure.Migrations
                     b.Navigation("Documents");
 
                     b.Navigation("Folders");
+
+                    b.Navigation("SharedFolder");
                 });
 #pragma warning restore 612, 618
         }

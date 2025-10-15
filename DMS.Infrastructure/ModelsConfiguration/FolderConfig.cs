@@ -10,6 +10,8 @@ namespace DMS.Infrastructure.ModelsConfiguration
         {
             builder.ToTable("Folders");
 
+            builder.HasQueryFilter(f => !f.IsDeleted);
+
             builder.HasKey(f => f.Id);
 
             builder.Property(f => f.Name)
@@ -19,7 +21,7 @@ namespace DMS.Infrastructure.ModelsConfiguration
             builder.Property(f => f.IsDeleted)
                 .HasDefaultValue(false);
 
-            builder.Property(f => f.CreatedAt)
+            builder.Property(f => f.AddedAt)
               .HasColumnType("datetime2")
               .HasDefaultValueSql("GETDATE()");
 
