@@ -37,7 +37,7 @@ namespace DMS.Infrastructure.ModelsConfiguration
                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(s => s.Folder)
-                   .WithMany(u => u.SharedFolder)
+                   .WithMany(u => u.SharedFolders)
                    .HasForeignKey(s => s.FolderId)
                    .OnDelete(DeleteBehavior.Restrict);
         }

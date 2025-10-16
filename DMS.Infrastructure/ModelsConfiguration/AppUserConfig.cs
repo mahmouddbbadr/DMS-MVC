@@ -48,7 +48,7 @@ namespace DMS.Infrastructure.ModelsConfiguration
                 .HasDefaultValueSql("GETDATE()");
 
             builder.HasMany(u => u.Folders)
-                .WithOne(f => f.AppUser)
+                .WithOne(f => f.Owner)
                 .HasForeignKey(f => f.OwnerId);
 
         }

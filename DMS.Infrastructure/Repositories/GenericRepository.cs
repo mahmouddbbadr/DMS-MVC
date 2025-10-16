@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMS.Infrastructure.IRepositories
+namespace DMS.Infrastructure.Repository
 {
     public class GenericRepository<TEntity>: IRepository<TEntity> where TEntity : class
     {

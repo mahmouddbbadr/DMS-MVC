@@ -25,9 +25,9 @@ namespace DMS.Infrastructure.ModelsConfiguration
               .HasColumnType("datetime2")
               .HasDefaultValueSql("GETDATE()");
 
-            builder.HasOne(f => f.ParentFolder)
-                .WithMany(f => f.Folders)
-                .HasForeignKey(f => f.FolderId);
+            builder.HasOne(sf => sf.ParentFolder)
+                .WithMany(pf => pf.SubFolders)
+                .HasForeignKey(sf => sf.ParentFolderId);
         }
     }
 }

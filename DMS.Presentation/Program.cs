@@ -1,5 +1,6 @@
 using DMS.Domain.Models;
 using DMS.Infrastructure.DataContext;
+using DMS.Service.MapperHelper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,8 +17,10 @@ namespace DMS.Presentation
 
             builder.Services.AddDbContext<DMSContext>(op =>
             {
-                op.UseSqlServer(builder.Configuration.GetConnectionString("defaultconn"));
+                op.UseLazyLoadingProxies().UseSqlServer(builder.Configuration.GetConnectionString("defaultconn"));
             });
+
+            builder.Services.AddAutoMapper(op => op.AddProfile(typeof(MappingProfile)));
 
             builder.Services.AddIdentity<AppUser, IdentityRole>()
                 .AddEntityFrameworkStores<DMSContext>();

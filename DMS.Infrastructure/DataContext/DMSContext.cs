@@ -1,5 +1,6 @@
 ﻿using DMS.Domain.Models;
 using DMS.Infrastructure.ModelsConfiguration;
+using DMS.Infrastructure.Seed;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -22,6 +23,8 @@ namespace DMS.Infrastructure.DataContext
             base.OnModelCreating(builder);
 
             builder.ApplyConfigurationsFromAssembly(typeof(AppUserConfig).Assembly);
+           
+            builder.Seed();
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

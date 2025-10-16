@@ -1,11 +1,13 @@
 ﻿using DMS.Infrastructure.DataContext;
+using DMS.Infrastructure.IRepositories;
+using DMS.Infrastructure.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMS.Infrastructure.IRepositories
+namespace DMS.Infrastructure.UnitOfWorks
 {
     public class UnitOfWork
     {
