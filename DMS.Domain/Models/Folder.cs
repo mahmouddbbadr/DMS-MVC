@@ -15,10 +15,10 @@ namespace DMS.Domain.Models
         public DateTime AddedAt { get; set; } = DateTime.UtcNow;
         public ICollection<Document>? Documents { get; set; } = new HashSet<Document>();
         public string OwnerId { get; set; }
-        public virtual AppUser? AppUser { get; set; }
-        public string FolderId { get; set; }
-        public virtual ICollection<Folder>? Folders { get; set;} = new HashSet<Folder>();
+        public virtual AppUser? Owner { get; set; }
+        public string? ParentFolderId { get; set; }
         public virtual Folder? ParentFolder { get; set; }
-        public virtual ICollection<SharedItem>? SharedFolder { get; set; } = new HashSet<SharedItem>();
+        public virtual ICollection<Folder>? SubFolders { get; set;} = new HashSet<Folder>();
+        public virtual ICollection<SharedItem>? SharedFolders { get; set; } = new HashSet<SharedItem>();
     }
 }

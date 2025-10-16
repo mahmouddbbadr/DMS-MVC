@@ -1,5 +1,6 @@
 ﻿using DMS.Domain.Models;
 using DMS.Infrastructure.DataContext;
+using DMS.Infrastructure.IRepositories;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMS.Infrastructure.IRepositories
+namespace DMS.Infrastructure.Repository
 {
     public class SortSearch<TEntity> : GenericRepository<TEntity>, ISortSearch<TEntity>
         where TEntity : class, IBaseEntity
