@@ -11,7 +11,17 @@ namespace DMS.Infrastructure.Repository
         {
             
         }
+        public async Task<List<Folder>> GetFoldersByFolderIdAsync(string? parentFolderId)
+        {
+            IQueryable<Folder> query = _context.Folders;
 
- 
+            if (parentFolderId != null)
+            {
+                 query = query.Where(f => f.ParentFolderId == parentFolderId);
+            }
+            return await query.ToListAsync();
+        }
+
+
     }
 }

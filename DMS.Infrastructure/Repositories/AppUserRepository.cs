@@ -1,6 +1,7 @@
 ﻿using DMS.Domain.Models;
 using DMS.Infrastructure.DataContext;
 using DMS.Infrastructure.IRepositories;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +17,9 @@ namespace DMS.Infrastructure.Repository
             
         }
 
-        public List<AppUser> GetByName(string name)
+        public async Task<List<AppUser>> GetByNameAsync(string name)
         {
-            return [..context.AppUsers.Where(u => u.FName == name)];
+            return await _context.AppUsers.Where(u => u.FName == name).ToListAsync();
         }
 
     }

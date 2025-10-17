@@ -11,46 +11,30 @@ using System.Threading.Tasks;
 namespace DMS.Infrastructure.Repository
 {
     public class SortSearch<TEntity> : GenericRepository<TEntity>, ISortSearch<TEntity>
-        where TEntity : class, IBaseEntity
+    where TEntity : class, IBaseEntity
     {
-        
-        public SortSearch(DMSContext context) : base(context)
-        {
-        }
+        public SortSearch(DMSContext context) : base(context) { }
 
-        public List<TEntity> GetByName(string searchName)
+        public async Task<List<TEntity>> GetByNameAsync(string searchName)
         {
             searchName = searchName?.Trim() ?? "";
-            return _dbset
-                .Where(f => EF.Functions.Like(f.Name, searchName))
-                .ToList();
+            return await _dbSet
+                .Where(f => EF.Functions.Like(f.Name, $"%{searchName}%"))
+                .ToListAsync();
         }
 
         public IQueryable<TEntity> SearchAsQueryable(string searchName)
         {
             searchName = searchName?.Trim() ?? "";
-            return _dbset
-                .Where(f => EF.Functions.Like(f.Name, $"{searchName}%"));
+            return _dbSet
+                .Where(f => EF.Functions.Like(f.Name, $"%{searchName}%"));
         }
-        public IQueryable<TEntity> SortedByNameAsc()
-        {
-            return _dbset.OrderBy(f => f.Name);
-        }
-        public IQueryable<TEntity> SortedByNameDesc()
-        {
-            return _dbset.OrderByDescending(f => f.Name);
-        }
-        public IQueryable<TEntity> SortedByDate()
-        {
-            return _dbset.OrderBy(f => f.AddedAt);
-        }
-        public IQueryable<TEntity> SortedByDateDesc()
-        {
-            return _dbset.OrderByDescending(f => f.AddedAt);
-        }
-        public IQueryable<TEntity> GetDeleted()
-        {
-            return _dbset.Where(e => e.IsDeleted).IgnoreQueryFilters();
-        }
+
+        public IQueryable<TEntity> SortedByNameAsc() => _dbSet.OrderBy(f => f.Name);
+        public IQueryable<TEntity> SortedByNameDesc() => _dbSet.OrderByDescending(f => f.Name);
+        public IQueryable<TEntity> SortedByDate() => _dbSet.OrderBy(f => f.AddedAt);
+        public IQueryable<TEntity> SortedByDateDesc() => _dbSet.OrderByDescending(f => f.AddedAt);
+        public IQueryable<TEntity> GetDeleted() => _dbSet.Where(e => e.IsDeleted).IgnoreQueryFilters();
     }
+
 }

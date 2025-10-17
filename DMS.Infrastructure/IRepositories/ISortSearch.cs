@@ -10,7 +10,7 @@ namespace DMS.Infrastructure.IRepositories
 {
     public interface ISortSearch<TEntity> where TEntity : class
     {
-        public List<TEntity> GetByName(string searchName);
+        public Task<List<TEntity>> GetByNameAsync(string searchName);
         public IQueryable<TEntity> SearchAsQueryable(string searchName);
         public IQueryable<TEntity> SortedByNameAsc();
         public IQueryable<TEntity> SortedByNameDesc();
