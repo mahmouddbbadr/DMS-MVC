@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMS.Service.Service
+namespace DMS.Service.IService
 {
-    internal class test
+    public interface IFolderService
     {
     }
 }

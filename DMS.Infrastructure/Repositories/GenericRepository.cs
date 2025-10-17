@@ -10,48 +10,48 @@ using System.Threading.Tasks;
 
 namespace DMS.Infrastructure.Repository
 {
-    public class GenericRepository<TEntity>: IRepository<TEntity> where TEntity : class
+    public class GenericRepository<TEntity> : IRepository<TEntity> where TEntity : class
     {
-        public readonly DMSContext context;
-        public DbSet<TEntity> _dbset;
-
+        protected readonly DMSContext _context;
+        protected readonly DbSet<TEntity> _dbSet;
         public GenericRepository(DMSContext context)
         {
-            this.context = context;
-            _dbset = context.Set<TEntity>();
+            _context = context;
+            _dbSet = _context.Set<TEntity>();
         }
-        public List<TEntity> GetAll()
+        public async Task<List<TEntity>> GetAllAsync()
         {
-            return [.. _dbset.AsNoTracking()];
+            return await _dbSet.AsNoTracking().ToListAsync();
         }
-        public IQueryable<TEntity> GetAllAsQuarable()
+        public IQueryable<TEntity> GetAllAsQueryable()
         {
-            return _dbset.AsNoTracking();
+            return _dbSet.AsNoTracking();
         }
-        public List<TEntity> GetAllWithPagination
-            (IQueryable<TEntity> query,int pageNum = 1, int pageSize = 5)
+        public async Task<List<TEntity>> GetAllWithPaginationAsync(IQueryable<TEntity> query, int pageNum = 1, int pageSize = 5)
         {
-           return [..query.Skip((pageNum - 1) * pageSize).Take(pageSize)];
+            return await query
+                .Skip((pageNum - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
-        public TEntity? GetById(string id)
+        public async Task<TEntity?> GetByIdAsync(string id)
         {
-            return _dbset.Find(id);
+            return await _dbSet.FindAsync(id);
         }
-        public void Add(TEntity entity)
+        public async Task AddAsync(TEntity entity)
         {
-            _dbset.Add(entity);
+            await _dbSet.AddAsync(entity);
         }
         public void Update(TEntity entity)
         {
-            context.Entry(entity).State = EntityState.Modified;
-            //_dbset.Update(entity);
+            _context.Entry(entity).State = EntityState.Modified;
         }
-        public void Delete(string id)
+        public async Task DeleteAsync(string id)
         {
-            TEntity? entity = GetById(id);
+            var entity = await GetByIdAsync(id);
             if (entity != null)
             {
-                _dbset.Remove(entity);
+                _dbSet.Remove(entity);
             }
         }
     }

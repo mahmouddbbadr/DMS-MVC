@@ -13,10 +13,11 @@ namespace DMS.Infrastructure.UnitOfWorks
     {
         private readonly DMSContext context;
 
-        public IAppUserRepository appUserRepository;
-        public IFolderRepository folderRepository;
-        public IDocumentRepository documentRepository;
-        public ISharedItemRepository sharedItemRepository;
+        private IAppUserRepository appUserRepository;
+        private IRoleRepository roleRepository;
+        private IFolderRepository folderRepository;
+        private IDocumentRepository documentRepository;
+        private ISharedItemRepository sharedItemRepository;
 
         public UnitOfWork(DMSContext context)
         {
@@ -30,6 +31,15 @@ namespace DMS.Infrastructure.UnitOfWorks
                 if (appUserRepository == null)
                     appUserRepository = new AppUserRepository(context);
                 return appUserRepository;
+            }
+        }
+        public IRoleRepository RoleRepository
+        {
+            get
+            {
+                if (roleRepository == null)
+                    roleRepository = new RoleRepository(context);
+                return roleRepository;
             }
         }
         public IFolderRepository FolderRepository

@@ -1,6 +1,8 @@
 using DMS.Domain.Models;
 using DMS.Infrastructure.DataContext;
+using DMS.Service.IService;
 using DMS.Service.MapperHelper;
+using DMS.Service.Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +26,13 @@ namespace DMS.Presentation
 
             builder.Services.AddIdentity<AppUser, IdentityRole>()
                 .AddEntityFrameworkStores<DMSContext>();
+
+            builder.Services.AddScoped<IAccountService, AccountService>();
+            builder.Services.AddScoped<IRoleService, RoleService>();
+            builder.Services.AddScoped<IFolderService, FolderService>();
+            builder.Services.AddScoped<IDocumentService, DocumentService>();
+            builder.Services.AddScoped<ISharingService, SharingService>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             var app = builder.Build();
 

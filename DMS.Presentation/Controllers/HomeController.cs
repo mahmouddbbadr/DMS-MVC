@@ -6,21 +6,28 @@ namespace DMS.Presentation.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
+        // display homeIndex depending on user role
+        [HttpGet]
         public IActionResult Index()
         {
-            return View();
+            if (User.IsInRole("Admin"))
+            {
+                return View("AdminIndex"); //create AdminIndex view
+            }
+
+            return View("UserIndex"); //create UserIndex view
         }
 
-        public IActionResult Privacy()
+        [HttpGet]
+        public IActionResult About()
         {
-            return View();
+            return View("About"); //create About View
+        }
+
+        [HttpGet]
+        public IActionResult Contact()
+        {
+            return View("Contact"); //create Contact View
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
