@@ -1,0 +1,45 @@
+﻿@{
+    Layout = "~/Views/Shared/_MyLayout.cshtml";
+}
+
+@model DMS.Domain.Models.DashBoardViewModel
+
+<h2 class="text-center mb-4">User Dashboard</h2>
+
+<div class="row text-center">
+    <div class="col-md-3">
+        <div class="card bg-light shadow-sm">
+            <div class="card-body">
+                <h4>@Model.TotalDocuments</h4>
+                <p>Number of Documents </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-light shadow-sm">
+            <div class="card-body">
+                <h4>@Model.TotalFolders</h4>
+                <p>Number of Folders</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-light shadow-sm">
+            <div class="card-body">
+                <h4>@Model.TotalStorage MB</h4>
+                <p> Total area</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card bg-light shadow-sm">
+            <div class="card-body">
+                <h4>@Model.SharedByMe</h4>
+                <p>The files you shared</p>
+            </div>
+        </div>
+    </div>
+</div>

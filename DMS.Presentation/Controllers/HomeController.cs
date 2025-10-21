@@ -1,21 +1,42 @@
 using System.Diagnostics;
+using DMS.Domain.Models;
+using DMS.Infrastructure.DataContext;
 using DMS.Presentation.Models;
+using DMS.Service.Service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DMS.Presentation.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly DashBoardService dashboardService;
+
+        public HomeController(DashBoardService dashboardService)
+        {
+            this.dashboardService = dashboardService;
+        }
+
+
+
         // display homeIndex depending on user role
         [HttpGet]
         public IActionResult Index()
         {
+
             if (User.IsInRole("Admin"))
             {
-                return View("AdminIndex"); //create AdminIndex view
+                var model = dashboardService.GetAdminStats();
+
+                return View("AdminIndex", model); //create AdminIndex view
+            }
+            else
+            {
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                var model = dashboardService.GetUserStats(userId);
+
+                return View("UserIndex", model); //create UserIndex view
             }
 
-            return View("UserIndex"); //create UserIndex view
         }
 
         [HttpGet]
@@ -30,10 +51,22 @@ namespace DMS.Presentation.Controllers
             return View("Contact"); //create Contact View
         }
 
+        [HttpPost]
+        public IActionResult Contact(string name, string email, string subject, string message)
+        {
+            
+            TempData["SuccessMessage"] = "Thank you for contacting us! We'll get back to you soon.";
+
+            return RedirectToAction("Contact");
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+
+     
     }
 }

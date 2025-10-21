@@ -1,5 +1,6 @@
 using DMS.Domain.Models;
 using DMS.Infrastructure.DataContext;
+using DMS.Infrastructure.UnitOfWorks;
 using DMS.Service.IService;
 using DMS.Service.MapperHelper;
 using DMS.Service.Service;
@@ -33,6 +34,8 @@ namespace DMS.Presentation
             builder.Services.AddScoped<IDocumentService, DocumentService>();
             builder.Services.AddScoped<ISharingService, SharingService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<UnitOfWork>();
+            builder.Services.AddScoped<DashBoardService>();
 
             var app = builder.Build();
 

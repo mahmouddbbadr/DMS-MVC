@@ -11,9 +11,10 @@ namespace DMS.Service.MapperHelper
     public class MappingProfile : Profile
     {
         public MappingProfile()
-        {        
+        {
             // Example mappings
             //CreateMap<AppUser, UserViewModel>();
+
         }
     }
 }

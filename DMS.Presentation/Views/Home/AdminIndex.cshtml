@@ -1,0 +1,54 @@
+﻿@{
+    Layout = "~/Views/Shared/_MyLayout.cshtml";
+}
+
+@model DMS.Domain.Models.DashBoardViewModel
+
+<h2 class="text-center mb-4"> Administrator Control Panel  </h2>
+
+<div class="row text-center">
+    <div class="col-md-2">
+        <div class="card bg-light shadow-sm">
+            <div class="card-body">
+                <h4>@Model.TotalUsers</h4>
+                <p>Total users </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card bg-light shadow-sm">
+            <div class="card-body">
+                <h4>@Model.BlockedUsers</h4>
+                <p>blocked users </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card bg-light shadow-sm">
+            <div class="card-body">
+                <h4>@Model.TotalDocuments</h4>
+                <p>Number of Documents  </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card bg-light shadow-sm">
+            <div class="card-body">
+                <h4>@Model.TotalFolders</h4>
+                <p>Number of Folders </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-2">
+        <div class="card bg-light shadow-sm">
+            <div class="card-body">
+                <h4>@Model.TotalStorage MB</h4>
+                <p>Used space </p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -13,9 +13,9 @@ namespace DMS.Domain.Models
         public bool IsDeleted { get; set; } = false;
         public bool IsStarred { get; set; } = false;
         public DateTime AddedAt { get; set; } = DateTime.UtcNow;
-        public ICollection<Document>? Documents { get; set; } = new HashSet<Document>();
-        public string OwnerId { get; set; }
-        public virtual AppUser? Owner { get; set; }
+        public virtual ICollection<Document>? Documents { get; set; } = new HashSet<Document>();
+        public string OwnerId { get; set; } //////////////// link folder with appuser
+        public virtual AppUser? Owner { get; set; } 
         public string? ParentFolderId { get; set; }
         public virtual Folder? ParentFolder { get; set; }
         public virtual ICollection<Folder>? SubFolders { get; set;} = new HashSet<Folder>();

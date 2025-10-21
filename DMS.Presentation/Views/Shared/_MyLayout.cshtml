@@ -12,7 +12,12 @@
     <title>SB Admin 2 - Dashboard</title>
 
     <!-- Custom fonts for this template-->
-    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          integrity="sha512-6T6M7wOQDyOIoHhOHEaRy1Ee1KZ8mPyb+fTkXIzX1Ac2iL3+OQMnzZbXdbP/VDwglFdtSEzPG8Nf57z4j7Y6sw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
           rel="stylesheet">
 
@@ -45,7 +50,7 @@
                 <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
                    aria-expanded="true" aria-controls="collapseTwo">
                     <i class="fa fa-user" style="font-size: 17px;"></i>
-                    <span style="font-weight:bold; font-size: 14px;" >Profile</span>
+                    <span style="font-weight:bold; font-size: 14px;">Profile</span>
                 </a>
                 <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
@@ -57,43 +62,58 @@
 
             <!-- Nav Item - Charts -->
             <li class="nav-item">
-                <a class="nav-link" href="charts.html">
-                    <i class="fa fa-home" style="font-size: 17px;"></i>
-                    <span style="font-weight:bold; font-size: 14px;" >Home</span>
+                <a class="nav-link" asp-controller="Home" asp-action="Index">
+                    <i class="fa fa-home" style="font-size: 17px; color:white;"></i>
+                    <span style="font-weight:bold; font-size: 14px;">Home</span>
                 </a>
             </li>
+
             <!-- Nav Item - Charts -->
             <li class="nav-item">
                 <a class="nav-link" href="charts.html">
                     <i class="fa fa-share" style="font-size: 17px;"></i>
-                    <span style="font-weight:bold; font-size: 14px;" >Shared With Me</span>
+                    <span style="font-weight:bold; font-size: 14px;">Shared With Me</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="charts.html">
                     <i class="fa fa-star" style="font-size: 17px;"></i>
-                    <span style="font-weight:bold; font-size: 14px;" >Starred</span>
+                    <span style="font-weight:bold; font-size: 14px;">Starred</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a class="nav-link" href="charts.html">
                     <i class="fa fa-trash" style="font-size: 17px;"></i>
-                    <span style="font-weight:bold; font-size: 14px;" >Trash</span>
+                    <span style="font-weight:bold; font-size: 14px;">Trash</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="charts.html">
                     <i class="fa fa-users" style="font-size: 17px;"></i>
-                    <span style="font-weight:bold; font-size: 14px;" >Users</span>
+                    <span style="font-weight:bold; font-size: 14px;">Users</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="charts.html">
                     <i class="fa fa-user-slash" style="font-size: 17px;"></i>
-                    <span style="font-weight:bold; font-size: 14px;" >Blocked Users</span>
+                    <span style="font-weight:bold; font-size: 14px;">Blocked Users</span>
                 </a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="About">
+                    <i class="fa fa-info-circle" style="font-size: 17px; color:#4e73df;"></i>
+                    <span style="font-weight: bold; font-size: 14px; margin-left: 5px;">About</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="Contact">
+                    <i class="fa fa-envelope" style="font-size: 17px; color:#1cc88a;"></i>
+                    <span style="font-weight: bold; font-size: 14px; margin-left: 5px;">Contact Us</span>
+                </a>
+            </li>
+
 
             <br>
             <br>
@@ -160,7 +180,7 @@
 
                         <!-- Nav Item - Alerts -->
                         <li class="nav-item dropdown no-arrow mx-1">
-                           
+
                             <!-- Dropdown - Alerts -->
                             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                  aria-labelledby="alertsDropdown">
@@ -206,7 +226,7 @@
 
                         <!-- Nav Item - Messages -->
                         <li class="nav-item dropdown no-arrow mx-1">
-                           
+
                             <!-- Dropdown - Messages -->
                             <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                  aria-labelledby="messagesDropdown">
@@ -356,12 +376,13 @@
     </div>
 
     <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 
     <!-- Custom scripts for all pages-->
     <script src="/js/sb-admin-2.min.js"></script>
+    @RenderSection("Scripts", required: false)
 
 </body>
 
