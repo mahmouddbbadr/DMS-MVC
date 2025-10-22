@@ -34,5 +34,7 @@
       "applicationUrl": "http://localhost:56464/",
       "sslPort": 44389
     }
-  }
+  },
+  "applicationUrl": "https://localhost:44389;https://transthalamic-hans-unflauntingly.ngrok-free.dev"
 }
+

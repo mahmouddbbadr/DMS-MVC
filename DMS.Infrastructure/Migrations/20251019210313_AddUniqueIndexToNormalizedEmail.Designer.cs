@@ -4,6 +4,7 @@ using DMS.Infrastructure.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DMS.Infrastructure.Migrations
 {
     [DbContext(typeof(DMSContext))]
-    partial class DMSContextModelSnapshot : ModelSnapshot
+    [Migration("20251019210313_AddUniqueIndexToNormalizedEmail")]
+    partial class AddUniqueIndexToNormalizedEmail
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,6 +35,9 @@ namespace DMS.Infrastructure.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("VARCHAR(20)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -95,8 +101,14 @@ namespace DMS.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("UserName")
+                        .ValueGeneratedOnAddOrUpdate()
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(256)")
+                        .HasComputedColumnSql("[FName] + ' ' + [LName] ", true);
+
+                    b.Property<string>("WorkSpaceName")
+                        .IsRequired()
+                        .HasColumnType("VARCHAR(20)");
 
                     b.HasKey("Id");
 
@@ -110,6 +122,9 @@ namespace DMS.Infrastructure.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
+                    b.HasIndex("WorkSpaceName")
+                        .IsUnique();
+
                     b.ToTable("AspNetUsers", (string)null);
 
                     b.HasData(
@@ -117,6 +132,7 @@ namespace DMS.Infrastructure.Migrations
                         {
                             Id = "user-1",
                             AccessFailedCount = 0,
+                            Address = "Cairo",
                             ConcurrencyStamp = "b7c1a4d2-8b23-4b12-b5b4-abcdefabcdef",
                             CreatedAt = new DateTime(2025, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
                             Email = "ahmed@example.com",
@@ -132,12 +148,14 @@ namespace DMS.Infrastructure.Migrations
                             PhoneNumberConfirmed = true,
                             SecurityStamp = "e3c1c6d2-9d48-4a90-a9a4-1234567890ab",
                             TwoFactorEnabled = false,
-                            UserName = "ahmed.fergany"
+                            UserName = "ahmed.fergany",
+                            WorkSpaceName = "AhmedWorkspace"
                         },
                         new
                         {
                             Id = "user-2",
                             AccessFailedCount = 0,
+                            Address = "Alex",
                             ConcurrencyStamp = "f0d3e78b-4c8f-464e-b78f-e3b56c1487cc",
                             CreatedAt = new DateTime(2025, 10, 2, 12, 0, 0, 0, DateTimeKind.Utc),
                             Email = "mahmoud@example.com",
@@ -153,12 +171,14 @@ namespace DMS.Infrastructure.Migrations
                             PhoneNumberConfirmed = true,
                             SecurityStamp = "6d89f59e-bbfa-49d0-8e2e-a1b1e872e24d",
                             TwoFactorEnabled = false,
-                            UserName = "mahmoud.badr"
+                            UserName = "mahmoud.badr",
+                            WorkSpaceName = "MahmoudWorkspace"
                         },
                         new
                         {
                             Id = "user-3",
                             AccessFailedCount = 0,
+                            Address = "Menofyia",
                             ConcurrencyStamp = "ab21854a-bbdf-4342-a86c-421c1d932f28",
                             CreatedAt = new DateTime(2025, 10, 3, 12, 0, 0, 0, DateTimeKind.Utc),
                             Email = "abdo@example.com",
@@ -174,7 +194,8 @@ namespace DMS.Infrastructure.Migrations
                             PhoneNumberConfirmed = true,
                             SecurityStamp = "a6bdc263-9d47-4fd8-b929-101e1a99d9af",
                             TwoFactorEnabled = false,
-                            UserName = "abdo.ahmed"
+                            UserName = "abdo.ahmed",
+                            WorkSpaceName = "AbdoWorkspace"
                         });
                 });
 

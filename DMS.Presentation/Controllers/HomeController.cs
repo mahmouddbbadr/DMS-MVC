@@ -10,12 +10,13 @@ namespace DMS.Presentation.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            if (User.IsInRole("Admin"))
-            {
-                return View("AdminIndex"); //create AdminIndex view
-            }
+            //if (User.IsInRole("Admin"))
+            //{
+            //    return View("AdminIndex"); //create AdminIndex view
+            //}
 
-            return View("UserIndex"); //create UserIndex view
+            //return View("UserIndex"); //create UserIndex view
+            return RedirectToAction("Index", "Folder");
         }
 
         [HttpGet]
