@@ -63,12 +63,22 @@
                 </a>
             </li>
             <!-- Nav Item - Charts -->
+            
+            @* shared nav *@
             <li class="nav-item">
-                <a class="nav-link" href="charts.html">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo"
+                   aria-expanded="true" aria-controls="collapseTwo">
                     <i class="fa fa-share" style="font-size: 17px;"></i>
-                    <span style="font-weight:bold; font-size: 14px;" >Shared With Me</span>
+                    <span style="font-weight:bold; font-size: 14px;">Shared</span>
                 </a>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item"asp-action="SharedWithMe">Share With Me</a>
+                        <a class="collapse-item" asp-action="SharedByMe">Share By Me</a>
+                    </div>
+                </div>
             </li>
+
             <li class="nav-item">
                 <a class="nav-link" href="charts.html">
                     <i class="fa fa-star" style="font-size: 17px;"></i>

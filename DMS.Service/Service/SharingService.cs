@@ -20,7 +20,7 @@ namespace DMS.Service.Service
             this._userManager = userManager;
         }
 
-        public async Task<(List<SharedItemViewModel> Items, int TotalCount)> GetSharedByMeAsync
+        public async Task<List<SharedItemViewModel> >GetSharedByMeAsync
             (
             string userId,
             string search = "",
@@ -29,81 +29,30 @@ namespace DMS.Service.Service
             int pageSize = 5
             )
         {
-
-            var query = _unit.SharedItemRepository.GetAllAsQueryable()
-                         .Where(s => s.SharedWithUserId == userId);
-            if (!string.IsNullOrEmpty(search))
-            {
-                search = search.Trim().ToLower();
-                query = query.Where(s =>
-                    (s.Document != null && s.Document.Name.ToLower().Contains(search)) ||
-                    (s.Folder != null && s.Folder.Name.ToLower().Contains(search)) ||
-                    (s.SharedWithUser != null && s.SharedWithUser.UserName.ToLower().Contains(search))
-                );
-            }
-
-
-            query = sortOrder switch
-            {
-                "nameAsc" => query.OrderBy(s => s.Document!.Name ?? s.Folder!.Name),
-                "nameDesc" => query.OrderByDescending(s => s.Document!.Name ?? s.Folder!.Name),
-                "dateAsc" => query.OrderBy(s => s.AddedAt),
-                "dateDesc" => query.OrderByDescending(s => s.AddedAt),
-                _ => query.OrderByDescending(s => s.AddedAt)
-            };
-
-
-            var totalCount = await query.CountAsync();
-
-            var items = await _unit.SharedItemRepository.GetAllWithPaginationAsync(query, page, pageSize);
-
+            var items = await _unit.SharedItemRepository.GetSharedByMeQueryAsync(
+                userId, search, sortOrder, page, pageSize);
+            
             var viewModel = _mapper.Map<List<SharedItemViewModel>>(items);
             viewModel.ForEach(r => r.IsSharedByMe = true);
 
-            return (viewModel,totalCount);
+            return (viewModel);
 
 
 
         }
-        public async Task<(List<SharedItemViewModel> Items, int TotalCount)> GetSharedWithMeAsync(
+        public async Task<List<SharedItemViewModel> >GetSharedWithMeAsync(
     string userId,
     string search = "",
     string sortOrder = "dateDesc",
     int page = 1,
     int pageSize = 5)
         {
-            var query = _unit.SharedItemRepository.GetAllAsQueryable()
-                          .Where(s => s.SharedWithUserId == userId);
-
-            // Search
-            if (!string.IsNullOrEmpty(search))
-            {
-                search = search.Trim().ToLower();
-                query = query.Where(s =>
-                    (s.Document != null && s.Document.Name.ToLower().Contains(search)) ||
-                    (s.Folder != null && s.Folder.Name.ToLower().Contains(search)) ||
-                    (s.SharedByUser != null && s.SharedByUser.UserName.ToLower().Contains(search))
-                );
-            }
-
-            // Sort
-            query = sortOrder switch
-            {
-                "nameAsc" => query.OrderBy(s => s.Document!.Name ?? s.Folder!.Name),
-                "nameDesc" => query.OrderByDescending(s => s.Document!.Name ?? s.Folder!.Name),
-                "dateAsc" => query.OrderBy(s => s.AddedAt),
-                "dateDesc" => query.OrderByDescending(s => s.AddedAt),
-                _ => query.OrderByDescending(s => s.AddedAt)
-            };
-
-            var totalCount = await query.CountAsync();
-
-            var items = await _unit.SharedItemRepository.GetAllWithPaginationAsync(query, page, pageSize);
-
+            var items = await _unit.SharedItemRepository.GetSharedByMeQueryAsync(
+        userId, search, sortOrder, page, pageSize);
             var viewModel = _mapper.Map<List<SharedItemViewModel>>(items);
             viewModel.ForEach(r => r.IsSharedByMe = false); 
 
-            return (viewModel, totalCount);
+            return (viewModel);
         }
 
 

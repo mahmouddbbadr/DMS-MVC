@@ -21,29 +21,50 @@ namespace DMS.Presentation.Controllers
         [AllowAnonymous]
 
         [HttpGet]
-        public async Task <IActionResult> Index(string search = "",
+        public async Task <IActionResult> SharedWithMe(string search = "",
+            string sortOrder = "dateDesc",
+            int page = 1,
+            int pageSize = 5)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Console.WriteLine("Current user: " + userId);
+
+
+            var sharedWithMeItems = await sharingService.GetSharedWithMeAsync(userId, search, sortOrder, page, pageSize);
+
+            var viewModel = new SharedIndexViewModel
+            {
+                SharedWithMe = sharedWithMeItems,
+                SearchTerm = search,
+                SortOrder = sortOrder,
+                CurrentPage = page,
+                PageSize = pageSize,
+            };
+
+            return View("SharedWithMe", viewModel);
+
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SharedByMe(string search = "",
             string sortOrder = "dateDesc",
             int page = 1,
             int pageSize = 5)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var (sharedWithMeItems, totalWithMe) = await sharingService.GetSharedWithMeAsync(userId, search, sortOrder, page, pageSize);
-            var (sharedByMeItems, totalByMe) = await sharingService.GetSharedByMeAsync(userId, search, sortOrder, page, pageSize);
+            var sharedByMeItems = await sharingService.GetSharedByMeAsync(userId, search, sortOrder, page, pageSize);
 
             var viewModel = new SharedIndexViewModel
             {
-                SharedWithMe = sharedWithMeItems,
                 SharedByMe = sharedByMeItems,
                 SearchTerm = search,
                 SortOrder = sortOrder,
                 CurrentPage = page,
                 PageSize = pageSize,
-                TotalPagesWithMe = (int)Math.Ceiling(totalWithMe / (double)pageSize),
-                TotalPagesByMe = (int)Math.Ceiling(totalByMe / (double)pageSize)
             };
 
-            return View(viewModel);
+            return View("SharedByMe",viewModel);
 
         }
 
@@ -87,7 +108,7 @@ namespace DMS.Presentation.Controllers
                 await sharingService.ShareDocumentAsync(model);
             }
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(SharedByMe));
 
 
         }
