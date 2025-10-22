@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DMS.Service.ModelViews
+namespace DMS.Domain.ENums
 {
-    internal class test
+    public enum Roles
     {
+        User,
+        Admin
     }
 }

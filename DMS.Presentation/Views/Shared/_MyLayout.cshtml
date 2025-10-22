@@ -12,7 +12,12 @@
     <title>SB Admin 2 - Dashboard</title>
 
     <!-- Custom fonts for this template-->
-    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+          integrity="sha512-6T6M7wOQDyOIoHhOHEaRy1Ee1KZ8mPyb+fTkXIzX1Ac2iL3+OQMnzZbXdbP/VDwglFdtSEzPG8Nf57z4j7Y6sw=="
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
           rel="stylesheet">
 
@@ -50,7 +55,7 @@
                 <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" href="buttons.html">My Profile</a>
-                        <a class="collapse-item" href="cards.html">LogOut</a>
+                        <a class="collapse-item"  asp-action="Logout" asp-controller="Account">LogOut</a>
                     </div>
                 </div>
             </li>
@@ -356,12 +361,13 @@
     </div>
 
     <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="/vendor/jquery/jquery.min.js"></script>
+    <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 
     <!-- Custom scripts for all pages-->
     <script src="/js/sb-admin-2.min.js"></script>
+    @RenderSection("Scripts", required: false)
 
 </body>
 
