@@ -1,5 +1,6 @@
 using DMS.Domain.Models;
 using DMS.Infrastructure.DataContext;
+using DMS.Infrastructure.UnitOfWorks;
 using DMS.Service.IService;
 using DMS.Service.MapperHelper;
 using DMS.Service.Service;
@@ -26,7 +27,7 @@ namespace DMS.Presentation
 
             builder.Services.AddIdentity<AppUser, IdentityRole>()
                 .AddEntityFrameworkStores<DMSContext>();
-
+            builder.Services.AddScoped<UnitOfWork>();
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IRoleService, RoleService>();
             builder.Services.AddScoped<IFolderService, FolderService>();
@@ -35,7 +36,7 @@ namespace DMS.Presentation
             builder.Services.AddScoped<IUserService, UserService>();
 
             var app = builder.Build();
-
+            
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {

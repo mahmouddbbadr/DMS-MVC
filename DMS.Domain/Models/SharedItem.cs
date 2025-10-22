@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DMS.Domain.Models
 {
-    public class SharedItem
+    public class SharedItem 
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public PermissionLevel PermissionLevel { get; set; }
@@ -20,5 +20,6 @@ namespace DMS.Domain.Models
         public string SharedByUserId { get; set; }
         public virtual AppUser? SharedWithUser { get; set; }
         public virtual AppUser? SharedByUser { get; set; }
+        
     }
 }

@@ -1,10 +1,13 @@
 ﻿using DMS.Service.IService;
+using DMS.Service.ModelViews.SharedViewModel;
+using DMS.Service.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace DMS.Presentation.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class SharingController : Controller
     {
         private readonly ISharingService sharingService;
@@ -15,45 +18,87 @@ namespace DMS.Presentation.Controllers
         }
 
         // display all folders/documents that shared with/by me
+        [AllowAnonymous]
+
         [HttpGet]
-        public IActionResult Index()
+        public async Task <IActionResult> Index(string search = "",
+            string sortOrder = "dateDesc",
+            int page = 1,
+            int pageSize = 5)
         {
-            return View();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var (sharedWithMeItems, totalWithMe) = await sharingService.GetSharedWithMeAsync(userId, search, sortOrder, page, pageSize);
+            var (sharedByMeItems, totalByMe) = await sharingService.GetSharedByMeAsync(userId, search, sortOrder, page, pageSize);
+
+            var viewModel = new SharedIndexViewModel
+            {
+                SharedWithMe = sharedWithMeItems,
+                SharedByMe = sharedByMeItems,
+                SearchTerm = search,
+                SortOrder = sortOrder,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalPagesWithMe = (int)Math.Ceiling(totalWithMe / (double)pageSize),
+                TotalPagesByMe = (int)Math.Ceiling(totalByMe / (double)pageSize)
+            };
+
+            return View(viewModel);
+
         }
 
         // open form to share folder with someone
         [HttpGet]
         public IActionResult ShareFolder(string folderId)
         {
-            return View();
+
+            var model = new ShareViewModel { FolderId = folderId };
+
+            return View(model);
         }
 
         // open form to share document with someone
         [HttpGet]
         public IActionResult ShareDocument(string documentId)
         {
-            return View();
+            var model = new ShareViewModel { DocumentId = documentId };
+            return View(model);
         }
 
         // save sharing
         // instead of (object model) you will create ShareViewModel and pass it
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Share(object model)
+        public async Task <IActionResult> Share(ShareViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return View("Share", model);
+                return View(model.FolderId != null ? "ShareFolder" : "ShareDocument", model);
             }
-            return View();
+
+            model.SharedByUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (model.FolderId != null)
+            {
+                await sharingService.ShareFolderAsync(model);
+            }
+            else if (model.DocumentId != null)
+            {
+                await sharingService.ShareDocumentAsync(model);
+            }
+
+            return RedirectToAction(nameof(Index));
+
+
         }
 
         // unshare folder/document
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Unshare(string shareItemId)
+        public async Task<IActionResult> Unshare(string shareItemId)
         {
-            return View();
+            await sharingService.UnshareAsync(shareItemId);
+            return RedirectToAction(nameof(Index));
         }
     }
 }
