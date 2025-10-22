@@ -16,5 +16,6 @@ namespace DMS.Infrastructure.IRepositorys
         Task AddAsync(TEntity entity);
         void Update(TEntity entity);
         Task DeleteAsync(string id);
+        Task<int> GetCountAsync();
     }
 }

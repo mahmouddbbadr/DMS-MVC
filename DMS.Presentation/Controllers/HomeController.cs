@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Threading.Tasks;
 using DMS.Domain.Models;
 using DMS.Infrastructure.DataContext;
 using DMS.Presentation.Models;
@@ -20,21 +21,22 @@ namespace DMS.Presentation.Controllers
 
         // display homeIndex depending on user role
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
             if (User.IsInRole("Admin"))
             {
-                var model = dashboardService.GetAdminStats();
+                var model = await dashboardService.GetAdminStats(userId);
 
                 return View("AdminIndex", model); //create AdminIndex view
             }
             else
             {
-                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-                var model = dashboardService.GetUserStats(userId);
+                var model = await dashboardService.GetUserStats("user-2");
 
                 return View("UserIndex", model); //create UserIndex view
+                //return View("AdminIndex", model); //create AdminIndex view
             }
 
         }

@@ -11,5 +11,7 @@ namespace DMS.Infrastructure.IRepositories
     public interface IAppUserRepository: IRepository<AppUser>
     {
         public Task<List<AppUser>> GetByNameAsync(string name);
+        Task<int> GetBlockUsers();
+        int? GetFolderCountAsync(string id);
     }
 }

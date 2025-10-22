@@ -10,5 +10,7 @@ namespace DMS.Infrastructure.IRepositories
 {
     public interface ISharedItemRepository: IRepository<SharedItem>
     {
+        Task<int> GetSharedWithMeCountAsync(string id);
+        Task<int> GetSharedByMeCountAsync(string id);
     }
 }

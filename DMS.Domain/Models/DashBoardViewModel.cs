@@ -9,7 +9,7 @@ namespace DMS.Domain.Models
     public class DashBoardViewModel
     {
         public int TotalDocuments { get; set; }
-        public int TotalFolders { get; set; }
+        public int? TotalFolders { get; set; }
         public double TotalStorage { get; set; }
         public int SharedWithMe { get; set; }
         public int SharedByMe { get; set; }
