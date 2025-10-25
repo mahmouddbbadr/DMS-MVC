@@ -1,0 +1,24 @@
+﻿@model DocumentUploadViewModel
+
+<div class="container">
+    <h3>Upload Document</h3>
+    <form asp-action="Upload" asp-route-folderId="@Model.FolderId" method="post" enctype="multipart/form-data">
+        @Html.AntiForgeryToken()
+
+        @* <input type="hidden" asp-for="FolderId" /> *@
+
+        <div class="form-group">
+            <label asp-for="Name">Document Name</label>
+            <input asp-for="Name" class="form-control" placeholder="Optional name..." />
+        </div>
+
+        <div class="form-group">
+            <label asp-for="File">Choose File</label>
+            <input asp-for="File" type="file" class="form-control" />
+            <span asp-validation-for="File" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-success">Upload</button>
+        <a asp-action="Index" asp-route-folderId="@Model.FolderId" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
