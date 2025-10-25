@@ -50,6 +50,7 @@ namespace DMS.Presentation
             {
                 options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
                 options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+                options.CallbackPath = "/signin-google";
             });
 
             var app = builder.Build();

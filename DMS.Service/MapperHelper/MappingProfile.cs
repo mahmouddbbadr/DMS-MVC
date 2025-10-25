@@ -21,6 +21,12 @@ namespace DMS.Service.MapperHelper
                 dest.LName = src.LastName;
                 dest.UserName = src.EmailAddress;
             });
+            CreateMap<AppUser, UserOutputViewModel>().AfterMap((src, dest) =>
+            {
+                dest.EmailAddress = src.Email;
+                dest.FirstName = src.FName;
+                dest.LastName = src.LName;
+            }).ReverseMap();
 
 
 

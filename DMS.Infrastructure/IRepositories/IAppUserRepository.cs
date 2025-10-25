@@ -10,6 +10,11 @@ namespace DMS.Infrastructure.IRepositories
 {
     public interface IAppUserRepository: IRepository<AppUser>
     {
-        public Task<List<AppUser>> GetByNameAsync(string name);
+        Task<AppUser> GetUserByEmailAsync(string email);
+        Task<AppUser> GetBlockedUserByEmailAsync(string email);
+        Task<List<AppUser>> GetUnBlockedUsersAsync();
+        Task<List<AppUser>> GetBlockedUsersAsync();
+        Task<List<AppUser>> SearchBlockedUsersAsync(string email);
+        Task<List<AppUser>> SearchUnBlockedUsersAsync(string email);
     }
 }
