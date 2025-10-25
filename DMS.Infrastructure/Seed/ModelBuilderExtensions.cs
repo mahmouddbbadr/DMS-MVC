@@ -128,7 +128,7 @@ namespace DMS.Infrastructure.Seed
                 {
                     Id = "doc-1",
                     Name = "SampleDoc",
-                    FilePath = "/files/sample.pdf",
+                    FilePath = "files/sample.pdf",
                     FileType = "pdf",
                     Size = 1024,
                     FolderId = "folder-child",

@@ -28,13 +28,14 @@ namespace DMS.Presentation
             builder.Services.AddIdentity<AppUser, IdentityRole>()
                 .AddEntityFrameworkStores<DMSContext>();
 
+            builder.Services.AddScoped<UnitOfWork>();
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IRoleService, RoleService>();
             builder.Services.AddScoped<IFolderService, FolderService>();
             builder.Services.AddScoped<IDocumentService, DocumentService>();
             builder.Services.AddScoped<ISharingService, SharingService>();
             builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<UnitOfWork>();
+            builder.Services.AddScoped<ITrashService, TrashService>();        
 
             var app = builder.Build();
 
