@@ -2,7 +2,6 @@
 using DMS.Service.IService;
 using DMS.Service.ModelViews.DocumentViews;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace DMS.Presentation.Controllers
 {
@@ -31,25 +30,25 @@ namespace DMS.Presentation.Controllers
         //}
 
         [HttpGet]
-        public async Task<IActionResult> Index
-            (string folderId, string? searchName = null, int pageNum = 1, int pageSize = 4,
-            string? sortField = "AddedAt", string? sortOrder = "desc")
+        public async Task<IActionResult> Index([FromQuery] DocumentQueryViewModel query)
         {
-            if (string.IsNullOrEmpty(folderId))         
-                return NotFound();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            if (pageNum <= 0 || pageSize <= 0)
-                return BadRequest();
-            
-            DocumentIndexViewModel model = await documentService
-                .GetDocumentsByFolderIdWithPaginationAsync(folderId, searchName, pageNum,
-                    pageSize, sortField, sortOrder);
+            var model = await documentService.GetDocumentsByFolderIdWithPaginationAsync(
+                query.FolderId,
+                query.SearchName,
+                query.PageNum,
+                query.PageSize,
+                query.SortField,
+                query.SortOrder
+            );
 
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                // return only the partial HTML fragment
                 return PartialView("_IndexPartialView", model);
             }
+
             return View("Index", model);
         }
 
@@ -87,12 +86,6 @@ namespace DMS.Presentation.Controllers
         {
             if (ModelState.IsValid)
             {
-                if(model.File == null || model.File.Length == 0)
-                {
-                    ModelState.AddModelError("File", "Please select a file to upload.");
-                    return View("Upload", model);
-                }
-
                 if(await documentService.UploadDocumentAsync(model, directory))
                     return RedirectToAction("Index", new { folderId = model.FolderId});
 
@@ -157,15 +150,22 @@ namespace DMS.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)
         {
-            bool deleted = false;
+            if (string.IsNullOrEmpty(id))
+                return BadRequest();
 
-            if (!string.IsNullOrEmpty(id))
+            Document? document = await documentService.GetDocumentByIdAsync(id);
+            if (document == null)
+                return NotFound();
+
+            try
             {
-                deleted = await documentService.DeleteDocumentAsync(id);
-            }
-            if (deleted)
+                await documentService.DeleteDocumentAsync(id);
                 return Ok();
-            return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]

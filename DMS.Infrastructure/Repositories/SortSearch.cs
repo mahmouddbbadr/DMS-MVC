@@ -29,12 +29,21 @@ namespace DMS.Infrastructure.Repository
             return _dbSet
                 .Where(f => EF.Functions.Like(f.Name, $"%{searchName}%"));
         }
+        public IQueryable<TEntity> TrashedSearchAsQueryable(string searchName)
+        {
+            searchName = searchName?.Trim() ?? "";
+            return GetDeleted()
+                .Where(f => EF.Functions.Like(f.Name, $"%{searchName}%"));
+        }
 
         public IQueryable<TEntity> SortedByNameAsc() => _dbSet.OrderBy(f => f.Name);
         public IQueryable<TEntity> SortedByNameDesc() => _dbSet.OrderByDescending(f => f.Name);
         public IQueryable<TEntity> SortedByDate() => _dbSet.OrderBy(f => f.AddedAt);
         public IQueryable<TEntity> SortedByDateDesc() => _dbSet.OrderByDescending(f => f.AddedAt);
         public IQueryable<TEntity> GetDeleted() => _dbSet.Where(e => e.IsDeleted).IgnoreQueryFilters();
+        public async Task<TEntity?> GetDeletedById(string id) => 
+            await GetDeleted().SingleOrDefaultAsync(e => e.Id == id);
+        
     }
 
 }

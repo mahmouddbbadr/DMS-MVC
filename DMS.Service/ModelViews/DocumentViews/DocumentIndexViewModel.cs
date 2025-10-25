@@ -2,8 +2,8 @@
 {
     public class DocumentIndexViewModel
     {
-        public string FolderId { get; set; }
-        public string FolderName { get; set; }
+        public string FolderId { get; set; } = string.Empty;
+        public string FolderName { get; set; } = string.Empty;
         public int CurrentPage { get; set; }
         public string? CurrentSearch { get; set; }
         public int TotalPages { get; set; }

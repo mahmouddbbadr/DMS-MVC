@@ -15,6 +15,7 @@ namespace DMS.Domain.Models
         public bool IsDeleted { get; set; } = false;
         public bool IsStarred { get; set; } = false;
         public DateTime AddedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? DeletedAt { get; set; }
         public int Size { get; set; }
         public string FolderId { get; set; }
         public virtual Folder? Folder { get; set; }

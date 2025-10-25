@@ -8,8 +8,8 @@ namespace DMS.Service.ModelViews.DocumentViews
 {
     public class DocumentFileResultViewModel
     {
-        public byte[] FileBytes { get; set; }
-        public string ContentType { get; set; }
-        public string FileName { get; set; }
+        public byte[] FileBytes { get; set; } = [];
+        public string ContentType { get; set; } = string.Empty;
+        public string FileName { get; set; } = string.Empty;
     }
 }

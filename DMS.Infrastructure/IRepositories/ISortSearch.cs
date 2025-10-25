@@ -16,5 +16,8 @@ namespace DMS.Infrastructure.IRepositories
         public IQueryable<TEntity> SortedByNameDesc();
         public IQueryable<TEntity> SortedByDate();
         public IQueryable<TEntity> SortedByDateDesc();
+        IQueryable<TEntity> GetDeleted();
+        IQueryable<TEntity> TrashedSearchAsQueryable(string searchName);
+        Task<TEntity?> GetDeletedById(string id);
     }
 }
