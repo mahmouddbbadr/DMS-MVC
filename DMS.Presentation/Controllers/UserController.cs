@@ -1,98 +1,71 @@
-﻿//using DMS.Service.IService;
-//using Microsoft.AspNetCore.Authorization;
-//using Microsoft.AspNetCore.Mvc;
+﻿using DMS.Service.IService;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 
-//namespace DMS.Presentation.Controllers
-//{
-//    [Authorize(Roles = "Admin")]
-//    public class UserController : Controller
-//    {
-//        private readonly IUserService userService;
+namespace DMS.Presentation.Controllers
+{
+    [Authorize(Roles = "Admin")]
+    public class UserController(IUserService userService) : Controller
+    {
+        [HttpGet]
+        public async Task<IActionResult> Unblocked(string? searchEmail, int page = 1, int pageSize = 8)
+        {
+            var result = string.IsNullOrEmpty(searchEmail)
+                ? await userService.GetAllUnBlockedAsnyc(page, pageSize)
+                : await userService.SearchUnBlockedUsersAsnyc(searchEmail, page, pageSize);
 
-//        public UserController(IUserService _userService)
-//        {
-//            userService = _userService;
-//        }
-//        // Get all users
-//        [HttpGet]
-//        public IActionResult Index()
-//        {
-//            return View();
-//        }
-//        // Details of a user
-//        [HttpGet]
-//        public IActionResult Details(string id)
-//        {
-//            return View();
-//        }
-//        //open form to create user
-//        [HttpGet]
-//        public IActionResult Create()
-//        {
-//            return View();
-//        }
-//        // save data and create user
-//        // instead of (object model) you will create UserViewModel and pass it
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public IActionResult Create(object model)//(UserViewModel model)
-//        {
-//            if (!ModelState.IsValid)
-//            {
-//                return View(model);
-//            }
+            ViewBag.TotalCount = result.totalCount;
+            ViewBag.TotalPages = result.totalPages;
+            ViewBag.CurrentPage = page;
+            ViewBag.SearchEmail = searchEmail;
 
-//            // Unlock user logic
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_UserListPartial", result.users);
+            }
+            return View("Unblocked", result.users);
+        }
 
-//            return RedirectToAction(nameof(Index));
-//        }
-//        // open form to edit user
-//        [HttpGet]
-//        public IActionResult Edit(string id)
-//        {
-//            return View();
-//        }
-//        // save editing
-//        // instead of (object model) you will use UserViewModel that you created
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public IActionResult Edit(object model)//(UserViewModel model)
-//        {
-//            if (!ModelState.IsValid)
-//            {
-//                return View(model);
-//            }
-//            // Unlock user logic
 
-//            return RedirectToAction(nameof(Index));
-//        }
 
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public IActionResult Delete(string id)
-//        {
-//            // Unlock user logic
+        [HttpGet]
+        public async Task<IActionResult> Blocked(string? searchEmail, int page = 1, int pageSize = 8)
+        {
+            var result = string.IsNullOrEmpty(searchEmail)
+                ? await userService.GetAllBlockedAsnyc(page, pageSize)
+                : await userService.SearchBlockedUsersAsnyc(searchEmail, page, pageSize);
 
-//            return RedirectToAction(nameof(Index));
-//        }
+            ViewBag.TotalCount = result.totalCount;
+            ViewBag.TotalPages = result.totalPages;
+            ViewBag.CurrentPage = page;
+            ViewBag.SearchEmail = searchEmail;
 
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public IActionResult LockUser(string id)
-//        {
-//            // Unlock user logic
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_UserListPartial", result.users);
+            }
 
-//            return RedirectToAction(nameof(Index));
-//        }
+            return View("Blocked", result.users);
+        }
 
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public IActionResult UnlockUser(string id)
-//        {
-//            // Unlock user logic
 
-//            return RedirectToAction(nameof(Index));
-//        }
+        [HttpPost]
+        public async Task<IActionResult> Block(string email)
+        {
+            if (await userService.BlockUserAsnyc(email))
+                return Ok();
 
-//    }
-//}
+            return BadRequest("Failed to block user.");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Unblock(string email)
+        {
+            if (await userService.UnBlockUserAsnyc(email))
+                return Ok();
+
+            return BadRequest("Failed to unblock user.");
+        }
+    }
+}

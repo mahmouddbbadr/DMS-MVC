@@ -1,23 +1,87 @@
 ﻿using AutoMapper;
+using DMS.Domain.Models;
 using DMS.Infrastructure.UnitOfWorks;
 using DMS.Service.IService;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using DMS.Service.ModelViews.Account;
+using Microsoft.AspNetCore.Identity;
 
 namespace DMS.Service.Service
 {
-    public class UserService: IUserService
+    public class UserService(UnitOfWork unit, UserManager<AppUser> userManager, IMapper mapper): IUserService
     {
-        private readonly UnitOfWork _unit;
-        private readonly IMapper _mapper;
 
-        public UserService(UnitOfWork _unit, IMapper mapper)
+        public async Task<(List<UserOutputViewModel> users, int totalCount, int totalPages)> GetAllBlockedAsnyc(int page, int pageSize)
         {
-            this._unit = _unit;
-            this._mapper = mapper;
+            var users = await unit.AppUserRepository.GetBlockedUsersAsync();
+            var TotalCount = users.Count;
+            var totalPages = (int)Math.Ceiling((double)TotalCount / pageSize);
+            users = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            var mappedUsers = mapper.Map<List<UserOutputViewModel>>(users);
+            return (mappedUsers, TotalCount, totalPages);
         }
+
+        public async Task<(List<UserOutputViewModel> users, int totalCount, int totalPages)> GetAllUnBlockedAsnyc(int page, int pageSize)
+        {
+            var users = await unit.AppUserRepository.GetUnBlockedUsersAsync();
+            var totalCount = users.Count;
+            var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+            users = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            var mappedUsers = mapper.Map<List<UserOutputViewModel>>(users);
+            return (mappedUsers, totalCount, totalPages);
+        }
+
+
+        public async Task<(List<UserOutputViewModel> users, int totalCount, int totalPages)> SearchBlockedUsersAsnyc(string email, int page, int pageSize)
+        {
+            var users = await unit.AppUserRepository.SearchBlockedUsersAsync(email);
+            var TotalCount = users.Count;
+            var totalPages = (int)Math.Ceiling((double)TotalCount / pageSize);
+            users = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            var mappedUsers = mapper.Map<List<UserOutputViewModel>>(users);
+            return (mappedUsers, TotalCount, totalPages);
+        }
+
+        public async Task<(List<UserOutputViewModel> users, int totalCount, int totalPages)> SearchUnBlockedUsersAsnyc(string email, int page, int pageSize)
+        {
+            var users = await unit.AppUserRepository.SearchUnBlockedUsersAsync(email);
+            var TotalCount = users.Count;
+            var totalPages = (int)Math.Ceiling((double)TotalCount / pageSize);
+            users = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            var mappedUsers = mapper.Map<List<UserOutputViewModel>>(users);
+            return (mappedUsers, TotalCount, totalPages);
+        }
+       
+        
+       
+
+
+        public async Task<bool> BlockUserAsnyc(string email)
+        {
+            var user = await unit.AppUserRepository.GetUserByEmailAsync(email);
+            user.IsLocked = true;
+            var result = await userManager.UpdateAsync(user);
+            if(result.Succeeded)
+            {
+                return true;
+            }
+            return false;
+        }
+
+
+
+
+
+        public async Task<bool> UnBlockUserAsnyc(string email)
+        {
+            var user = await unit.AppUserRepository.GetUserByEmailAsync(email);
+            user.IsLocked = false;
+            var result = await userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return true;
+            }
+            return false;
+        }
+
     }
 }
