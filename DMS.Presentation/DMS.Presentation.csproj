@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -21,7 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DMS.Infrastructure\DMS.Infrastructure.csproj" />
     <ProjectReference Include="..\DMS.Service\DMS.Service.csproj" />
   </ItemGroup>
 

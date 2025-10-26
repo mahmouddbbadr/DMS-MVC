@@ -25,9 +25,13 @@ namespace DMS.Infrastructure.Repository
         {
             return await _context.AppUsers.Where(u => u.IsLocked).CountAsync();
         }
-        public  int? GetFolderCountAsync(string id)
+        public  int GetFoldersCountAsync(string id)
         {
-            return  _context.AppUsers.SingleOrDefault(u => u.Id == id)?.Folders?.Count();
+            return  _context.Folders.Where(d => d.Owner.Id == id).Count();
+        }
+        public  int GetDocumentsCountAsync(string id)
+        {
+            return  _context.Documents.Where(d=> d.Folder.Owner.Id == id).Count();
         }
 
     }

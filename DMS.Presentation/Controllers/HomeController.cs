@@ -1,18 +1,16 @@
 using System.Diagnostics;
-using System.Threading.Tasks;
-using DMS.Domain.Models;
-using DMS.Infrastructure.DataContext;
-using DMS.Presentation.Models;
+using DMS.Service.IService;
 using DMS.Service.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DMS.Presentation.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly DashBoardService dashboardService;
+        private readonly IDashBoardService dashboardService;
 
-        public HomeController(DashBoardService dashboardService)
+        public HomeController(IDashBoardService dashboardService)
         {
             this.dashboardService = dashboardService;
         }
@@ -21,36 +19,39 @@ namespace DMS.Presentation.Controllers
 
         // display homeIndex depending on user role
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
             if (User.IsInRole("Admin"))
             {
                 var model = await dashboardService.GetAdminStats(userId);
 
-                return View("AdminIndex", model); //create AdminIndex view
+                return View("AdminIndex", model);
             }
             else
             {
-                var model = await dashboardService.GetUserStats("user-2");
+                var model = await dashboardService.GetUserStats(userId);
 
-                return View("UserIndex", model); //create UserIndex view
-                //return View("AdminIndex", model); //create AdminIndex view
+                return View("UserIndex", model);
             }
-
         }
 
         [HttpGet]
         public IActionResult About()
         {
-            return View("About"); //create About View
+            return View("About");
         }
 
         [HttpGet]
         public IActionResult Contact()
         {
-            return View("Contact"); //create Contact View
+            return View("Contact");
         }
 
         [HttpPost]
@@ -62,11 +63,6 @@ namespace DMS.Presentation.Controllers
             return RedirectToAction("Contact");
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
 
 
      

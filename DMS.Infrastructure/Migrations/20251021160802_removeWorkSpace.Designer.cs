@@ -4,6 +4,7 @@ using DMS.Infrastructure.DataContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DMS.Infrastructure.Migrations
 {
     [DbContext(typeof(DMSContext))]
-    partial class DMSContextModelSnapshot : ModelSnapshot
+    [Migration("20251021160802_removeWorkSpace")]
+    partial class removeWorkSpace
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,6 +35,9 @@ namespace DMS.Infrastructure.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("VARCHAR(20)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -117,6 +123,7 @@ namespace DMS.Infrastructure.Migrations
                         {
                             Id = "user-1",
                             AccessFailedCount = 0,
+                            Address = "Cairo",
                             ConcurrencyStamp = "b7c1a4d2-8b23-4b12-b5b4-abcdefabcdef",
                             CreatedAt = new DateTime(2025, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
                             Email = "ahmed@example.com",
@@ -138,6 +145,7 @@ namespace DMS.Infrastructure.Migrations
                         {
                             Id = "user-2",
                             AccessFailedCount = 0,
+                            Address = "Alex",
                             ConcurrencyStamp = "f0d3e78b-4c8f-464e-b78f-e3b56c1487cc",
                             CreatedAt = new DateTime(2025, 10, 2, 12, 0, 0, 0, DateTimeKind.Utc),
                             Email = "mahmoud@example.com",
@@ -159,6 +167,7 @@ namespace DMS.Infrastructure.Migrations
                         {
                             Id = "user-3",
                             AccessFailedCount = 0,
+                            Address = "Menofyia",
                             ConcurrencyStamp = "ab21854a-bbdf-4342-a86c-421c1d932f28",
                             CreatedAt = new DateTime(2025, 10, 3, 12, 0, 0, 0, DateTimeKind.Utc),
                             Email = "abdo@example.com",

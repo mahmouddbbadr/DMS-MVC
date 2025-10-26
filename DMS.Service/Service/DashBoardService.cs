@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DMS.Domain.Models;
-using DMS.Infrastructure.DataContext;
+﻿using DMS.Infrastructure.DataContext;
 using DMS.Infrastructure.UnitOfWorks;
+using DMS.Service.IService;
+using DMS.Service.ModelViews;
+
 
 namespace DMS.Service.Service
 {
-    public class DashBoardService
+    public class DashBoardService : IDashBoardService
     {
         private readonly DMSContext context;
         private readonly UnitOfWork _unit;
@@ -26,11 +23,11 @@ namespace DMS.Service.Service
             {
                 TotalDocuments = await _unit.DocumentRepository.GetCountAsync(),
                 TotalFolders = await _unit.FolderRepository.GetCountAsync(),
-                TotalStorage = context.Documents.Sum(d => (double?)d.Size) ?? 0,
+                TotalStorage = await _unit.DocumentRepository.GetTotalStorageAsync(),
                 SharedByMe = await _unit.SharedItemRepository.GetSharedByMeCountAsync(adminId),
                 SharedWithMe = await _unit.SharedItemRepository.GetSharedWithMeCountAsync(adminId),
                 TotalUsers = await _unit.AppUserRepository.GetCountAsync(),
-                BlockedUsers = await _unit.AppUserRepository.GetCountAsync(),
+                BlockedUsers = await _unit.AppUserRepository.GetBlockUsers(),
             };
         }
 
@@ -38,12 +35,9 @@ namespace DMS.Service.Service
         {
             return new DashBoardViewModel
             {
-                TotalDocuments = context.Documents.Count(d => d.Folder.OwnerId == userId),
-                //TotalFolders = context.Folders.Count(f => f.OwnerId == userId),
-                TotalFolders = _unit.AppUserRepository.GetFolderCountAsync(userId),
-                TotalStorage = context.Documents
-                                     .Where(d => d.Folder.OwnerId == userId)
-                                     .Sum(d => (double?)d.Size) ?? 0,
+                TotalDocuments = _unit.AppUserRepository.GetDocumentsCountAsync(userId),
+                TotalFolders = _unit.AppUserRepository.GetFoldersCountAsync(userId),
+                TotalStorage = await _unit.DocumentRepository.GetTotalStorageByUserAsync(userId),
                 SharedByMe = await _unit.SharedItemRepository.GetSharedByMeCountAsync(userId),
                 SharedWithMe = await _unit.SharedItemRepository.GetSharedWithMeCountAsync(userId)
             };

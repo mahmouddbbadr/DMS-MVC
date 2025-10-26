@@ -55,7 +55,7 @@
                 <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <a class="collapse-item" href="buttons.html">My Profile</a>
-                        <a class="collapse-item" href="cards.html">LogOut</a>
+                        <a class="collapse-item"  asp-action="Logout" asp-controller="Account">LogOut</a>
                     </div>
                 </div>
             </li>
@@ -288,7 +288,13 @@
                         <li class="nav-item dropdown no-arrow">
                             <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Douglas McGee</span>
+
+                                @{
+                                    var fullEmail = User.Identity?.Name;
+                                    var FullName = fullEmail?.Split('@')[0]; 
+                                }
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">@FullName</span> <!-- UserName -->
+   
                                 <img class="img-profile rounded-circle"
                                      src="/img/undraw_profile.svg">
                             </a>

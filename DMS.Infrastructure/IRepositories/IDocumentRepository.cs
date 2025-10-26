@@ -6,5 +6,8 @@ namespace DMS.Infrastructure.IRepositories
     public interface IDocumentRepository: ISortSearch<Document>, IRepository<Document>
     {
         public Task<List<Document>> GetDocumentsByFolderIdAsync(string folderId);
+
+        public  Task<double> GetTotalStorageAsync();
+        public Task<double> GetTotalStorageByUserAsync(string userId);
     }
 }

@@ -12,6 +12,7 @@ namespace DMS.Infrastructure.IRepositories
     {
         public Task<List<AppUser>> GetByNameAsync(string name);
         Task<int> GetBlockUsers();
-        int? GetFolderCountAsync(string id);
+        int GetFoldersCountAsync(string id);
+        int GetDocumentsCountAsync(string id);
     }
 }
