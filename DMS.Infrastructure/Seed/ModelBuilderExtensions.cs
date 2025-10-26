@@ -23,8 +23,6 @@ namespace DMS.Infrastructure.Seed
         }
         private static void SeedUsers(ModelBuilder modelBuilder)
         {
-            //var hasher = new PasswordHasher<AppUser>();
-
             var user = new AppUser
             {
                 Id = "user-1",
