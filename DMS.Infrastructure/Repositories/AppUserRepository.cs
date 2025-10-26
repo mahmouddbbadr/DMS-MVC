@@ -24,6 +24,18 @@ namespace DMS.Infrastructure.Repository
         {
             return await _context.AppUsers.Where(u => u.IsLocked).FirstOrDefaultAsync(u => u.Email.ToLower() == email.ToLower());
         }
+        public async Task<int> GetBlockUsers()
+        {
+            return await _context.AppUsers.Where(u => u.IsLocked).CountAsync();
+        }
+        public  int GetFoldersCountAsync(string id)
+        {
+            return  _context.Folders.Where(d => d.Owner.Id == id).Count();
+        }
+        public  int GetDocumentsCountAsync(string id)
+        {
+            return  _context.Documents.Where(d=> d.Folder.Owner.Id == id).Count();
+        }
 
         public async Task<List<AppUser>> GetBlockedUsersAsync()
         {

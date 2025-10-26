@@ -1,6 +1,7 @@
 ﻿using DMS.Domain.Models;
 using DMS.Infrastructure.DataContext;
 using DMS.Infrastructure.IRepositories;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +14,14 @@ namespace DMS.Infrastructure.Repository
         GenericRepository<SharedItem>, ISharedItemRepository
     {
         public SharedItemRepository(DMSContext context): base(context) { }
+
+        public async Task<int> GetSharedWithMeCountAsync(string id)
+        {
+            return await _context.SharedItems.Where(s => s.SharedWithUserId == id).CountAsync();
+        }
+        public async Task<int> GetSharedByMeCountAsync(string id)
+        {
+            return await _context.SharedItems.Where(s => s.SharedByUserId == id).CountAsync();
+        }
     }
 }

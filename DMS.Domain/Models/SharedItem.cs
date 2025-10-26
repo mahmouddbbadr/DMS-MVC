@@ -16,8 +16,8 @@ namespace DMS.Domain.Models
         public virtual Document? Document { get; set; }
         public string? FolderId { get; set; }
         public virtual Folder? Folder { get; set; }
-        public string SharedWithUserId { get; set; }
-        public string SharedByUserId { get; set; }
+        public string SharedWithUserId { get; set; } ///////////////receiver
+        public string SharedByUserId { get; set; }  ///////////// Sender
         public virtual AppUser? SharedWithUser { get; set; }
         public virtual AppUser? SharedByUser { get; set; }
     }

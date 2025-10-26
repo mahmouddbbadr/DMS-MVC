@@ -3,11 +3,6 @@ using DMS.Infrastructure.ModelsConfiguration;
 using DMS.Infrastructure.Seed;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMS.Infrastructure.DataContext
 {
@@ -29,7 +24,7 @@ namespace DMS.Infrastructure.DataContext
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer("Data Source=.\\SQLEXPRESS;Initial Catalog=DMS;Integrated Security=True;Encrypt=False;Trust Server Certificate=True");
+            optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=DMS;Integrated Security=True;Encrypt=False;Trust Server Certificate=True");
         }
         public virtual DbSet<AppUser> AppUsers { get; set; }
         public virtual DbSet<Document> Documents { get; set; }

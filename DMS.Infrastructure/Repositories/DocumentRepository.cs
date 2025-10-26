@@ -17,5 +17,18 @@ namespace DMS.Infrastructure.Repository
                 .Where(d => d.FolderId == folderId)
                 .ToListAsync();
         }
+
+        public async Task<double> GetTotalStorageAsync()
+        {
+            return await _context.Documents.SumAsync(d => (double?)d.Size) ?? 0;
+        }
+
+        public async Task<double> GetTotalStorageByUserAsync(string userId)
+        {
+            return await _context.Documents
+                .Where(d => d.Folder.OwnerId == userId)
+                .SumAsync(d => (double?)d.Size) ?? 0;
+        }
+
     }
 }

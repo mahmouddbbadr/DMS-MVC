@@ -36,13 +36,14 @@ namespace DMS.Presentation
                 op.SignIn.RequireConfirmedEmail = true;
             }).AddEntityFrameworkStores<DMSContext>().AddDefaultTokenProviders();
 
+            builder.Services.AddScoped<UnitOfWork>();
             builder.Services.AddScoped<IAccountService, AccountService>();
             builder.Services.AddScoped<IRoleService, RoleService>();
             builder.Services.AddScoped<IFolderService, FolderService>();
             builder.Services.AddScoped<IDocumentService, DocumentService>();
             builder.Services.AddScoped<ISharingService, SharingService>();
             builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<UnitOfWork>();
+            builder.Services.AddScoped<IDashBoardService, DashBoardService>();
             builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 
@@ -52,6 +53,7 @@ namespace DMS.Presentation
                 options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
                 options.CallbackPath = "/signin-google";
             });
+
 
             var app = builder.Build();
 

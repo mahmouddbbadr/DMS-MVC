@@ -1,40 +1,70 @@
 using System.Diagnostics;
-using DMS.Presentation.Models;
+using DMS.Service.IService;
+using DMS.Service.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DMS.Presentation.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
-        // display homeIndex depending on user role
-        [HttpGet]
-        public IActionResult Index()
-        {
-            //if (User.IsInRole("Admin"))
-            //{
-            //    return View("AdminIndex"); //create AdminIndex view
-            //}
+        private readonly IDashBoardService dashboardService;
 
-            //return View("UserIndex"); //create UserIndex view
-            return RedirectToAction("Index", "Folder");
+        public HomeController(IDashBoardService dashboardService)
+        {
+            this.dashboardService = dashboardService;
+        }
+
+
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Index()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+            if (User.IsInRole("Admin"))
+            {
+                var model = await dashboardService.GetAdminStats(userId);
+
+                return View("AdminIndex", model);
+            }
+            else
+            {
+                var model = await dashboardService.GetUserStats(userId);
+
+                return View("UserIndex", model);
+            }
         }
 
         [HttpGet]
         public IActionResult About()
         {
-            return View("About"); //create About View
+            return View("About");
         }
 
         [HttpGet]
         public IActionResult Contact()
         {
-            return View("Contact"); //create Contact View
+            return View("Contact");
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpPost]
+        public IActionResult Contact(string name, string email, string subject, string message)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            
+            TempData["SuccessMessage"] = "Thank you for contacting us! We'll get back to you soon.";
+
+            return RedirectToAction("Contact");
         }
+
+
+
+     
     }
 }
