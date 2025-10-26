@@ -27,7 +27,7 @@ namespace DMS.Service.Service
                 SharedByMe = await _unit.SharedItemRepository.GetSharedByMeCountAsync(adminId),
                 SharedWithMe = await _unit.SharedItemRepository.GetSharedWithMeCountAsync(adminId),
                 TotalUsers = await _unit.AppUserRepository.GetCountAsync(),
-                BlockedUsers = await _unit.AppUserRepository.GetBlockUsers(),
+                BlockedUsers = (await _unit.AppUserRepository.GetBlockedUsersAsync()).Count,
             };
         }
 

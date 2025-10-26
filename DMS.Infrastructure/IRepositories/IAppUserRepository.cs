@@ -16,5 +16,8 @@ namespace DMS.Infrastructure.IRepositories
         Task<List<AppUser>> GetBlockedUsersAsync();
         Task<List<AppUser>> SearchBlockedUsersAsync(string email);
         Task<List<AppUser>> SearchUnBlockedUsersAsync(string email);
+        int GetDocumentsCountAsync(string id);
+        int GetFoldersCountAsync(string id);
+        Task<int> GetBlockUsers();
     }
 }

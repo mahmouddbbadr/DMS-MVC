@@ -33,7 +33,7 @@
             let searchEmail = $("#SearchEmail").val();
 
             $.ajax({
-                url: '/User/Blocked', // Note the correct action
+                url: '/User/Blocked', 
                 type: 'GET',
                 data: { searchEmail: searchEmail, page: page },
                 success: function (res) {
@@ -46,20 +46,17 @@
         }
 
         $(document).ready(function () {
-            loadUsers(@(ViewBag.CurrentPage ?? 1)); // Load initial data
+            loadUsers(@(ViewBag.CurrentPage ?? 1)); 
 
-            // Search as you type (debounced)
             let typingTimer;
             $("#SearchEmail").on("input", function () {
                 clearTimeout(typingTimer);
-                typingTimer = setTimeout(() => loadUsers(1), 400); // Reset to page 1 on search
+                typingTimer = setTimeout(() => loadUsers(1), 400); 
             });
 
-            // Pagination click FIX
             $(document).on("click", "#userListPartial .pagination a", function (e) {
                 e.preventDefault();
 
-                // FIX: Ignore clicks on disabled links (for prev/next arrows)
                 if ($(this).parent().hasClass("disabled")) {
                     return;
                 }
@@ -68,7 +65,6 @@
                 loadUsers(newPage);
             });
 
-            // Unblock user action
             $(document).on("click", ".unblock-btn", function () {
                 const email = $(this).data("email");
 
@@ -82,7 +78,7 @@
                     confirmButtonText: "Yes, unblock"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        $.post('/User/Unblock', { email: email }) // Note the correct action
+                        $.post('/User/Unblock', { email: email }) 
                             .done(() => {
                                 Swal.fire({
                                     icon: "success",
@@ -90,7 +86,7 @@
                                     timer: 1500,
                                     showConfirmButton: false
                                 });
-                                loadUsers(@(ViewBag.CurrentPage ?? 1)); // Reload current page
+                                loadUsers(@(ViewBag.CurrentPage ?? 1)); 
                             })
                             .fail(() => {
                                 Swal.fire("Error", "Could not unblock user.", "error");

@@ -61,7 +61,6 @@ namespace DMS.Infrastructure.Seed
                 CreatedAt = new DateTime(2025, 10, 2, 12, 0, 0, DateTimeKind.Utc)
             };
 
-            //user2.PasswordHash = hasher.HashPassword(user2, "Password123!");
 
             var user3 = new AppUser
             {
@@ -82,7 +81,6 @@ namespace DMS.Infrastructure.Seed
                 CreatedAt = new DateTime(2025, 10, 3, 12, 0, 0, DateTimeKind.Utc)
             };
 
-            //user3.PasswordHash = hasher.HashPassword(user3, "Password123!");
 
             modelBuilder.Entity<AppUser>().HasData(user, user2, user3);
         }
@@ -95,7 +93,7 @@ namespace DMS.Infrastructure.Seed
                     Id = "folder-root",
                     Name = "Root Folder",
                     OwnerId = "user-2",
-                    ParentFolderId = null, // Root folder
+                    ParentFolderId = null, 
                     IsDeleted = false,
                     IsStarred = false,
                     AddedAt = new DateTime(2025, 10, 3, 12, 0, 0, DateTimeKind.Utc)
@@ -120,7 +118,7 @@ namespace DMS.Infrastructure.Seed
                 {
                     Id = "doc-1",
                     Name = "SampleDoc",
-                    FilePath = "/files/sample.pdf",
+                    FilePath = "files/sample.pdf",
                     FileType = "pdf",
                     Size = 1024,
                     FolderId = "folder-child",

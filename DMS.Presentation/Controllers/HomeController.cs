@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DMS.Presentation.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly IDashBoardService dashboardService;
@@ -17,7 +18,6 @@ namespace DMS.Presentation.Controllers
 
 
 
-        // display homeIndex depending on user role
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> Index()
