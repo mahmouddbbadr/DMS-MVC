@@ -21,15 +21,15 @@ namespace DMS.Infrastructure.DataContext
            
             builder.Seed();
         }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=DMS;Integrated Security=True;Encrypt=False;Trust Server Certificate=True");
-        }
-        public virtual DbSet<AppUser> AppUsers { get; set; }
-        public virtual DbSet<Document> Documents { get; set; }
-        public virtual DbSet<Folder> Folders { get; set; }
-        public virtual DbSet<SharedItem> SharedItems { get; set; }
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    base.OnConfiguring(optionsBuilder);
+        //    optionsBuilder.UseSqlServer("Data Source=.\\SQLEXPRESS;Initial Catalog=DMS;Integrated Security=True;Encrypt=False;Trust Server Certificate=True");
+        //}
+        public DbSet<AppUser> AppUsers { get; set; }
+        public DbSet<Document> Documents { get; set; }
+        public DbSet<Folder> Folders { get; set; }
+        public DbSet<SharedItem> SharedItems { get; set; }
 
     }
 }

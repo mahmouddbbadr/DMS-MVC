@@ -13,6 +13,7 @@ namespace DMS.Domain.Models
         public bool IsDeleted { get; set; } = false;
         public bool IsStarred { get; set; } = false;
         public DateTime AddedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? DeletedAt { get; set; }
         public virtual ICollection<Document>? Documents { get; set; } = new HashSet<Document>();
         public string OwnerId { get; set; }
         public virtual AppUser? Owner { get; set; }

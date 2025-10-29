@@ -2,6 +2,7 @@
 using DMS.Infrastructure.DataContext;
 using DMS.Infrastructure.IRepositories;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace DMS.Infrastructure.Repository
 {
@@ -11,10 +12,10 @@ namespace DMS.Infrastructure.Repository
         {
             
         }
-        public async Task<List<Document>> GetDocumentsByFolderIdAsync(string folderId)
+        public async Task<List<Document>> GetDocumentsByFolderIdAsync(string folderId, string userId)
         {
             return await _context.Documents
-                .Where(d => d.FolderId == folderId)
+                .Where(d => d.FolderId == folderId && d.OwnerId == userId)
                 .ToListAsync();
         }
 
@@ -30,5 +31,20 @@ namespace DMS.Infrastructure.Repository
                 .SumAsync(d => (double?)d.Size) ?? 0;
         }
 
+        public IQueryable<Document> GetDocumentsByFolderIdAsQueryable(string folderId, string userId)
+        {
+            return _context.Documents
+                .Where(d => d.FolderId == folderId && d.OwnerId == userId)
+                .AsQueryable();
+        }
+        public IQueryable<Document> SearchDocumentByFolderAsQueryable
+            (string folderId, string userId, string searchName)
+        {
+            return GetDocumentsByFolderIdAsQueryable(folderId, userId)
+                .Where(d => EF.Functions.Like(d.Name, $"%{searchName}%"));
+        }
+
+        public IQueryable<Document> SortedBySize() => _context.Documents.OrderBy(f => f.Size);
+        public IQueryable<Document> SortedBySizeDesc() => _context.Documents.OrderByDescending(f => f.Size);
     }
 }

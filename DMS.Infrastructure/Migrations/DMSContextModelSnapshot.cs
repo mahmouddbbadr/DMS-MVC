@@ -188,6 +188,9 @@ namespace DMS.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("FilePath")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -215,12 +218,18 @@ namespace DMS.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("Size")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FolderId");
+
+                    b.HasIndex("OwnerId");
 
                     b.ToTable("Documents", (string)null);
 
@@ -229,12 +238,13 @@ namespace DMS.Infrastructure.Migrations
                         {
                             Id = "doc-1",
                             AddedAt = new DateTime(2025, 10, 3, 12, 50, 0, 0, DateTimeKind.Utc),
-                            FilePath = "/files/sample.pdf",
+                            FilePath = "files/sample.pdf",
                             FileType = "pdf",
                             FolderId = "folder-child",
                             IsDeleted = false,
                             IsStarred = false,
                             Name = "SampleDoc",
+                            OwnerId = "user-2",
                             Size = 1024
                         });
                 });
@@ -248,6 +258,9 @@ namespace DMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
@@ -523,7 +536,15 @@ namespace DMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DMS.Domain.Models.AppUser", "Owner")
+                        .WithMany("Documents")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Folder");
+
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("DMS.Domain.Models.Folder", b =>
@@ -629,6 +650,8 @@ namespace DMS.Infrastructure.Migrations
 
             modelBuilder.Entity("DMS.Domain.Models.AppUser", b =>
                 {
+                    b.Navigation("Documents");
+
                     b.Navigation("Folders");
 
                     b.Navigation("ReceivedSharedItems");

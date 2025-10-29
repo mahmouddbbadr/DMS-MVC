@@ -1,89 +1,214 @@
-﻿using DMS.Service.IService;
+﻿using DMS.Domain.Models;
+using DMS.Service.IService;
+using DMS.Service.ModelViews.DocumentViews;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection.Metadata.Ecma335;
+using System.Security.Claims;
 
 namespace DMS.Presentation.Controllers
 {
+    [Authorize]
     public class DocumentController : Controller
     {
         private readonly IDocumentService documentService;
+        private readonly string directory;
 
+        private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         public DocumentController(IDocumentService _documentService)
         {
             documentService = _documentService;
+            directory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
         }
 
-        // Get all documents based on their folderId
-        [HttpGet]
-        public IActionResult Index(string folderId)
-        {        
-            return View();
-        }
+        //[HttpGet]
+        //public async Task<IActionResult> Index(string folderId)
+        //{ 
+        //    if(!string.IsNullOrEmpty(folderId))
+        //    {
+        //        DocumentIndexViewModel model = await documentService
+        //            .GetDocumentsByFolderIdAsync(folderId);
 
-        // Details of a Document
+        //        return View("Index", model);
+        //    }
+        //    return NotFound();
+        //}
+
         [HttpGet]
-        public IActionResult Details(string id)
+        public async Task<IActionResult> Index([FromQuery] DocumentQueryViewModel query)
         {
-            return View();
+            query.OwnerId = UserId;
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var model = await documentService
+                .GetDocumentsByFolderIdWithPaginationAsync(query);
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_IndexPartialView", model);
+            }
+
+            return View("Index", model);
         }
 
-        // open form to Upload new document
+        [HttpGet]
+        public async Task<IActionResult> Details(string id)
+        {
+            if(string.IsNullOrEmpty(id))
+                return BadRequest();
+
+            DocumentDetailsViewModel? model = await documentService
+                .GetDocumentDetailsAsync(id, UserId);
+           
+            if(model == null)
+                return NotFound();
+        
+            return View("Details", model);
+        }
+
         [HttpGet]
         public IActionResult Upload(string folderId)
         {
-            return View();
+            DocumentUploadViewModel model = new() 
+            {       
+                FolderId = folderId,
+                OwnerId = UserId
+            };
+            return View("Upload", model);
         }
 
-        // save data and upload a document
-        // instead of (object obj) you will create DocumentUploadViewModel and pass it
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Upload(object obj)
+        public async Task<IActionResult> Upload(DocumentUploadViewModel model)
         {
-            return View();
+            if (ModelState.IsValid)
+            {
+                if(await documentService.UploadDocumentAsync(model, directory))
+                    return RedirectToAction("Index", new { folderId = model.FolderId});
+
+                ModelState.AddModelError("", "Something went wrong while uploading.");
+            }
+            return View("Upload", model);
         }
 
-        // download the document in your pc
         [HttpGet]
-        public IActionResult Download(string id)
+        public async Task<IActionResult> Download(string id)
         {
-            return View();
+            if (string.IsNullOrEmpty(id))
+                return BadRequest();
+
+            var result = await documentService.GetFileToDownloadAsync(id, UserId, directory);
+
+            if (result == null)
+                return NotFound();
+
+            return File(result.FileBytes, result.ContentType, result.FileName);
         }
 
-        // open form to edit a document
+
         [HttpGet]
-        public IActionResult Edit(string id)
+        public async Task<IActionResult> Edit(DocumentEditViewModel fromRequest)
         {
-            return View();
-        }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
-        // save editing
-        // instead of (object obj) you will use DocumentViewModel that you created
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(object obj)
-        {
-            return View();
-        }
+            DocumentUploadViewModel? model = await documentService.
+                SetEditDocumentAsync(fromRequest, UserId);
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Delete(string id)
-        {
-            return RedirectToAction("Index");
+            if (model == null)
+                return NotFound();
+
+            return View("Edit", model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Star(string id)
+        public async Task<IActionResult> Edit(DocumentUploadViewModel model)
         {
-            return RedirectToAction("Index");
+            if (!ModelState.IsValid)
+                return View("Edit", model);
+
+            bool updated = await documentService.EditDocumentAsync(model, directory);
+
+            if (!updated)
+            {
+                ModelState.AddModelError("", "Something went wrong while updating.");
+                return View("Edit", model);
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.ReturnURL))
+                return Redirect(model.ReturnURL);
+
+            return RedirectToAction("Index", new { folderId = model.FolderId });
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest("Invalid document id.");
+
+            var document = await documentService.GetDocumentByIdAsync(id, UserId);
+
+            if (document == null)
+                return NotFound("Document not found or you don't have access.");
+
+            try
+            {
+                await documentService.DeleteDocumentAsync(id, UserId); 
+                return Ok(new { success = true, message = "Document deleted successfully." });
+            }
+            catch
+            {
+                
+                return StatusCode(500, "An error occurred while deleting the document.");
+            }
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Trash(string id)
+        {
+            bool trashed = false;
+
+            if (!string.IsNullOrEmpty(id))
+            {
+                trashed = await documentService.TrashDocumentAsync(id, UserId);
+            }
+            if (trashed)
+                return Ok();
+            return BadRequest();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UnStar(string id)
+        public async Task<IActionResult> Star(string id)
         {
-            return RedirectToAction("Index");
+            if (!string.IsNullOrEmpty(id))
+            {
+                await documentService.StarDocumentAsync(id, UserId, true);
+                return Ok();
+            }
+            return BadRequest();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnStar(string id)
+        {
+            if (!string.IsNullOrEmpty(id))
+            {
+                await documentService.StarDocumentAsync(id, UserId, false);
+                return Ok();
+            }
+            return BadRequest();
         }
     }
 }

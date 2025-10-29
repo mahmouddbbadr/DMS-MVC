@@ -1,0 +1,52 @@
+﻿@model DocumentDetailsViewModel
+
+<div class="container mt-4">
+    <h3 class="mb-4 text-primary">Document Details</h3>
+
+    <div class="card shadow-sm p-4">
+        <dl class="row">
+            <dt class="col-sm-3">Name:</dt>
+            <dd class="col-sm-9">@Model.Name</dd>
+
+            <dt class="col-sm-3">Type:</dt>
+            <dd class="col-sm-9">@Model.FileType</dd>
+
+            <dt class="col-sm-3">Size:</dt>
+            <dd class="col-sm-9">@(Model.Size / 1024) KB</dd>
+
+            <dt class="col-sm-3">Added At:</dt>
+            <dd class="col-sm-9">@Model.AddedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+
+            <dt class="col-sm-3">Starred:</dt>
+            <dd class="col-sm-9">
+                @if (Model.IsStarred)
+                {
+                    <span class="text-warning">
+                        <i class="fas fa-star fa-lg"></i> <strong>Starred</strong>
+                    </span>
+                }
+                else
+                {
+                    <span class="text-muted">
+                        <i class="far fa-star fa-lg"></i> <em>Not starred</em>
+                    </span>
+                }
+            </dd>
+
+
+            <dt class="col-sm-3">Folder:</dt>
+            <dd class="col-sm-9">@Model.FolderName</dd>
+
+            <dt class="col-sm-3">File Path:</dt>
+            <dd class="col-sm-9">
+                <a href="~/@Model.FilePath" target="_blank" class="btn btn-sm btn-primary">
+                    <i class="fas fa-folder-open"></i> Open
+                </a>
+            </dd>
+        </dl>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Index" asp-route-folderId="@Model.FolderId" class="btn btn-secondary">Back to Documents</a>
+    </div>
+</div>
