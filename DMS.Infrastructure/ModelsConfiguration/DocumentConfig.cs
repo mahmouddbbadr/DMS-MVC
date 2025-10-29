@@ -37,6 +37,10 @@ namespace DMS.Infrastructure.ModelsConfiguration
                 .HasColumnType("datetime2")
                 .HasDefaultValueSql("GETDATE()");
 
+            builder.Property(d => d.DeletedAt)
+                .HasColumnType("datetime2")
+                .IsRequired(false);
+
             builder.HasOne(d => d.Folder)
                 .WithMany(f => f.Documents)
                 .HasForeignKey(d => d.FolderId);

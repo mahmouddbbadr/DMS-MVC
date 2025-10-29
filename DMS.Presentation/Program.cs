@@ -54,6 +54,8 @@ namespace DMS.Presentation
                 options.CallbackPath = "/signin-google";
             });
 
+            builder.Services.AddScoped<ITrashService, TrashService>();        
+            builder.Services.AddScoped<IStarredService, StarredService>();        
 
             var app = builder.Build();
 
