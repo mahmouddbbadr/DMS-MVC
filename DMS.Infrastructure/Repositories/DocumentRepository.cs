@@ -12,22 +12,22 @@ namespace DMS.Infrastructure.Repository
         {
             
         }
-        public async Task<List<Document>> GetDocumentsByFolderIdAsync(string folderId)
+        public async Task<List<Document>> GetDocumentsByFolderIdAsync(string folderId, string userId)
         {
             return await _context.Documents
-                .Where(d => d.FolderId == folderId)
+                .Where(d => d.FolderId == folderId && d.OwnerId == userId)
                 .ToListAsync();
         }
-        public IQueryable<Document> GetDocumentsByFolderIdAsQueryable(string folderId)
+        public IQueryable<Document> GetDocumentsByFolderIdAsQueryable(string folderId, string userId)
         {
             return _context.Documents
-                .Where(d => d.FolderId == folderId)
+                .Where(d => d.FolderId == folderId && d.OwnerId == userId)
                 .AsQueryable();
         }
         public IQueryable<Document> SearchDocumentByFolderAsQueryable
-            (string folderId, string searchName)
+            (string folderId, string userId, string searchName)
         {
-            return GetDocumentsByFolderIdAsQueryable(folderId)
+            return GetDocumentsByFolderIdAsQueryable(folderId, userId)
                 .Where(d => EF.Functions.Like(d.Name, $"%{searchName}%"));
         }
 

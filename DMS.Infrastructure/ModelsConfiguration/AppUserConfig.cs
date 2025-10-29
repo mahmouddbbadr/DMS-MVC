@@ -51,6 +51,10 @@ namespace DMS.Infrastructure.ModelsConfiguration
                 .WithOne(f => f.Owner)
                 .HasForeignKey(f => f.OwnerId);
 
+            builder.HasMany(u => u.Documents)
+                .WithOne(d => d.Owner)
+                .HasForeignKey(d => d.OwnerId);
+
         }
     }
 }

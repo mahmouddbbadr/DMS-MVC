@@ -5,9 +5,9 @@ namespace DMS.Infrastructure.IRepositories
 {
     public interface IDocumentRepository: ISortSearch<Document>, IRepository<Document>
     {
-        Task<List<Document>> GetDocumentsByFolderIdAsync(string folderId);
-        IQueryable<Document> SearchDocumentByFolderAsQueryable(string folderId, string searchName);
-        IQueryable<Document> GetDocumentsByFolderIdAsQueryable(string folderId);
+        Task<List<Document>> GetDocumentsByFolderIdAsync(string folderId, string userId);
+        IQueryable<Document> SearchDocumentByFolderAsQueryable(string folderId, string userId, string searchName);
+        IQueryable<Document> GetDocumentsByFolderIdAsQueryable(string folderId, string userId);
         IQueryable<Document> SortedBySize();
         IQueryable<Document> SortedBySizeDesc();
     }

@@ -94,22 +94,26 @@
                                     </form>
                                 </td>
                                 <td>
-                                    <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <div class="d-flex text-center flex-wrap align-items-center gap-2">
                                         @* <a asp-action="Details" asp-route-id="@doc.Id" class="btn btn-info btn-sm">
                                              Details
                                         </a> *@
                                         <a asp-action="Download" asp-route-id="@doc.Id" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-download me-1"></i> Download
+                                            <i class="fas fa-download mx-1"></i> Download
                                         </a>
-                                        <a asp-action="Edit" asp-route-id="@doc.Id" class="btn btn-secondary btn-sm">
+                                        @* <a asp-action="Edit" asp-route-id="@doc.Id"
+                                           class="btn btn-secondary btn-sm edit-doc-link">
                                             <i class="far fa-edit me-1"></i> Edit
+                                        </a> *@
+                                        <a class="btn btn-secondary btn-sm mx-2 edit-doc-link" data-id="@doc.Id">
+                                            <i class="far fa-edit mx-1"></i> Edit
                                         </a>
-                                        <a asp-action="ShareDocument" asp-controller="Sharing" asp-route-documentId="@doc.Id" class="btn btn-success btn-sm">
-                                            <i class="fas fa-share me-1"></i> Share
+                                        <a asp-action="ShareDocument" asp-controller="Sharing" asp-route-documentId="@doc.Id" class="btn btn-success btn-sm mx-2">
+                                            <i class="fas fa-share mx-1"></i> Share
                                         </a>
                                         <form asp-action="Trash" asp-route-id="@doc.Id" method="post" class="m-0 p-0 delete-form" data-id="@doc.Id">
                                             <button type="submit" class="btn btn-danger btn-sm delete-button">
-                                                <i class="fas fa-trash-alt me-1"></i> Delete
+                                                <i class="fas fa-trash-alt mx-1"></i> Delete
                                             </button>
                                         </form>
                                     </div>
@@ -183,6 +187,16 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     $(document).ready(function() {
+
+        $(document).on("click", ".edit-doc-link", function (e) {
+            e.preventDefault();
+
+            let id = $(this).data("id");
+            let returnUrl = encodeURIComponent(window.location.href);
+
+            window.location.href = `/Document/Edit/${id}?returnUrl=${returnUrl}`;
+        });
+
 
         $('.star-toggle-button').click(function (e) {
 

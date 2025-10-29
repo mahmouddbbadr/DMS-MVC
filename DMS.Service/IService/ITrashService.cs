@@ -11,19 +11,16 @@ namespace DMS.Service.IService
     public interface ITrashService
     {
         Task<TrashViewModel> GetTrashOverviewAsync
-            (string? searchName, int pageNum, int pageSize,
-            string sortField, string sortOrder);
-        Task<TrashFoldersViewModel>GetTrashedFolderAsync
-            (string? searchName, int pageNum, int pageSize,
-            string sortField, string sortOrder);
+            (TrashFilterViewModel filterModel);
+        Task<TrashFoldersViewModel> GetTrashedFolderAsync
+            (TrashFilterViewModel filterModel);
         Task<TrashDocumentsViewModel> GetTrashedDocumentAsync
-            (string? searchName, int pageNum, int pageSize,
-            string sortField, string sortOrder);
-        Task<Folder?> GetFolderByIdAsync(string id);
-        Task<Document?> GetDocumentByIdAsync(string id);
+            (TrashFilterViewModel filterModel);
+        Task<Folder?> GetFolderByIdAsync(string id, string userId);
+        Task<Document?> GetDocumentByIdAsync(string id, string userId);
         Task<bool> RestoreFolderAsync(Folder folder);
         Task<bool> RestoreDocumentAsync(Document document);
-        Task<bool> DeleteFolderAsync(string folderId);
-        Task<bool> DeleteDocumentAsync(string documentId);
+        Task<bool> DeleteFolderAsync(string folderId, string userId);
+        Task<bool> DeleteDocumentAsync(string documentId, string userId, string wwwroot);
     }
 }

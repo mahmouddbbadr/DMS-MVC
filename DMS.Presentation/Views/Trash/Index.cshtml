@@ -39,64 +39,169 @@
 </div>
 
 @section Scripts {
-    @* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/tabLoader.js"></script>
     <script>
-        function loadTrashContent(type, pageNum = 1) {
-            let searchVal = $("#SearchVal").val();
-            let targetDiv = type === "folders" ? "#foldersContent" : "#documentsContent";
+         initTabPage({
+             loadFoldersUrl: "/Trash/LoadFolders",
+             loadDocumentsUrl: "/Trash/LoadDocuments",
+             pageSize: 3,
+             sortFieldFolders: "DeletedAt",
+             sortFieldDocuments: "DeletedAt"
+         });
+       /* 
+        let sortFieldFol = "DeletedAt";
+        let sortOrderFol = "desc";
+        let currentPageFol = 1;
 
+        let sortFieldDoc = "DeletedAt";
+        let sortOrderDoc = "desc";
+        let currentPageDoc = 1;
+
+
+        function getActiveTab() {
+            return $(".nav-link.active").attr("data-bs-target").substring(1); // "folders" or "documents"
+        }
+
+
+        
+        function loadTrashFolders() {
             $.ajax({
-                url: `/Trash/Load${type.charAt(0).toUpperCase() + type.slice(1)}`,
+                url: "/Trash/LoadFolders",
                 type: "GET",
                 data: {
-                    searchTerm: searchVal,
-                    pageNum: pageNum,
+                    searchTerm: $("#SearchVal").val(),
+                    pageNum: currentPageFol,
                     pageSize: 3,
-                    sortField: "DeletedAt",
-                    sortOrder: "desc"
+                    sortField: sortFieldFol,
+                    sortOrder: sortOrderFol
                 },
-                beforeSend: function () {
-                    $(targetDiv).html('<div class="spinner-border" role="status"></div>');
-                },
-                success: function (result) {
-                    $(targetDiv).html(result);
-                },
-                error: function () {
-                    $(targetDiv).html('<div class="text-danger">Failed to load ' + type + '.</div>');
-                }
+                beforeSend: () => $("#foldersContent").html('<div class="spinner-border"></div>'),
+                success: result => $("#foldersContent").html(result),
+                error: () => $("#foldersContent").html('<div class="text-danger">Failed to load folders.</div>')
             });
         }
 
+        function loadTrashDocuments() {
+            $.ajax({
+                url: "/Trash/LoadDocuments",
+                type: "GET",
+                data: {
+                    searchTerm: $("#SearchVal").val(),
+                    pageNum: currentPageDoc,
+                    pageSize: 3,
+                    sortField: sortFieldDoc,
+                    sortOrder: sortOrderDoc
+                },
+                beforeSend: () => $("#documentsContent").html('<div class="spinner-border"></div>'),
+                success: result => $("#documentsContent").html(result),
+                error: () => $("#documentsContent").html('<div class="text-danger">Failed to load documents.</div>')
+            });
+        }
+
+        function refreshActiveTab() {
+            getActiveTab() === "folders" ? loadTrashFolders() : loadTrashDocuments();
+        }
+
+
+        
         $(document).ready(function () {
-            // Load default tab
-            loadTrashContent("folders");
+            refreshActiveTab();
 
-            // Handle tab switch
-            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
-                const type = $(e.target).attr("data-bs-target").substring(1); // folders or documents
-                loadTrashContent(type);
+           
+            $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+                refreshActiveTab();
             });
 
-            // Handle search
-            $("#searchBtn").click(function () {
-                const activeTab = $(".nav-link.active").attr("data-bs-target").substring(1);
-                loadTrashContent(activeTab);
-            });
+            
+            $("#searchBtn").click(refreshActiveTab);
 
+            
+            let typing;
             $("#SearchVal").on("input", function () {
-                const activeTab = $(".nav-link.active").attr("data-bs-target").substring(1);
-                loadTrashContent(activeTab);
+                clearTimeout(typing);
+                typing = setTimeout(refreshActiveTab, 400);
             });
 
+            
+            $(document).on("click", ".sort-link", function (e) {
+                e.preventDefault();
+                const field = $(this).data("field");
+
+                if (getActiveTab() === "folders") {
+                    sortOrderFol = (sortFieldFol === field && sortOrderFol === "asc") ? "desc" : "asc";
+                    sortFieldFol = field;
+                    currentPageFol = 1;
+                    loadTrashFolders();
+                } else {
+                    sortOrderDoc = (sortFieldDoc === field && sortOrderDoc === "asc") ? "desc" : "asc";
+                    sortFieldDoc = field;
+                    currentPageDoc = 1;
+                    loadTrashDocuments();
+                }
+            });
+
+            
             $(document).on("click", ".pagination a", function (e) {
                 e.preventDefault();
-                const activeTab = $(".nav-link.active").attr("data-bs-target").substring(1);
-                const pageNum = $(this).data("pagenum");
-                loadTrashContent(activeTab, pageNum);
+                if (getActiveTab() === "folders") {
+                    currentPageFol = $(this).data("pagenum");
+                    loadTrashFolders();
+                } else {
+                    currentPageDoc = $(this).data("pagenum");
+                    loadTrashDocuments();
+                }
+            });
+
+
+            
+            $(document).on("click", ".restore-button", function (e) {
+                e.preventDefault();
+                const form = $(this).closest("form");
+
+                Swal.fire({
+                    title: "Restore?",
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes",
+                    cancelButtonText: "No"
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        $.post(form.attr("action"), form.serialize())
+                            .done(() => setTimeout(() => {
+                                            refreshActiveTab();
+                                        }, 400))
+                            .fail(() => Swal.fire("Error", "Restore failed", "error"));
+                    }
+                });
+            });
+
+            
+            $(document).on("click", ".delete-button", function (e) {
+                e.preventDefault();
+                const form = $(this).closest("form");
+
+                Swal.fire({
+                    title: "Delete permanently?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Delete",
+                    confirmButtonColor: "#d33"
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        $.post(form.attr("action"), form.serialize())
+                            .done(() => setTimeout(() => {
+                                            refreshActiveTab();
+                                        }, 400))
+                            .fail(() => Swal.fire("Error", "Delete failed", "error"));
+                    }
+                });
             });
         });
+         */
 
     </script>
 }
+
 

@@ -13,5 +13,6 @@ namespace DMS.Domain.Models
         public DateTime AddedAt { get; set; }
         public bool IsDeleted { get; set; }
         public bool IsStarred { get; set; }
+        public string OwnerId { get; set; }
     }
 }

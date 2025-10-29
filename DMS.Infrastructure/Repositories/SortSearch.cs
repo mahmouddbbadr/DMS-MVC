@@ -2,11 +2,6 @@
 using DMS.Infrastructure.DataContext;
 using DMS.Infrastructure.IRepositories;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DMS.Infrastructure.Repository
 {
@@ -29,10 +24,16 @@ namespace DMS.Infrastructure.Repository
             return _dbSet
                 .Where(f => EF.Functions.Like(f.Name, $"%{searchName}%"));
         }
-        public IQueryable<TEntity> TrashedSearchAsQueryable(string searchName)
+        public IQueryable<TEntity> TrashedSearchAsQueryable(string searchName, string userId)
         {
             searchName = searchName?.Trim() ?? "";
-            return GetDeleted()
+            return GetDeleted(userId)
+                .Where(f => EF.Functions.Like(f.Name, $"%{searchName}%"));
+        }
+        public IQueryable<TEntity> StarredSearchAsQueryable(string searchName, string userId)
+        {
+            searchName = searchName?.Trim() ?? "";
+            return GetStarred(userId)
                 .Where(f => EF.Functions.Like(f.Name, $"%{searchName}%"));
         }
 
@@ -40,10 +41,18 @@ namespace DMS.Infrastructure.Repository
         public IQueryable<TEntity> SortedByNameDesc() => _dbSet.OrderByDescending(f => f.Name);
         public IQueryable<TEntity> SortedByDate() => _dbSet.OrderBy(f => f.AddedAt);
         public IQueryable<TEntity> SortedByDateDesc() => _dbSet.OrderByDescending(f => f.AddedAt);
-        public IQueryable<TEntity> GetDeleted() => _dbSet.Where(e => e.IsDeleted).IgnoreQueryFilters();
-        public async Task<TEntity?> GetDeletedById(string id) => 
-            await GetDeleted().SingleOrDefaultAsync(e => e.Id == id);
-        
-    }
+        public IQueryable<TEntity> GetDeleted(string userId) => _dbSet.Where(e => e.IsDeleted && e.OwnerId == userId).IgnoreQueryFilters();
+        public async Task<TEntity?> GetDeletedById(string id, string userId) =>
+            await GetDeleted(userId).SingleOrDefaultAsync(e => e.Id == id);
+        public IQueryable<TEntity> GetStarred(string userId) => _dbSet.Where(e => e.IsStarred && e.OwnerId == userId);
 
+
+        // for security
+        public async Task<TEntity?> GetByOwnerAsync(string entityId, string ownerId)
+        {
+            return await _dbSet
+                .AsNoTracking()
+                .SingleOrDefaultAsync(e => e.Id == entityId && e.OwnerId == ownerId);
+        }
+    }
 }

@@ -36,6 +36,7 @@ namespace DMS.Presentation
             builder.Services.AddScoped<ISharingService, SharingService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<ITrashService, TrashService>();        
+            builder.Services.AddScoped<IStarredService, StarredService>();        
 
             var app = builder.Build();
 

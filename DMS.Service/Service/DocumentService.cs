@@ -19,10 +19,10 @@ namespace DMS.Service.Service
         }
 
         public async Task<DocumentIndexViewModel> GetDocumentsByFolderIdAsync
-            (string patentFolderId)
+            (string patentFolderId, string userId)
         {
             var docs = await _unit.DocumentRepository
-                .GetDocumentsByFolderIdAsync(patentFolderId);
+                .GetDocumentsByFolderIdAsync(patentFolderId, userId);
 
             Folder? folder = await _unit.FolderRepository.GetByIdAsync(patentFolderId);
 
@@ -45,24 +45,23 @@ namespace DMS.Service.Service
             return model;
         }
         public async Task<DocumentIndexViewModel> GetDocumentsByFolderIdWithPaginationAsync
-            (string patentFolderId, string? searchName, int pageNum, int pageSize,
-            string? sortField = "AddedAt", string? sortOrder = "desc")
+            (DocumentQueryViewModel modelQuery)
         {
-            searchName = searchName?.Trim() ?? "";
+            modelQuery.SearchName = modelQuery.SearchName?.Trim() ?? "";
 
             IQueryable<Document> query;
 
-            if (!string.IsNullOrWhiteSpace(searchName))
+            if (!string.IsNullOrWhiteSpace(modelQuery.SearchName))
             {
                 query = _unit.DocumentRepository
-                    .SearchDocumentByFolderAsQueryable(patentFolderId, searchName);
+                    .SearchDocumentByFolderAsQueryable(modelQuery.FolderId, modelQuery.OwnerId, modelQuery.SearchName);
             }else
             {
                 query = _unit.DocumentRepository
-                .GetDocumentsByFolderIdAsQueryable(patentFolderId);
+                .GetDocumentsByFolderIdAsQueryable(modelQuery.FolderId, modelQuery.OwnerId);
             }
 
-            query = (sortField, sortOrder?.ToLower()) switch
+            query = (modelQuery.SortField, modelQuery.SortOrder?.ToLower()) switch
             {
                 ("Name", "asc") => query.OrderBy(d => d.Name),
                 ("Name", "desc") => query.OrderByDescending(d => d.Name),
@@ -82,22 +81,22 @@ namespace DMS.Service.Service
             int totalCount = query.Count();
 
             List<Document> docs = await _unit.DocumentRepository
-                .GetAllWithPaginationAsync(query, pageNum, pageSize);
+                .GetAllWithPaginationAsync(query, modelQuery.PageNum, modelQuery.PageSize);
 
-            Folder? folder = await _unit.FolderRepository.GetByIdAsync(patentFolderId);
+            Folder? folder = await _unit.FolderRepository.GetByIdAsync(modelQuery.FolderId);
 
-            int total = (int)Math.Ceiling((double)totalCount / pageSize);
+            int total = (int)Math.Ceiling((double)totalCount / modelQuery.PageSize);
             var model = new DocumentIndexViewModel()
             {
-                FolderId = patentFolderId,
+                FolderId = modelQuery.FolderId,
                 FolderName = folder?.Name ?? "UnKnown Folder",
-                CurrentPage = pageNum,
-                CurrentSearch = searchName,
+                CurrentPage = modelQuery.PageNum,
+                CurrentSearch = modelQuery.SearchName,
                 TotalPages = total,
-                HasNext = pageNum < total,
-                HasPrevious = pageNum > 1,
-                SortField = sortField,
-                SortOrder = sortOrder,
+                HasNext = modelQuery.PageNum < total,
+                HasPrevious = modelQuery.PageNum > 1,
+                SortField = modelQuery.SortField,
+                SortOrder = modelQuery.SortOrder,
                 DocumentList = docs.Select(d => new DocumentListItemViewModel()
                 {
                     Id = d.Id,
@@ -114,8 +113,11 @@ namespace DMS.Service.Service
             return model;
         }
 
-        public async Task DeleteDocumentAsync(string docId)
+        public async Task DeleteDocumentAsync(string docId, string userId)
         {
+            Document? doc = await _unit.DocumentRepository.GetByOwnerAsync(docId, userId);
+            if(doc == null)
+                throw new Exception("Document Not Found Or You Don't Have Access");
             try
             {
                 await _unit.DocumentRepository.DeleteAsync(docId);
@@ -126,9 +128,9 @@ namespace DMS.Service.Service
                 throw new Exception("Error When Deleted", ex);
             }
         }
-        public async Task<bool> TrashDocumentAsync(string docId)
+        public async Task<bool> TrashDocumentAsync(string docId, string userId)
         {
-            Document? doc = await _unit.DocumentRepository.GetByIdAsync(docId);
+            Document? doc = await _unit.DocumentRepository.GetByOwnerAsync(docId, userId);
 
             if (doc == null)
                 return false;
@@ -140,9 +142,9 @@ namespace DMS.Service.Service
             _unit.Save();
             return true;
         }
-        public async Task<bool> StarDocumentAsync(string docId, bool isStar)
+        public async Task<bool> StarDocumentAsync(string docId, string userId, bool isStar)
         {
-            Document? doc = await _unit.DocumentRepository.GetByIdAsync(docId);
+            Document? doc = await _unit.DocumentRepository.GetByOwnerAsync(docId, userId);
             
             if(doc != null)
             {
@@ -153,11 +155,12 @@ namespace DMS.Service.Service
             }
             return false;
         }
-        public async Task<DocumentFileResultViewModel?> GetFileToDownloadAsync(string docId, string wwwroot)
+        public async Task<DocumentFileResultViewModel?> GetFileToDownloadAsync
+            (string docId, string userId, string wwwroot)
         {
             if(docId != null)
             {
-                Document? doc = await _unit.DocumentRepository.GetByIdAsync(docId);
+                Document? doc = await _unit.DocumentRepository.GetByOwnerAsync(docId, userId);
 
                 if (doc == null || string.IsNullOrEmpty(doc.FilePath))
                 {
@@ -228,6 +231,7 @@ namespace DMS.Service.Service
                     FolderId = model.FolderId,
                     IsDeleted = false,
                     IsStarred = false,
+                    OwnerId = model.OwnerId,
                     Size = (int) model.File.Length
                 };
 
@@ -243,10 +247,27 @@ namespace DMS.Service.Service
 
         }
 
-        public async Task<Document?> GetDocumentByIdAsync(string docId)
+        public async Task<Document?> GetDocumentByIdAsync(string docId, string userId)
         {
             if(string.IsNullOrEmpty(docId)) return null;
-            return await _unit.DocumentRepository.GetByIdAsync(docId);
+            return await _unit.DocumentRepository.GetByOwnerAsync(docId, userId);
+        }
+        public async Task<DocumentUploadViewModel?> SetEditDocumentAsync
+            (DocumentEditViewModel model, string userId)
+        {           
+            Document? doc = await _unit.DocumentRepository.GetByOwnerAsync(model.Id, userId);
+            if (doc == null)
+                return null;
+
+            return new DocumentUploadViewModel()
+            {
+                Id = doc.Id,
+                Name = doc.Name,
+                FolderId = doc.FolderId,
+                ExistingFilePath = doc.FilePath,
+                ReturnURL = model.ReturnURL,
+                OwnerId = userId
+            };
         }
 
         public async Task<bool> EditDocumentAsync(DocumentUploadViewModel model, string wwwroot)
@@ -254,7 +275,7 @@ namespace DMS.Service.Service
             Document? doc;
             if (model.Id == null) return false;
 
-            doc = await _unit.DocumentRepository.GetByIdAsync(model.Id);
+            doc = await _unit.DocumentRepository.GetByOwnerAsync(model.Id, model.OwnerId);
             if (doc == null) return false;
 
             doc.Name = string.IsNullOrWhiteSpace(model.Name) ? doc.Name : model.Name;
@@ -301,9 +322,9 @@ namespace DMS.Service.Service
             return true;
         }
 
-        public async Task<DocumentDetailsViewModel?> GetDocumentDetailsAsync(string id)
+        public async Task<DocumentDetailsViewModel?> GetDocumentDetailsAsync(string id, string userId)
         {
-            Document? doc = await _unit.DocumentRepository.GetByIdAsync(id);
+            Document? doc = await _unit.DocumentRepository.GetByOwnerAsync(id, userId);
             if (doc == null)
                 return null;
 

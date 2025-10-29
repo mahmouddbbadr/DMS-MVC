@@ -8,6 +8,8 @@
         <input type="hidden" asp-for="Id" />
         <input type="hidden" asp-for="FolderId" />
         <input type="hidden" asp-for="ExistingFilePath" />
+        <input type="hidden" asp-for="ReturnURL" />
+        <input type="hidden" asp-for="OwnerId" />
 
         <div class="form-group">
             <label asp-for="Name">Document Name</label>
@@ -29,6 +31,7 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Save</button>
-        <a asp-action="Index" asp-route-folderId="@Model.FolderId" class="btn btn-secondary">Cancel</a>
+        @* <a asp-action="Index" asp-route-folderId="@Model.FolderId" class="btn btn-secondary">Cancel</a> *@
+        <a href="@Model.ReturnURL" class="btn btn-secondary">Cancel</a>
     </form>
 </div>

@@ -17,6 +17,8 @@ namespace DMS.Domain.Models
         public DateTime AddedAt { get; set; } = DateTime.UtcNow;
         public DateTime? DeletedAt { get; set; }
         public int Size { get; set; }
+        public string OwnerId { get; set; }
+        public virtual AppUser? Owner { get; set; }
         public string FolderId { get; set; }
         public virtual Folder? Folder { get; set; }
         public virtual ICollection<SharedItem>? SharedDocument { get; set; } = new HashSet<SharedItem>();

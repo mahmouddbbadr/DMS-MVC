@@ -132,6 +132,7 @@ namespace DMS.Infrastructure.Seed
                     FileType = "pdf",
                     Size = 1024,
                     FolderId = "folder-child",
+                    OwnerId = "user-2",
                     IsDeleted = false,
                     IsStarred = false,
                     AddedAt = new DateTime(2025, 10, 3, 12, 50, 0, DateTimeKind.Utc)

@@ -11,6 +11,9 @@ namespace DMS.Service.ModelViews.DocumentViews
     public class DocumentUploadViewModel
     {
         public string? Id { get; set; }
+        
+        [Required(ErrorMessage = "You are not authorized!")]
+        public string OwnerId { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Document name is required.")]
         [StringLength(150, ErrorMessage = "Document name cannot exceed 150 characters.")]
@@ -20,6 +23,7 @@ namespace DMS.Service.ModelViews.DocumentViews
         public string FolderId { get; set; } = string.Empty;
 
         public string? ExistingFilePath { get; set; } // For displaying old file name/path
+        public string ReturnURL { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Please upload a file.")]
         [DataType(DataType.Upload)]

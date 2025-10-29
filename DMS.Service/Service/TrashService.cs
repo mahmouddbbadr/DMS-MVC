@@ -2,12 +2,6 @@
 using DMS.Infrastructure.UnitOfWorks;
 using DMS.Service.IService;
 using DMS.Service.ModelViews.TrashViews;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Document = DMS.Domain.Models.Document;
 
 namespace DMS.Service.Service
@@ -21,43 +15,41 @@ namespace DMS.Service.Service
             this._unit = unit;
         }
         public async Task<TrashViewModel> GetTrashOverviewAsync
-            (string? searchName, int pageNum, int pageSize,
-            string sortField, string sortOrder)
+            (TrashFilterViewModel filterModel)
         {
             return new TrashViewModel()
             {
                 TrashFolders = await GetTrashedFolderAsync
-                    (searchName, pageNum, pageSize, sortField, sortOrder),
+                    (filterModel),
 
                 TrashDocuments = await GetTrashedDocumentAsync
-                    (searchName, pageNum, pageSize, sortField, sortOrder)
+                    (filterModel)
             };
         }
         public async Task<TrashFoldersViewModel>GetTrashedFolderAsync
-            (string? searchName, int pageNum, int pageSize,
-            string sortField, string sortOrder)
+            (TrashFilterViewModel filterModel)
         {
-            searchName = searchName?.Trim() ?? "";
+            filterModel.SearchTerm = filterModel.SearchTerm?.Trim() ?? "";
 
             IQueryable<Folder> query;
-            if (string.IsNullOrWhiteSpace(searchName))
+            if (string.IsNullOrWhiteSpace(filterModel.SearchTerm))
             {
-                query = _unit.FolderRepository.GetDeleted();
+                query = _unit.FolderRepository.GetDeleted(filterModel.UserId);
             }
             else
             {
-                query = _unit.FolderRepository.TrashedSearchAsQueryable(searchName);
+                query = _unit.FolderRepository.TrashedSearchAsQueryable(filterModel.SearchTerm, filterModel.UserId);
             }
 
             int count = query.Count();
 
-            query = (sortField, sortOrder?.ToLower()) switch
+            query = (filterModel.SortField, filterModel.SortOrder?.ToLower()) switch
             {
                 ("Name", "asc") => query.OrderBy(f => f.Name),
                 ("Name", "desc") => query.OrderByDescending(f => f.Name),
 
-                ("ItemCount", "asc") => query.OrderBy(f => f.Documents.Count()),
-                ("ItemCount", "desc") => query.OrderByDescending(f => f.Documents.Count()),
+                ("ItemCount", "asc") => query.OrderBy(f => f.Documents!.Count()),
+                ("ItemCount", "desc") => query.OrderByDescending(f => f.Documents!.Count()),
 
                 ("DeletedAt", "asc") => query.OrderBy(f => f.DeletedAt),
                 ("DeletedAt", "desc") => query.OrderByDescending(f => f.DeletedAt),
@@ -66,18 +58,18 @@ namespace DMS.Service.Service
             };
 
             List<Folder> folders = await _unit.FolderRepository.
-                GetAllWithPaginationAsync(query, pageNum, pageSize);
+                GetAllWithPaginationAsync(query, filterModel.PageNum, filterModel.PageSize);
 
-            int totalPages = (int)Math.Ceiling((double)count / pageSize);
+            int totalPages = (int)Math.Ceiling((double)count / filterModel.PageSize);
             var trashFoldersViewModel = new TrashFoldersViewModel()
             {
                 TrashedFolders = new PagedResult<TrashedFolderViewModel>()
                 {
-                    CurrentPage = pageNum,
-                    CurrentSearch = searchName,
+                    CurrentPage = filterModel.PageNum,
+                    CurrentSearch = filterModel.SearchTerm,
                     TotalPages = totalPages,
-                    SortField = sortField,
-                    SortOrder = sortOrder,
+                    SortField = filterModel.SortField,
+                    SortOrder = filterModel.SortOrder,
                     Items = folders.Select(d => new TrashedFolderViewModel()
                     {
                         Id = d.Id,
@@ -92,23 +84,22 @@ namespace DMS.Service.Service
         }
 
         public async Task<TrashDocumentsViewModel>GetTrashedDocumentAsync
-            (string? searchName, int pageNum, int pageSize,
-            string sortField, string sortOrder)
+            (TrashFilterViewModel filterModel)
         {
-            searchName = searchName?.Trim() ?? "";
+            filterModel.SearchTerm = filterModel.SearchTerm?.Trim() ?? "";
 
             IQueryable<Document> query;
-            if(string.IsNullOrWhiteSpace(searchName))
+            if(string.IsNullOrWhiteSpace(filterModel.SearchTerm))
             {
-                query = _unit.DocumentRepository.GetDeleted();
+                query = _unit.DocumentRepository.GetDeleted(filterModel.UserId);
             }else
             {
-                query = _unit.DocumentRepository.TrashedSearchAsQueryable(searchName);
+                query = _unit.DocumentRepository.TrashedSearchAsQueryable(filterModel.SearchTerm, filterModel.UserId);
             }
 
             int count = query.Count();
 
-            query = (sortField ,  sortOrder?.ToLower()) switch
+            query = (filterModel.SortField, filterModel.SortOrder?.ToLower()) switch
             {
                 ("Name", "asc") => query.OrderBy(d => d.Name),
                 ("Name", "desc") => query.OrderByDescending(d => d.Name),
@@ -119,22 +110,25 @@ namespace DMS.Service.Service
                 ("DeletedAt", "asc") => query.OrderBy(d => d.DeletedAt),
                 ("DeletedAt", "desc") => query.OrderByDescending(d => d.DeletedAt),
 
+                ("FolderName", "asc") => query.OrderBy(d => d.Folder!.Name),
+                ("FolderName", "desc") => query.OrderByDescending(d => d.Folder!.Name),
+
                 _ => query.OrderByDescending(d => d.DeletedAt)
             };
 
             List<Document> documents = await _unit.DocumentRepository.
-                GetAllWithPaginationAsync(query, pageNum, pageSize);
+                GetAllWithPaginationAsync(query, filterModel.PageNum, filterModel.PageSize);
 
-            int totalPages = (int)Math.Ceiling((double) count / pageSize);
+            int totalPages = (int)Math.Ceiling((double) count / filterModel.PageSize);
             var trashDocumentsViewModel = new TrashDocumentsViewModel()
             {
                 TrashedDocuments = new PagedResult<TrashedDocumentViewModel>()
                 {
-                    CurrentPage = pageNum,
-                    CurrentSearch = searchName,
+                    CurrentPage = filterModel.PageNum,
+                    CurrentSearch = filterModel.SearchTerm,
                     TotalPages = totalPages,
-                    SortField = sortField,
-                    SortOrder = sortOrder,
+                    SortField = filterModel.SortField,
+                    SortOrder = filterModel.SortOrder,
                     Items = documents.Select(d => new TrashedDocumentViewModel()
                     {
                         Id = d.Id,
@@ -151,14 +145,14 @@ namespace DMS.Service.Service
             return trashDocumentsViewModel;
         }
 
-        public async Task<Folder?> GetFolderByIdAsync(string id)
+        public async Task<Folder?> GetFolderByIdAsync(string id, string userId)
         {
-            Folder? folder = await _unit.FolderRepository.GetDeletedById(id);
+            Folder? folder = await _unit.FolderRepository.GetDeletedById(id, userId);
             return folder;
         }
-        public async Task<Document?> GetDocumentByIdAsync(string id)
+        public async Task<Document?> GetDocumentByIdAsync(string id, string userId)
         {
-            Document? document = await _unit.DocumentRepository.GetDeletedById(id);
+            Document? document = await _unit.DocumentRepository.GetDeletedById(id, userId);
             return document;
         }
 
@@ -171,7 +165,7 @@ namespace DMS.Service.Service
                 _unit.Save();
                 return true;
            }catch (Exception ex)
-            {
+           {
                 throw new Exception("Restore Folder can not applied! Try again", ex);
            }
         }
@@ -188,23 +182,35 @@ namespace DMS.Service.Service
                 throw new Exception("Restore Document can not applied! Try again", ex);
             }
         }
-        public async Task<bool> DeleteFolderAsync(string folderId)
+        public async Task<bool> DeleteFolderAsync(string folderId, string userId)
         {
-           try
-           {
+            Folder? folder = await GetFolderByIdAsync(folderId, userId);
+            if (folder == null)
+                throw new Exception("Folder not found. Or can not access");
+            try
+            {
                 await _unit.FolderRepository.DeleteAsync(folderId);
                 _unit.Save();
                 return true;
-           }catch (Exception ex)
+            }catch (Exception ex)
             {
                 throw new Exception("Delete Folder can not applied! Try again", ex);
-           }
+            }
         }
-        public async Task<bool> DeleteDocumentAsync(string documentId)
+        public async Task<bool> DeleteDocumentAsync(string documentId, string userId, string wwwroot)
         {
+            Document? doc = await GetDocumentByIdAsync(documentId, userId);
+            if(doc == null)
+                throw new Exception("Folder not found. Or can not access");
+
             try
             {
                 await _unit.DocumentRepository.DeleteAsync(documentId);
+
+                string deletePath = Path.Combine(wwwroot, doc.FilePath).Replace("/", "\\");
+                if (File.Exists(deletePath))
+                    File.Delete(deletePath);
+
                 _unit.Save();
                 return true;
             }catch (Exception ex)

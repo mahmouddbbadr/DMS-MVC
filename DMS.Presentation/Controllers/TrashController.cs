@@ -1,14 +1,18 @@
 ﻿using DMS.Domain.Models;
 using DMS.Service.IService;
 using DMS.Service.ModelViews.TrashViews;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace DMS.Presentation.Controllers
 {
+    [Authorize]
     public class TrashController : Controller
     {
         private readonly ITrashService trashService;
+        private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         public TrashController(ITrashService trashService)
         {
@@ -18,16 +22,11 @@ namespace DMS.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(TrashFilterViewModel fromRequest)
         {
+            fromRequest.UserId = UserId;
+
             if(ModelState.IsValid)
             {
-                var model = await trashService.GetTrashOverviewAsync
-                    (
-                        fromRequest.SearchTerm,
-                        fromRequest.PageNum,
-                        fromRequest.PageSize,
-                        fromRequest.SortField!,
-                        fromRequest.SortOrder!
-                    );
+                var model = await trashService.GetTrashOverviewAsync(fromRequest);
                 return View("Index", model);
             }
             return BadRequest(ModelState);
@@ -36,16 +35,11 @@ namespace DMS.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> LoadFolders(TrashFilterViewModel fromRequest)
         {
+            fromRequest.UserId = UserId;
+
             if(ModelState.IsValid)
             {
-                var model = await trashService.GetTrashedFolderAsync
-                    (
-                        fromRequest.SearchTerm,
-                        fromRequest.PageNum,
-                        fromRequest.PageSize,
-                        fromRequest.SortField!,
-                        fromRequest.SortOrder!
-                    );
+                var model = await trashService.GetTrashedFolderAsync(fromRequest);
                 return PartialView("_TrashedFoldersPartial", model);
             }
             return BadRequest(ModelState);
@@ -54,16 +48,11 @@ namespace DMS.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> LoadDocuments(TrashFilterViewModel fromRequest)
         {
+            fromRequest.UserId = UserId;
+
             if(ModelState.IsValid)
             {
-                var model = await trashService.GetTrashedDocumentAsync
-                    (
-                        fromRequest.SearchTerm,
-                        fromRequest.PageNum,
-                        fromRequest.PageSize,
-                        fromRequest.SortField!,
-                        fromRequest.SortOrder!
-                    );
+                var model = await trashService.GetTrashedDocumentAsync(fromRequest);
                 return PartialView("_TrashedDocumentsPartial", model);
             }
             return BadRequest(ModelState);
@@ -75,9 +64,9 @@ namespace DMS.Presentation.Controllers
             if (string.IsNullOrWhiteSpace(id))
                 return BadRequest(new { success = false, message = "Invalid folder ID." });
 
-            var folder = await trashService.GetFolderByIdAsync(id);
+            var folder = await trashService.GetFolderByIdAsync(id, UserId);
             if (folder == null)
-                return NotFound(new { success = false, message = "Folder not found." });
+                return NotFound(new { success = false, message = "Folder not found. or can not access" });
 
             try
             {
@@ -96,9 +85,9 @@ namespace DMS.Presentation.Controllers
             if(string.IsNullOrWhiteSpace(id))
                 return BadRequest(new {success = false, message = "Invalid Document Id."});
 
-            Document? document = await trashService.GetDocumentByIdAsync(id);
+            Document? document = await trashService.GetDocumentByIdAsync(id, UserId);
             if(document == null)
-                return NotFound(new { success = false, message = "Document Not Found." });
+                return NotFound(new { success = false, message = "Document Not Found. Or can not access" });
             try
             {
                 await trashService.RestoreDocumentAsync(document);
@@ -116,13 +105,13 @@ namespace DMS.Presentation.Controllers
             if (string.IsNullOrWhiteSpace(id))
                 return BadRequest(new { success = false, message = "Invalid folder ID." });
 
-            var folder = await trashService.GetFolderByIdAsync(id);
+            var folder = await trashService.GetFolderByIdAsync(id, UserId);
             if (folder == null)
-                return NotFound(new { success = false, message = "Folder not found." });
+                return NotFound(new { success = false, message = "Folder not found. Or can not access" });
 
             try
             {
-                await trashService.DeleteFolderAsync(id);
+                await trashService.DeleteFolderAsync(id, UserId);
                 return Json(new { success = true, message = "Folder deleted successfully." });
             }
             catch (Exception ex)
@@ -137,12 +126,13 @@ namespace DMS.Presentation.Controllers
             if(string.IsNullOrWhiteSpace(id))
                 return BadRequest(new {success = false, message = "Invalid Document Id."});
 
-            Document? document = await trashService.GetDocumentByIdAsync(id);
+            Document? document = await trashService.GetDocumentByIdAsync(id, UserId);
             if(document == null)
-                return NotFound(new { success = false, message = "Document Not Found." });
+                return NotFound(new { success = false, message = "Document Not Found. Or can not access" });
             try
             {
-                await trashService.DeleteDocumentAsync(id);
+                string wwwroot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                await trashService.DeleteDocumentAsync(id, UserId, wwwroot);
                 return Json(new { success = true, message = "Folder deleted successfully." });
             }
             catch (Exception ex)

@@ -1,9 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
-namespace DMS.Service.ModelViews.TrashViews
+namespace DMS.Service.ModelViews.StarredViews
 {
-    public class TrashFilterViewModel
+    public class StarredFilterViewModel
     {
         [ValidateNever]
         public string UserId { get; set; } = string.Empty;
@@ -12,8 +17,8 @@ namespace DMS.Service.ModelViews.TrashViews
         [Display(Name = "Search")]
         public string? SearchTerm { get; set; }
 
-        [RegularExpression("^(Name|FolderName|DeletedAt|Size|ItemCount)?$", ErrorMessage = "Invalid sort field.")]
-        public string? SortField { get; set; } = "DeletedAt";
+        [RegularExpression("^(Name|FolderName|Size|ItemCount|AddedAt)?$", ErrorMessage = "Invalid sort field.")]
+        public string? SortField { get; set; } = "AddedAt";
 
         [RegularExpression("^(asc|desc)?$", ErrorMessage = "Sort order must be either 'asc' or 'desc'.")]
         public string? SortOrder { get; set; } = "desc";
@@ -24,5 +29,4 @@ namespace DMS.Service.ModelViews.TrashViews
         [Range(1, 100, ErrorMessage = "Page size must be between 1 and 100.")]
         public int PageSize { get; set; } = 5;
     }
-
 }

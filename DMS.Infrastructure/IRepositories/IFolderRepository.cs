@@ -5,6 +5,7 @@ namespace DMS.Infrastructure.IRepositories
 {
     public interface IFolderRepository: ISortSearch<Folder>, IRepository<Folder>
     {
-        public Task<List<Folder>> GetFoldersByFolderIdAsync(string? parentFolderId);
+        Task<List<Folder>> GetFoldersByFolderIdAsync(string? parentFolderId);
+        long GetTotalSize(string id);
     }
 }
