@@ -1,5 +1,6 @@
 ﻿using DMS.Domain.Models;
 using DMS.Infrastructure.IRepositorys;
+using System.Linq.Expressions;
 
 namespace DMS.Infrastructure.IRepositories
 {
@@ -9,5 +10,9 @@ namespace DMS.Infrastructure.IRepositories
             string sortOrder = "dateDesc",
             int page = 1,
             int pageSize = 5);
+        public Task<bool> AnyAsync(Expression<Func<SharedItem, bool>> predicate);
+        public Task<List<SharedItem>> GetSharedItemsByUserAndItemAsync(string itemId, string itemType, string userId);
+        Task<SharedItem> FirstOrDefaultAsync(Expression<Func<SharedItem, bool>> predicate);
+
     }
 }

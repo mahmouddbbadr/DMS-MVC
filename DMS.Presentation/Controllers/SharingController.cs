@@ -1,5 +1,5 @@
 ﻿using DMS.Service.IService;
-using DMS.Service.ModelViews.SharedViewModel;
+using DMS.Service.ModelViews.Shared;
 using DMS.Service.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -32,16 +32,7 @@ namespace DMS.Presentation.Controllers
 
             var sharedWithMeItems = await sharingService.GetSharedWithMeAsync(userId, search, sortOrder, page, pageSize);
 
-            var viewModel = new SharedIndexViewModel
-            {
-                SharedWithMe = sharedWithMeItems,
-                SearchTerm = search,
-                SortOrder = sortOrder,
-                CurrentPage = page,
-                PageSize = pageSize,
-            };
-
-            return View("SharedWithMe", viewModel);
+            return View("SharedWithMe", sharedWithMeItems);
 
         }
 
@@ -55,16 +46,7 @@ namespace DMS.Presentation.Controllers
 
             var sharedByMeItems = await sharingService.GetSharedByMeAsync(userId, search, sortOrder, page, pageSize);
 
-            var viewModel = new SharedIndexViewModel
-            {
-                SharedByMe = sharedByMeItems,
-                SearchTerm = search,
-                SortOrder = sortOrder,
-                CurrentPage = page,
-                PageSize = pageSize,
-            };
-
-            return View("SharedByMe",viewModel);
+            return View("SharedByMe", sharedByMeItems);
 
         }
 
@@ -72,18 +54,30 @@ namespace DMS.Presentation.Controllers
         [HttpGet]
         public IActionResult ShareFolder(string folderId)
         {
+            if (string.IsNullOrWhiteSpace(folderId))
+            {
+                return BadRequest("Folder ID is required.");
+            }
 
             var model = new ShareViewModel { FolderId = folderId };
-
             return View(model);
         }
+
 
         // open form to share document with someone
         [HttpGet]
         public IActionResult ShareDocument(string documentId)
         {
-            var model = new ShareViewModel { DocumentId = documentId };
-            return View(model);
+            if (documentId != null)
+            {
+
+                var model = new ShareViewModel { DocumentId = documentId };
+                return View(model);
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
         // save sharing
@@ -92,24 +86,34 @@ namespace DMS.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task <IActionResult> Share(ShareViewModel model)
         {
+            
             if (!ModelState.IsValid)
             {
+                string invalidView = model.FolderId != null ? "ShareFolder" :
+                                     model.DocumentId != null ? "ShareDocument" : "ShareError";
+                return View(invalidView, model);
+            }
+            model.SharedByUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            Console.WriteLine("Current User Id: " + currentUserId);
+            try
+            {
+                if (model.FolderId != null)
+                {
+                    await sharingService.ShareFolderAsync(model);
+                }
+                else if (model.DocumentId != null)
+                {
+                    await sharingService.ShareDocumentAsync(model);
+                }
+
+                return RedirectToAction(nameof(SharedByMe));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", ex.Message);
                 return View(model.FolderId != null ? "ShareFolder" : "ShareDocument", model);
             }
-
-            model.SharedByUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (model.FolderId != null)
-            {
-                await sharingService.ShareFolderAsync(model);
-            }
-            else if (model.DocumentId != null)
-            {
-                await sharingService.ShareDocumentAsync(model);
-            }
-
-            return RedirectToAction(nameof(SharedByMe));
-
 
         }
 
@@ -118,8 +122,141 @@ namespace DMS.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Unshare(string shareItemId)
         {
-            await sharingService.UnshareAsync(shareItemId);
-            return RedirectToAction(nameof(Index));
+            if (string.IsNullOrEmpty(shareItemId))
+                return BadRequest("Share item ID is required.");
+
+            try
+            {
+                await sharingService.UnshareAsync(shareItemId);
+                TempData["SuccessMessage"] = "Item unshared successfully!";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
+            return RedirectToAction(nameof(SharedByMe));
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnshareAll(string id, string type)
+        {
+
+            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(type))
+            {
+                TempData["Error"] = "Invalid request.";
+                return RedirectToAction("SharedByMe");
+            }
+
+            try
+            {
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var count = await sharingService.UnshareAllAsync(id, type, currentUserId);
+
+                TempData["Success"] = $"Successfully unshared with {count} user(s).";
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
+
+            return RedirectToAction("SharedByMe");
+        }
+        [HttpGet]
+        public async Task<IActionResult> UnshareSelection(string id, string type)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(type))
+                {
+                    TempData["Error"] = "Item ID and Type are required.";
+                    return RedirectToAction("SharedByMe");
+                }
+
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var model = await sharingService.GetSharedUsersAsync(id, type, currentUserId);
+
+                return View(model);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error loading shared users: {ex.Message}";
+                return RedirectToAction("SharedByMe");
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnshareSelection(UnshareSelectionViewModel model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+
+                if (model.SelectedUserIds == null || !model.SelectedUserIds.Any())
+                {
+                    TempData["Error"] = "Please select at least one user to unshare.";
+                    return View(model);
+                }
+
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier) ;
+                var unsharedCount = await sharingService.UnshareWithUsersAsync(
+                    model.ItemId, model.Type, model.SelectedUserIds, currentUserId);
+
+                if (unsharedCount > 0)
+                {
+                    TempData["Success"] = $"Successfully unshared {model.ItemName} with {unsharedCount} user(s).";
+                }
+                else
+                {
+                    TempData["Error"] = "No users were unshared. Please check your selection.";
+                }
+
+                return RedirectToAction("SharedByMe", "Share");
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error unsharing: {ex.Message}";
+                return View(model);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UnshareSingle(string itemId, string type, string userId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(itemId) || string.IsNullOrEmpty(type) || string.IsNullOrEmpty(userId))
+                {
+                    TempData["Error"] = "Invalid request parameters.";
+                    return RedirectToAction("SharedByMe", "Share");
+                }
+
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var success = await sharingService.UnshareWithUserAsync(itemId, type, userId, currentUserId);
+
+                if (success)
+                {
+                    var userEmail = await sharingService.GetUserEmailAsync(userId);
+                    TempData["Success"] = $"Successfully unshared with {userEmail}.";
+                }
+                else
+                {
+                    TempData["Error"] = "Failed to unshare with the selected user.";
+                }
+
+                return RedirectToAction("UnshareSelection", new { id = itemId, type = type });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Error unsharing: {ex.Message}";
+                return RedirectToAction("UnshareSelection", new { id = itemId, type = type });
+            }
+        }
+
     }
 }

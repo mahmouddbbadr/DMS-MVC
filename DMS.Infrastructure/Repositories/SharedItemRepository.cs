@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -44,6 +45,34 @@ namespace DMS.Infrastructure.Repository
 
             return await GetAllWithPaginationAsync(query, page, pageSize);
         }
+        public async Task<bool> AnyAsync(Expression<Func<SharedItem, bool>> predicate)
+        {
+            return await _context.SharedItems.AnyAsync(predicate);
+        }
+        public async Task<List<SharedItem>> GetSharedItemsByUserAndItemAsync(string itemId, string itemType, string userId)
+        {
+            if (string.IsNullOrWhiteSpace(itemId) || string.IsNullOrWhiteSpace(userId))
+                return new List<SharedItem>(); 
 
+            itemType = itemType?.ToLower() ?? "";
+            IQueryable<SharedItem> query = _context.SharedItems
+                .Include(s => s.SharedWithUser)  
+                .Include(s => s.Document)        
+                .Include(s => s.Folder)          
+                .Where(s => s.SharedByUserId == userId);
+
+            if (itemType.Equals("document", StringComparison.OrdinalIgnoreCase))
+                query = query.Where(s => s.DocumentId == itemId);
+            else if (itemType.Equals("folder", StringComparison.OrdinalIgnoreCase))
+                query = query.Where(s => s.FolderId == itemId);
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<SharedItem> FirstOrDefaultAsync(Expression<Func<SharedItem, bool>> predicate)
+        {
+            return await _context.SharedItems
+                .FirstOrDefaultAsync(predicate);
+        }
     }
 }

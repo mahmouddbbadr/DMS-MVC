@@ -1,5 +1,5 @@
 ﻿
-namespace DMS.Service.ModelViews.SharedViewModel
+namespace DMS.Service.ModelViews.Shared
 {
     public class SharedIndexViewModel
     {
