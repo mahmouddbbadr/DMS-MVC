@@ -7,5 +7,6 @@ namespace DMS.Infrastructure.IRepositories
     {
         Task<List<Folder>> GetFoldersByFolderIdAsync(string? parentFolderId);
         long GetTotalSize(string id);
+        Task<Folder?> GetFolderByIdAuthorizeAsync(string folderId, string userId);
     }
 }

@@ -12,10 +12,10 @@ namespace DMS.Infrastructure.IRepositories
     {
         Task<AppUser> GetUserByEmailAsync(string email);
         Task<AppUser> GetBlockedUserByEmailAsync(string email);
-        Task<List<AppUser>> GetUnBlockedUsersAsync();
+        Task<List<AppUser>> GetUnBlockedUsersAsync(string userId);
         Task<List<AppUser>> GetBlockedUsersAsync();
         Task<List<AppUser>> SearchBlockedUsersAsync(string email);
-        Task<List<AppUser>> SearchUnBlockedUsersAsync(string email);
+        Task<List<AppUser>> SearchUnBlockedUsersAsync(string userId, string email);
         int GetDocumentsCountAsync(string id);
         int GetFoldersCountAsync(string id);
         Task<int> GetBlockUsers();

@@ -30,7 +30,7 @@ namespace DMS.Service.Service
             if (!result.Succeeded)
                 return result;
 
-            await userManager.AddToRoleAsync(user, "Admin");
+            await userManager.AddToRoleAsync(user, "User");
             await signInManager.SignInAsync(user, isPersistent: false);
 
 

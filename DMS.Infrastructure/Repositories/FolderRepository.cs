@@ -42,5 +42,11 @@ namespace DMS.Infrastructure.Repository
             return total;
         }
 
+        public async Task<Folder?> GetFolderByIdAuthorizeAsync(string folderId, string userId)
+        {
+            return await _context.Folders
+                .SingleOrDefaultAsync(f => f.Id == folderId && f.OwnerId == userId);
+        }
+
     }
 }

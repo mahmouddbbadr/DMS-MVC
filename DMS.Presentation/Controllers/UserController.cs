@@ -1,6 +1,7 @@
 ﻿using DMS.Service.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace DMS.Presentation.Controllers
@@ -8,12 +9,15 @@ namespace DMS.Presentation.Controllers
     [Authorize(Roles = "Admin")]
     public class UserController(IUserService userService) : Controller
     {
+        private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
         [HttpGet]
         public async Task<IActionResult> Unblocked(string? searchEmail, int page = 1, int pageSize = 8)
         {
+
             var result = string.IsNullOrEmpty(searchEmail)
-                ? await userService.GetAllUnBlockedAsnyc(page, pageSize)
-                : await userService.SearchUnBlockedUsersAsnyc(searchEmail, page, pageSize);
+                ? await userService.GetAllUnBlockedAsnyc(UserId, page, pageSize)
+                : await userService.SearchUnBlockedUsersAsnyc(UserId, searchEmail, page, pageSize);
 
             ViewBag.TotalCount = result.totalCount;
             ViewBag.TotalPages = result.totalPages;

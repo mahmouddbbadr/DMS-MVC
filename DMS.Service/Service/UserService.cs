@@ -20,9 +20,9 @@ namespace DMS.Service.Service
             return (mappedUsers, TotalCount, totalPages);
         }
 
-        public async Task<(List<UserOutputViewModel> users, int totalCount, int totalPages)> GetAllUnBlockedAsnyc(int page, int pageSize)
+        public async Task<(List<UserOutputViewModel> users, int totalCount, int totalPages)> GetAllUnBlockedAsnyc(string userId, int page, int pageSize)
         {
-            var users = await unit.AppUserRepository.GetUnBlockedUsersAsync();
+            var users = await unit.AppUserRepository.GetUnBlockedUsersAsync(userId);
             var totalCount = users.Count;
             var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
             users = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();
@@ -41,9 +41,9 @@ namespace DMS.Service.Service
             return (mappedUsers, TotalCount, totalPages);
         }
 
-        public async Task<(List<UserOutputViewModel> users, int totalCount, int totalPages)> SearchUnBlockedUsersAsnyc(string email, int page, int pageSize)
+        public async Task<(List<UserOutputViewModel> users, int totalCount, int totalPages)> SearchUnBlockedUsersAsnyc(string userId, string email, int page, int pageSize)
         {
-            var users = await unit.AppUserRepository.SearchUnBlockedUsersAsync(email);
+            var users = await unit.AppUserRepository.SearchUnBlockedUsersAsync(userId, email);
             var TotalCount = users.Count;
             var totalPages = (int)Math.Ceiling((double)TotalCount / pageSize);
             users = users.Skip((page - 1) * pageSize).Take(pageSize).ToList();

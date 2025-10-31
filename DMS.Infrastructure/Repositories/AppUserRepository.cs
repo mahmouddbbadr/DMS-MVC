@@ -2,11 +2,7 @@
 using DMS.Infrastructure.DataContext;
 using DMS.Infrastructure.IRepositories;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace DMS.Infrastructure.Repository
 {
@@ -43,10 +39,9 @@ namespace DMS.Infrastructure.Repository
         }
 
 
-        public async Task<List<AppUser>> GetUnBlockedUsersAsync()
+        public async Task<List<AppUser>> GetUnBlockedUsersAsync(string userId)
         {
-            return await _context.AppUsers.Where(u => !u.IsLocked).ToListAsync();
-
+            return await _context.AppUsers.Where(u => !u.IsLocked && u.Id != userId).ToListAsync();
         }
 
         public async Task<List<AppUser>> SearchBlockedUsersAsync(string email)
@@ -54,10 +49,9 @@ namespace DMS.Infrastructure.Repository
             return await _context.AppUsers.Where(u => u.IsLocked && u.Email.ToLower().StartsWith(email.ToLower())).ToListAsync();
         }
 
-        public async Task<List<AppUser>> SearchUnBlockedUsersAsync(string email)
+        public async Task<List<AppUser>> SearchUnBlockedUsersAsync(string userId, string email)
         {
-            return await _context.AppUsers.Where(u => !u.IsLocked && u.Email.ToLower().StartsWith(email.ToLower())).ToListAsync();
-
+            return await _context.AppUsers.Where(u => !u.IsLocked && u.Id != userId && u.Email.ToLower().StartsWith(email.ToLower())).ToListAsync();
         }
     }
 }

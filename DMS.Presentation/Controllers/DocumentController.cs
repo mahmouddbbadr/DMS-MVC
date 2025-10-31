@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
+using System.Threading.Tasks;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace DMS.Presentation.Controllers
 {
@@ -42,6 +44,11 @@ namespace DMS.Presentation.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            bool authorized = await documentService
+                .IsAuthorizedFolderAsync(query.FolderId, UserId);
+            if (!authorized)
+                return NotFound();
+
             var model = await documentService
                 .GetDocumentsByFolderIdWithPaginationAsync(query);
 
@@ -69,8 +76,16 @@ namespace DMS.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult Upload(string folderId)
+        public async Task<IActionResult> Upload(string folderId)
         {
+            if(string.IsNullOrEmpty(folderId))
+                return BadRequest();
+
+            bool authorized = await documentService
+                .IsAuthorizedFolderAsync(folderId, UserId);
+            if (!authorized)
+                return NotFound();
+
             DocumentUploadViewModel model = new() 
             {       
                 FolderId = folderId,

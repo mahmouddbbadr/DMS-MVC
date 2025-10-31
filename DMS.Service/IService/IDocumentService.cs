@@ -19,5 +19,6 @@ namespace DMS.Service.IService
             (DocumentQueryViewModel modelQuery);
         Task<DocumentUploadViewModel?> SetEditDocumentAsync
             (DocumentEditViewModel model, string userId);
+        Task<bool> IsAuthorizedFolderAsync(string fId, string userId);
     }
 }

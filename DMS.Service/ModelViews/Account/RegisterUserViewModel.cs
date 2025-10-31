@@ -9,11 +9,11 @@ namespace DMS.Service.ModelViews.Account
         [MinLength(2), MaxLength(15)]
         public string LastName { get; set; }
 
-        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@gmail\.com$", ErrorMessage = "Invaild email format.")]
+        [RegularExpression(@"^[a-zA-Z0-9._%+-]+@gmail\.com$", ErrorMessage = "Invalid email format.")]
         [EmailAddress]
         public string EmailAddress { get; set; }
 
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", ErrorMessage = "Week password.")]
+        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$", ErrorMessage = "Weak password.")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
         [Compare("Password", ErrorMessage = "Password and Confirm Password do not match.")]

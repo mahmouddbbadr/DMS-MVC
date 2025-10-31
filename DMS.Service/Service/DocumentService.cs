@@ -342,5 +342,10 @@ namespace DMS.Service.Service
             };
         }
 
+        public async Task<bool> IsAuthorizedFolderAsync(string fId, string userId)
+        {
+            var folder = await _unit.FolderRepository.GetFolderByIdAuthorizeAsync(fId, userId);
+            return folder != null;
+        }
     }
 }
