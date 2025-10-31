@@ -64,34 +64,29 @@ namespace DMS.Presentation.Controllers
             if (string.IsNullOrWhiteSpace(id))
                 return BadRequest(new { success = false, message = "Invalid folder ID." });
 
-            var folder = await trashService.GetFolderByIdAsync(id, UserId);
-            if (folder == null)
-                return NotFound(new { success = false, message = "Folder not found. or can not access" });
+            var result = await trashService.RestoreFolderAsync(id, UserId);
 
-            try
-            {
-                await trashService.RestoreFolderAsync(folder);
-                return Json(new { success = true, message = "Folder restored successfully." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { success = false, message = ex.Message });
-            }
+            if (!result.Success)
+                return BadRequest(new { success = false, message = result.Message });
+
+            return Json(new { success = true, message = "Folder restored successfully." });
         }
+
 
         [HttpPost]
         public async Task<IActionResult> RestoreDocument(string id)
         {
-            if(string.IsNullOrWhiteSpace(id))
-                return BadRequest(new {success = false, message = "Invalid Document Id."});
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(new { success = false, message = "Invalid Document Id." });
 
-            Document? document = await trashService.GetDocumentByIdAsync(id, UserId);
-            if(document == null)
-                return NotFound(new { success = false, message = "Document Not Found. Or can not access" });
             try
             {
-                await trashService.RestoreDocumentAsync(document);
-                return Json(new { success = true, message = "Folder restored successfully." });
+                var result = await trashService.RestoreDocumentAsync(id, UserId);
+
+                if (!result.Success)
+                    return BadRequest(new { success = false, message = result.Message });
+
+                return Json(new { success = true, message = "Document restored successfully." });
             }
             catch (Exception ex)
             {
@@ -105,13 +100,13 @@ namespace DMS.Presentation.Controllers
             if (string.IsNullOrWhiteSpace(id))
                 return BadRequest(new { success = false, message = "Invalid folder ID." });
 
-            var folder = await trashService.GetFolderByIdAsync(id, UserId);
-            if (folder == null)
-                return NotFound(new { success = false, message = "Folder not found. Or can not access" });
-
             try
             {
-                await trashService.DeleteFolderAsync(id, UserId);
+                bool result = await trashService.DeleteFolderAsync(id, UserId);
+
+                if (!result)
+                    return NotFound(new { success = false, message = "Folder not found or cannot be accessed." });
+
                 return Json(new { success = true, message = "Folder deleted successfully." });
             }
             catch (Exception ex)
@@ -123,22 +118,24 @@ namespace DMS.Presentation.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteDocument(string id)
         {
-            if(string.IsNullOrWhiteSpace(id))
-                return BadRequest(new {success = false, message = "Invalid Document Id."});
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest(new { success = false, message = "Invalid Document Id." });
 
-            Document? document = await trashService.GetDocumentByIdAsync(id, UserId);
-            if(document == null)
-                return NotFound(new { success = false, message = "Document Not Found. Or can not access" });
             try
             {
                 string wwwroot = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
-                await trashService.DeleteDocumentAsync(id, UserId, wwwroot);
-                return Json(new { success = true, message = "Folder deleted successfully." });
+                bool result = await trashService.DeleteDocumentAsync(id, UserId, wwwroot);
+
+                if (!result)
+                    return NotFound(new { success = false, message = "Document not found or cannot be accessed." });
+
+                return Json(new { success = true, message = "Document deleted successfully." });
             }
             catch (Exception ex)
             {
                 return BadRequest(new { success = false, message = ex.Message });
             }
         }
+
     }
 }

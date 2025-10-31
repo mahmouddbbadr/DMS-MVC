@@ -33,7 +33,7 @@
 
                             <th>
                                 <a href="#" class="sort-link" data-field="Size">
-                                    Size (KB)
+                                    Size
                                     @if (Model.TrashedDocuments.SortField == "Size")
                                     {
                                         <i class="fas @(Model.TrashedDocuments.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
@@ -89,7 +89,7 @@
 
                                 <td>@d.FileType</td>
 
-                                <td>@(d.Size / 1024)</td>
+                                <td>@SizeFormatter.FormatSize(d.Size)</td>
 
                                 <td>@d.FolderName</td>
 
@@ -99,7 +99,8 @@
                                     <div class="d-flex justify-content-center align-items-center gap-2">
 
                                         <form asp-controller="Trash" asp-action="RestoreDocument" asp-route-id="@d.Id" method="post" class="m-0 p-0">
-                                            <button type="submit" class="btn btn-success btn-sm restore-button mx-2">
+                                            <button type="submit" class="btn btn-success btn-sm restore-button mx-2"
+                                                    @(d.FolderIsDeleted ? "disabled title='Restore folder first'" : "")>
                                                 <i class="fas fa-undo me-1"></i> Restore
                                             </button>
                                         </form>
@@ -122,40 +123,6 @@
     </div>
 </div>
 
-<nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center">
-        @if (Model.TrashedDocuments.HasPrevious)
-        {
-            <li class="page-item">
-                <a href="#" class="page-link" data-pagenum="@(Model.TrashedDocuments.CurrentPage - 1)">Previous</a>
-            </li>
-        }
-        else
-        {
-            <li class="page-item disabled">
-                <span class="page-link">Previous</span>
-            </li>
-        }
-
-        @for (int i = 1; i <= Model.TrashedDocuments.TotalPages; i++)
-        {
-            if (i == Model.TrashedDocuments.CurrentPage)
-            {
-                <li class="page-item active"><span class="page-link">@i</span></li>
-            }
-            else
-            {
-                <li class="page-item"><a href="#" class="page-link" data-pagenum="@i">@i</a></li>
-            }
-        }
-
-        @if (Model.TrashedDocuments.HasNext)
-        {
-            <li class="page-item"><a href="#" class="page-link" data-pagenum="@(Model.TrashedDocuments.CurrentPage + 1)">Next</a></li>
-        }
-        else
-        {
-            <li class="page-item disabled"><span class="page-link">Next</span></li>
-        }
-    </ul>
-</nav>
+<div class="mt-4">
+    <partial name="_Pagination" model="Model.TrashedDocuments" />
+</div>

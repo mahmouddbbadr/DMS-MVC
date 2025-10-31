@@ -16,5 +16,6 @@ namespace DMS.Service.ModelViews.TrashViews
         public DateTime? DeletedAt { get; set; }
         public string? FolderId { get; set; }
         public string? FolderName { get; set; }  // Helpful to show where it was deleted from
+        public bool FolderIsDeleted { get; set; }
     }
 }

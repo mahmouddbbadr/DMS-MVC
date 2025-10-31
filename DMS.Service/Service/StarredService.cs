@@ -117,6 +117,14 @@ namespace DMS.Service.Service
             try
             {
                 item.IsStarred = false;
+                if (typeof(T) == typeof(Folder))
+                {
+                    _unit.FolderRepository.Update(item as Folder);
+                }
+                else if (typeof(T) == typeof(Document))
+                {
+                    _unit.DocumentRepository.Update(item as Document);
+                }
                 _unit.Save();
                 return true;
             }catch (Exception ex)

@@ -57,7 +57,7 @@
             <div class="card border-0 shadow-lg rounded-4 text-white bg-gradient" style="background: linear-gradient(135deg, #6a11cb, #2575fc);">
                 <div class="card-body text-center">
                     <i class="fa fa-database fa-2x mb-2"></i>
-                    <h4 class="fw-bold">@Model.TotalStorage MB</h4>
+                    <h4 class="fw-bold">@SizeFormatter.FormatSize(Model.TotalStorage)</h4>
                     <p class="mb-0">Used Space</p>
                 </div>
             </div>

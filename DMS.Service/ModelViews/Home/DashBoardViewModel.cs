@@ -10,7 +10,7 @@ namespace DMS.Service.ModelViews
     {
         public int TotalDocuments { get; set; }
         public int? TotalFolders { get; set; }
-        public double TotalStorage { get; set; }
+        public long TotalStorage { get; set; }
         public int SharedWithMe { get; set; }
         public int SharedByMe { get; set; }
 

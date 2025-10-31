@@ -8,5 +8,13 @@ namespace DMS.Infrastructure.IRepositories
         Task<List<Folder>> GetFoldersByFolderIdAsync(string? parentFolderId);
         long GetTotalSize(string id);
         Task<Folder?> GetFolderByIdAuthorizeAsync(string folderId, string userId);
+
+        //
+        IQueryable<Folder> GetDeletedFolders(string userId);
+        Task<Folder?> GetDeletedFolderByIdAsync(string id, string userId);
+        IQueryable<Folder> GetFoldersAsQueryable(string? parentFolderId, string userId);
+        IQueryable<Folder> SearchFoldersAsQueryable
+            (string? parentFolderId, string userId, string searchName);
+        long FolderTotalSize(string folderId);
     }
 }

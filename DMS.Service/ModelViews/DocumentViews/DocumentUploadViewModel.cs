@@ -16,7 +16,7 @@ namespace DMS.Service.ModelViews.DocumentViews
         public string OwnerId { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Document name is required.")]
-        [StringLength(150, ErrorMessage = "Document name cannot exceed 150 characters.")]
+        [StringLength(50, ErrorMessage = "Document name cannot exceed 50 characters.")]
         public string Name { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Folder selection is required.")]
