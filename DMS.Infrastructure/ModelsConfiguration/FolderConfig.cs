@@ -15,7 +15,7 @@ namespace DMS.Infrastructure.ModelsConfiguration
             builder.HasKey(f => f.Id);
 
             builder.Property(f => f.Name)
-                .HasColumnType("VARCHAR(20)")
+                .HasColumnType("VARCHAR(50)")
                 .IsRequired();
 
             builder.Property(f => f.IsDeleted)

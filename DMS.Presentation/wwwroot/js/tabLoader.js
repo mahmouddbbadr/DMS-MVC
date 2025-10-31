@@ -108,7 +108,6 @@
 
       
 
-        // Unstar
         $(document).on("click", ".star-toggle-button", function (e) {
             e.preventDefault();
             const form = $(this).closest("form");
@@ -122,11 +121,17 @@
             }).then(res => {
                 if (res.isConfirmed) {
                     $.post(form.attr("action"), form.serialize())
-                        .done(() => setTimeout(refresh, 300))
+                        .done(() => {
+                            // Remove visually
+                            form.closest(".document-row, tr, .card").fadeOut(300, function () {
+                                $(this).remove();
+                            });
+                        })
                         .fail(() => Swal.fire("Error", "Unstar failed", "error"));
                 }
             });
         });
+
 
         // Delete (move to trash)
         $(document).on("click", ".delete-button", function (e) {

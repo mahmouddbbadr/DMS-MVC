@@ -41,7 +41,7 @@
                                 </a>
                             </th>
                             <th>
-                                Total Size (KB)
+                                Total Size
                                 @* <a href="#" class="sort-link" data-field="TotalSize">
                                     Total Size (KB)
                                     @if (Model.StarredFolder.SortField == "TotalSize")
@@ -80,7 +80,7 @@
                                     </a>
                                 </td>
                                 <td>@f.ItemCount</td>
-                                <td>@(f.TotalSize / 1024)</td>
+                                <td>@SizeFormatter.FormatSize(f.TotalSize)</td>
                                 <td>@(f.AddedAt?.ToString("yyyy-MM-dd"))</td>
                                 <td class="text-center">
                                     <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
@@ -124,40 +124,6 @@
     </div>
 </div>
 
-<nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center">
-        @if (Model.StarredFolder.HasPrevious)
-        {
-            <li class="page-item">
-                <a href="#" class="page-link" data-pagenum="@(Model.StarredFolder.CurrentPage - 1)">Previous</a>
-            </li>
-        }
-        else
-        {
-            <li class="page-item disabled"><span class="page-link">Previous</span></li>
-        }
-
-        @for (int i = 1; i <= Model.StarredFolder.TotalPages; i++)
-        {
-            if (i == Model.StarredFolder.CurrentPage)
-            {
-                <li class="page-item active"><span class="page-link">@i</span></li>
-            }
-            else
-            {
-                <li class="page-item"><a href="#" class="page-link" data-pagenum="@i">@i</a></li>
-            }
-        }
-
-        @if (Model.StarredFolder.HasNext)
-        {
-            <li class="page-item">
-                <a href="#" class="page-link" data-pagenum="@(Model.StarredFolder.CurrentPage + 1)">Next</a>
-            </li>
-        }
-        else
-        {
-            <li class="page-item disabled"><span class="page-link">Next</span></li>
-        }
-    </ul>
-</nav>
+<div class="mt-4">
+    <partial name="_Pagination" model="Model.StarredFolder" />
+</div>

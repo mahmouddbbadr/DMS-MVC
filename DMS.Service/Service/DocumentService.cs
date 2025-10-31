@@ -232,7 +232,7 @@ namespace DMS.Service.Service
                     IsDeleted = false,
                     IsStarred = false,
                     OwnerId = model.OwnerId,
-                    Size = (int) model.File.Length
+                    Size = (int) (model.File.Length) // Size in Bytes
                 };
 
                 await _unit.DocumentRepository.AddAsync(doc);
@@ -346,6 +346,58 @@ namespace DMS.Service.Service
         {
             var folder = await _unit.FolderRepository.GetFolderByIdAuthorizeAsync(fId, userId);
             return folder != null;
+        }
+       
+        public async Task<bool> EditDocumentModelAsync(DocumentEditModelViewModel model, string wwwroot)
+        {
+            Document? doc;
+            if (model.Id == null) return false;
+
+            doc = await _unit.DocumentRepository.GetByIdAsync(model.Id);
+            if (doc == null) return false;
+
+            doc.Name = string.IsNullOrWhiteSpace(model.Name) ? doc.Name : model.Name;
+
+            if (model.File != null || model?.File?.Length > 0)
+            {
+                try
+                {
+                    string uploadPath = Path.Combine(wwwroot, "files");
+
+                    if (!Directory.Exists(uploadPath))
+                    {
+                        Directory.CreateDirectory(uploadPath);
+                    }
+
+                    string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(model.File.FileName);
+
+                    string filePath = Path.Combine(uploadPath, uniqueFileName);
+
+                    using (var fs = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.File.CopyToAsync(fs);
+                    }
+
+                    if (!string.IsNullOrEmpty(doc.FilePath))
+                    {
+                        string oldPath = Path.Combine(wwwroot, doc.FilePath).Replace("/", "\\");
+                        if (File.Exists(oldPath))
+                            File.Delete(oldPath);
+                    }
+
+                    doc.FileType = Path.GetExtension(model.File.FileName);
+                    doc.FilePath = Path.Combine("files", uniqueFileName).Replace("\\", "/");
+                    doc.Size = (int)model.File.Length;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            _unit.DocumentRepository.Update(doc);
+            _unit.Save();
+            return true;
         }
     }
 }

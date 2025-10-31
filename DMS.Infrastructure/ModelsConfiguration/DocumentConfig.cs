@@ -15,7 +15,7 @@ namespace DMS.Infrastructure.ModelsConfiguration
             builder.HasKey(d => d.Id);
 
             builder.Property(d => d.Name)
-                .HasMaxLength(20)
+                .HasMaxLength(50)
                 .IsRequired();
 
             builder.Property(d => d.FilePath)

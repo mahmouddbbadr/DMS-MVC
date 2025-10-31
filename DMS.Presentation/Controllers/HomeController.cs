@@ -16,8 +16,6 @@ namespace DMS.Presentation.Controllers
             this.dashboardService = dashboardService;
         }
 
-
-
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> Index()
@@ -63,8 +61,5 @@ namespace DMS.Presentation.Controllers
             return RedirectToAction("Contact");
         }
 
-
-
-     
     }
 }

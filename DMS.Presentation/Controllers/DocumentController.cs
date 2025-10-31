@@ -23,19 +23,6 @@ namespace DMS.Presentation.Controllers
             directory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Index(string folderId)
-        //{ 
-        //    if(!string.IsNullOrEmpty(folderId))
-        //    {
-        //        DocumentIndexViewModel model = await documentService
-        //            .GetDocumentsByFolderIdAsync(folderId);
-
-        //        return View("Index", model);
-        //    }
-        //    return NotFound();
-        //}
-
         [HttpGet]
         public async Task<IActionResult> Index([FromQuery] DocumentQueryViewModel query)
         {
@@ -122,7 +109,6 @@ namespace DMS.Presentation.Controllers
             return File(result.FileBytes, result.ContentType, result.FileName);
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Edit(DocumentEditViewModel fromRequest)
         {
@@ -144,6 +130,7 @@ namespace DMS.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(DocumentUploadViewModel model)
         {
+            
             if (!ModelState.IsValid)
                 return View("Edit", model);
 
@@ -161,6 +148,22 @@ namespace DMS.Presentation.Controllers
             return RedirectToAction("Index", new { folderId = model.FolderId });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> EditModal(DocumentEditModelViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View("Edit", model);
+
+            bool updated = await documentService.EditDocumentModelAsync(model, directory);
+
+            if (!updated)
+            {
+                ModelState.AddModelError("", "Something went wrong while updating.");
+                return RedirectToAction("Index");
+            }
+
+            return Ok();
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -185,7 +188,6 @@ namespace DMS.Presentation.Controllers
                 return StatusCode(500, "An error occurred while deleting the document.");
             }
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]

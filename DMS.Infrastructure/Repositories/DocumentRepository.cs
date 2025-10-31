@@ -19,16 +19,22 @@ namespace DMS.Infrastructure.Repository
                 .ToListAsync();
         }
 
-        public async Task<double> GetTotalStorageAsync()
+        public async Task<long> GetTotalStorageAsync()
         {
-            return await _context.Documents.SumAsync(d => (double?)d.Size) ?? 0;
+            var totalMb = await _context.Documents
+                .SumAsync(d => d.Size);
+
+            //return Math.Round((double)totalMb, 3);
+            return totalMb;
         }
 
-        public async Task<double> GetTotalStorageByUserAsync(string userId)
+        public async Task<long> GetTotalStorageByUserAsync(string userId)
         {
-            return await _context.Documents
+            var totalMb = await _context.Documents
                 .Where(d => d.Folder.OwnerId == userId)
-                .SumAsync(d => (double?)d.Size) ?? 0;
+                .SumAsync(d => d.Size); // Convert bytes to bytes
+            
+            return totalMb;
         }
 
         public IQueryable<Document> GetDocumentsByFolderIdAsQueryable(string folderId, string userId)

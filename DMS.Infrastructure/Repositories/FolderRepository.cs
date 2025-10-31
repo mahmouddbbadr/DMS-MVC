@@ -48,5 +48,51 @@ namespace DMS.Infrastructure.Repository
                 .SingleOrDefaultAsync(f => f.Id == folderId && f.OwnerId == userId);
         }
 
+        // 
+        public IQueryable<Folder> GetDeletedFolders(string userId)
+        {
+            return _context.Folders
+                .IgnoreQueryFilters()
+                .Where(f => f.IsDeleted && f.OwnerId == userId)
+                .Include(f => f.Documents);
+        }
+        public async Task<Folder?> GetDeletedFolderByIdAsync(string id, string userId)
+        {
+            return await GetDeletedFolders(userId)
+                .FirstOrDefaultAsync(f => f.Id == id);
+        }
+        public IQueryable<Folder> GetFoldersAsQueryable(string? parentFolderId, string userId)
+        {
+            if(parentFolderId == null)
+            {
+                return _context.Folders
+                    .Where(f => f.ParentFolderId == null && f.OwnerId == userId)
+                    .AsQueryable();
+            }
+            return _context.Folders
+                .Where(f => f.ParentFolderId == parentFolderId && f.OwnerId == userId)
+                .AsQueryable();
+        }
+        public IQueryable<Folder> SearchFoldersAsQueryable
+            (string? parentFolderId, string userId, string searchName)
+        {
+            return GetFoldersAsQueryable(parentFolderId, userId)
+                .Where(d => EF.Functions.Like(d.Name, $"%{searchName}%"));
+        }
+        public long FolderTotalSize(string folderId)
+        {
+            long totalSize = 0;
+            var folder = _context.Folders
+                .Include(f => f.Documents)
+                .SingleOrDefault(f => f.Id == folderId);
+            if (folder != null && folder.Documents != null)
+            {
+                foreach (var document in folder.Documents)
+                {
+                    totalSize += document.Size;
+                }
+            }
+            return totalSize;
+        }
     }
 }

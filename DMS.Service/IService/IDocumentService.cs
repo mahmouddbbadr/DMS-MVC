@@ -20,5 +20,6 @@ namespace DMS.Service.IService
         Task<DocumentUploadViewModel?> SetEditDocumentAsync
             (DocumentEditViewModel model, string userId);
         Task<bool> IsAuthorizedFolderAsync(string fId, string userId);
+        Task<bool> EditDocumentModelAsync(DocumentEditModelViewModel model, string wwwroot);
     }
 }
