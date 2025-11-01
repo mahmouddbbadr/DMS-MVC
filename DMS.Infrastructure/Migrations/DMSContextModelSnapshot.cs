@@ -17,7 +17,7 @@ namespace DMS.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "9.0.10")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -29,9 +29,6 @@ namespace DMS.Infrastructure.Migrations
 
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("VARCHAR(20)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -95,27 +92,20 @@ namespace DMS.Infrastructure.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("UserName")
-                        .ValueGeneratedOnAddOrUpdate()
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)")
-                        .HasComputedColumnSql("[FName] + ' ' + [LName] ", true);
-
-                    b.Property<string>("WorkSpaceName")
-                        .IsRequired()
-                        .HasColumnType("VARCHAR(20)");
+                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
+                        .IsUnique()
+                        .HasDatabaseName("EmailIndex")
+                        .HasFilter("[NormalizedEmail] IS NOT NULL");
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.HasIndex("WorkSpaceName")
-                        .IsUnique();
 
                     b.ToTable("AspNetUsers", (string)null);
 
@@ -124,7 +114,6 @@ namespace DMS.Infrastructure.Migrations
                         {
                             Id = "user-1",
                             AccessFailedCount = 0,
-                            Address = "Cairo",
                             ConcurrencyStamp = "b7c1a4d2-8b23-4b12-b5b4-abcdefabcdef",
                             CreatedAt = new DateTime(2025, 10, 1, 12, 0, 0, 0, DateTimeKind.Utc),
                             Email = "ahmed@example.com",
@@ -140,14 +129,12 @@ namespace DMS.Infrastructure.Migrations
                             PhoneNumberConfirmed = true,
                             SecurityStamp = "e3c1c6d2-9d48-4a90-a9a4-1234567890ab",
                             TwoFactorEnabled = false,
-                            UserName = "ahmed.fergany",
-                            WorkSpaceName = "AhmedWorkspace"
+                            UserName = "ahmed.fergany"
                         },
                         new
                         {
                             Id = "user-2",
                             AccessFailedCount = 0,
-                            Address = "Alex",
                             ConcurrencyStamp = "f0d3e78b-4c8f-464e-b78f-e3b56c1487cc",
                             CreatedAt = new DateTime(2025, 10, 2, 12, 0, 0, 0, DateTimeKind.Utc),
                             Email = "mahmoud@example.com",
@@ -163,14 +150,12 @@ namespace DMS.Infrastructure.Migrations
                             PhoneNumberConfirmed = true,
                             SecurityStamp = "6d89f59e-bbfa-49d0-8e2e-a1b1e872e24d",
                             TwoFactorEnabled = false,
-                            UserName = "mahmoud.badr",
-                            WorkSpaceName = "MahmoudWorkspace"
+                            UserName = "mahmoud.badr"
                         },
                         new
                         {
                             Id = "user-3",
                             AccessFailedCount = 0,
-                            Address = "Menofyia",
                             ConcurrencyStamp = "ab21854a-bbdf-4342-a86c-421c1d932f28",
                             CreatedAt = new DateTime(2025, 10, 3, 12, 0, 0, 0, DateTimeKind.Utc),
                             Email = "abdo@example.com",
@@ -186,8 +171,7 @@ namespace DMS.Infrastructure.Migrations
                             PhoneNumberConfirmed = true,
                             SecurityStamp = "a6bdc263-9d47-4fd8-b929-101e1a99d9af",
                             TwoFactorEnabled = false,
-                            UserName = "abdo.ahmed",
-                            WorkSpaceName = "AbdoWorkspace"
+                            UserName = "abdo.ahmed"
                         });
                 });
 
@@ -200,6 +184,9 @@ namespace DMS.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("FilePath")
                         .IsRequired()
@@ -225,8 +212,12 @@ namespace DMS.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Size")
                         .HasColumnType("int");
@@ -235,6 +226,8 @@ namespace DMS.Infrastructure.Migrations
 
                     b.HasIndex("FolderId");
 
+                    b.HasIndex("OwnerId");
+
                     b.ToTable("Documents", (string)null);
 
                     b.HasData(
@@ -242,12 +235,13 @@ namespace DMS.Infrastructure.Migrations
                         {
                             Id = "doc-1",
                             AddedAt = new DateTime(2025, 10, 3, 12, 50, 0, 0, DateTimeKind.Utc),
-                            FilePath = "/files/sample.pdf",
+                            FilePath = "files/sample.pdf",
                             FileType = "pdf",
                             FolderId = "folder-child",
                             IsDeleted = false,
                             IsStarred = false,
                             Name = "SampleDoc",
+                            OwnerId = "user-2",
                             Size = 1024
                         });
                 });
@@ -262,6 +256,9 @@ namespace DMS.Infrastructure.Migrations
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETDATE()");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -272,7 +269,7 @@ namespace DMS.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("VARCHAR(20)");
+                        .HasColumnType("VARCHAR(50)");
 
                     b.Property<string>("OwnerId")
                         .IsRequired()
@@ -536,7 +533,15 @@ namespace DMS.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("DMS.Domain.Models.AppUser", "Owner")
+                        .WithMany("Documents")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Folder");
+
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("DMS.Domain.Models.Folder", b =>
@@ -642,6 +647,8 @@ namespace DMS.Infrastructure.Migrations
 
             modelBuilder.Entity("DMS.Domain.Models.AppUser", b =>
                 {
+                    b.Navigation("Documents");
+
                     b.Navigation("Folders");
 
                     b.Navigation("ReceivedSharedItems");

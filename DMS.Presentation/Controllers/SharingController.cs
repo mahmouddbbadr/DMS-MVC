@@ -1,4 +1,4 @@
-﻿using DMS.Service.IService;
+using DMS.Service.IService;
 using DMS.Service.ModelViews.Shared;
 using DMS.Service.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -12,10 +12,10 @@ namespace DMS.Presentation.Controllers
     {
         private readonly ISharingService sharingService;
 
-        public SharingController(ISharingService _sharingService)
-        {
-            sharingService = _sharingService;
-        }
+//        public SharingController(ISharingService _sharingService)
+//        {
+//            sharingService = _sharingService;
+//        }
 
         // display all folders/documents that shared with/by me
         [AllowAnonymous]

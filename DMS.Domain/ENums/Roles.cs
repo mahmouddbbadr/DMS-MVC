@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace DMS.Domain.ENums
 {
-    internal class test
+    public enum Roles
     {
+        User,
+        Admin
     }
 }

@@ -1,0 +1,72 @@
+﻿@model DMS.Service.ModelViews.Account.RegisterUserViewModel
+
+@{
+    ViewData["Title"] = "Register";
+    Layout = "_LoginLayout";
+}
+
+<h1>Register</h1>
+
+<hr style="margin-bottom: -5px;" />
+<div class="row">
+    <div >
+        <form asp-action="Register">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="FirstName" class="control-label"></label>
+                    <input asp-for="FirstName" class="form-control" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="LastName" class="control-label"></label>
+                    <input asp-for="LastName" class="form-control" />
+                </div>
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmailAddress" class="control-label"></label>
+                <input asp-for="EmailAddress" class="form-control" />
+                <span asp-validation-for="EmailAddress" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConfirmPassword" class="control-label"></label>
+                <input asp-for="ConfirmPassword" class="form-control" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <div class="form-group d-flex justify-content-end mt-3">
+                <input type="submit" value="Register" class="btn btn-primary  px-4" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="mt-2">
+    <span>Already have an account?</span>
+    <a asp-action="Login">Login</a>
+</div>
+
+<div class="text-center">
+    <div>------------ or sign in with ------------</div>
+
+    <form asp-controller="Account" asp-action="GoogleLogin" method="post">
+        @Html.AntiForgeryToken()
+
+        <button type="submit" style="background:none; border:none; padding:0;">
+            <i class="fab fa-google mt-2" style="color:#4285F4; font-size:26px; cursor:pointer;"></i>
+        </button>
+    </form>
+</div>
+
+
+    
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

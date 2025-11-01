@@ -1,6 +1,13 @@
-﻿using AutoMapper;
+using AutoMapper;
 using DMS.Domain.Models;
 using DMS.Service.ModelViews.Shared;
+using DMS.Service.ModelViews.Account;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace DMS.Service.MapperHelper
 {
@@ -39,6 +46,22 @@ namespace DMS.Service.MapperHelper
            .ForMember(dest => dest.UserId, opt => opt.MapFrom(src => src.SharedWithUserId))
            .ForMember(dest => dest.Email, opt => opt.Ignore()) 
            .ForMember(dest => dest.SharedDate, opt => opt.MapFrom(src => src.AddedAt));
+            CreateMap<AppUser, RegisterUserViewModel>().ReverseMap().AfterMap((src, dest) =>
+            {
+                dest.Email = src.EmailAddress;
+                dest.FName = src.FirstName;
+                dest.LName = src.LastName;
+                dest.UserName = src.EmailAddress;
+            });
+            CreateMap<AppUser, UserOutputViewModel>().AfterMap((src, dest) =>
+            {
+                dest.EmailAddress = src.Email;
+                dest.FirstName = src.FName;
+                dest.LastName = src.LName;
+            }).ReverseMap();
+
+
+
         }
     }
 }

@@ -23,17 +23,13 @@ namespace DMS.Infrastructure.Seed
         }
         private static void SeedUsers(ModelBuilder modelBuilder)
         {
-            //var hasher = new PasswordHasher<AppUser>();
-
             var user = new AppUser
             {
                 Id = "user-1",
                 FName = "Ahmed",
                 LName = "Fergany",
-                Address = "Cairo",
                 PasswordHash = "AQAAAAIAAYagAAAAEGJrDwU8NV1Kx9oW8Gc+UgFTpj6qTr7mk0bh7eEXMHcbIuhcw/JW3v9s5pr7oNV8IQ==",
                 IsLocked = false,
-                WorkSpaceName = "AhmedWorkspace",
                 Email = "ahmed@example.com",
                 NormalizedEmail = "AHMED@EXAMPLE.COM",
                 EmailConfirmed = true,
@@ -51,10 +47,8 @@ namespace DMS.Infrastructure.Seed
                 Id = "user-2",
                 FName = "Mahmoud",
                 LName = "Badr",
-                Address = "Alex",
                 PasswordHash = "AQAAAAIAAYagAAAAEGJrDwU8NV1Kx9oW8Gc+UgFTpj6qTr7mk0bh7eEXMHcbIuhcw/JW3v9s5pr7oNV8IQ==",
                 IsLocked = false,
-                WorkSpaceName = "MahmoudWorkspace",
                 Email = "mahmoud@example.com",
                 NormalizedEmail = "MAHMOUD@EXAMPLE.COM",
                 EmailConfirmed = true,
@@ -67,17 +61,14 @@ namespace DMS.Infrastructure.Seed
                 CreatedAt = new DateTime(2025, 10, 2, 12, 0, 0, DateTimeKind.Utc)
             };
 
-            //user2.PasswordHash = hasher.HashPassword(user2, "Password123!");
 
             var user3 = new AppUser
             {
                 Id = "user-3",
                 FName = "Abdo",
                 LName = "Ahmed",
-                Address = "Menofyia",
                 PasswordHash = "AQAAAAIAAYagAAAAEGJrDwU8NV1Kx9oW8Gc+UgFTpj6qTr7mk0bh7eEXMHcbIuhcw/JW3v9s5pr7oNV8IQ==",
                 IsLocked = false,
-                WorkSpaceName = "AbdoWorkspace",
                 Email = "abdo@example.com",
                 NormalizedEmail = "ABDO@EXAMPLE.COM",
                 EmailConfirmed = true,
@@ -90,7 +81,6 @@ namespace DMS.Infrastructure.Seed
                 CreatedAt = new DateTime(2025, 10, 3, 12, 0, 0, DateTimeKind.Utc)
             };
 
-            //user3.PasswordHash = hasher.HashPassword(user3, "Password123!");
 
             modelBuilder.Entity<AppUser>().HasData(user, user2, user3);
         }
@@ -103,7 +93,7 @@ namespace DMS.Infrastructure.Seed
                     Id = "folder-root",
                     Name = "Root Folder",
                     OwnerId = "user-2",
-                    ParentFolderId = null, // Root folder
+                    ParentFolderId = null, 
                     IsDeleted = false,
                     IsStarred = false,
                     AddedAt = new DateTime(2025, 10, 3, 12, 0, 0, DateTimeKind.Utc)
@@ -128,10 +118,11 @@ namespace DMS.Infrastructure.Seed
                 {
                     Id = "doc-1",
                     Name = "SampleDoc",
-                    FilePath = "/files/sample.pdf",
+                    FilePath = "files/sample.pdf",
                     FileType = "pdf",
                     Size = 1024,
                     FolderId = "folder-child",
+                    OwnerId = "user-2",
                     IsDeleted = false,
                     IsStarred = false,
                     AddedAt = new DateTime(2025, 10, 3, 12, 50, 0, DateTimeKind.Utc)

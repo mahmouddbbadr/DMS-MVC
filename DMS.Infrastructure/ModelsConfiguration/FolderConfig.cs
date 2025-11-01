@@ -15,7 +15,7 @@ namespace DMS.Infrastructure.ModelsConfiguration
             builder.HasKey(f => f.Id);
 
             builder.Property(f => f.Name)
-                .HasColumnType("VARCHAR(20)")
+                .HasColumnType("VARCHAR(50)")
                 .IsRequired();
 
             builder.Property(f => f.IsDeleted)
@@ -24,6 +24,10 @@ namespace DMS.Infrastructure.ModelsConfiguration
             builder.Property(f => f.AddedAt)
               .HasColumnType("datetime2")
               .HasDefaultValueSql("GETDATE()");
+
+            builder.Property(f => f.DeletedAt)
+                .HasColumnType("datetime2")
+                .IsRequired(false);
 
             builder.HasOne(sf => sf.ParentFolder)
                 .WithMany(pf => pf.SubFolders)

@@ -1,4 +1,4 @@
-﻿using DMS.Domain.Models;
+using DMS.Domain.Models;
 using DMS.Infrastructure.IRepositorys;
 using System.Linq.Expressions;
 
@@ -14,5 +14,7 @@ namespace DMS.Infrastructure.IRepositories
         public Task<List<SharedItem>> GetSharedItemsByUserAndItemAsync(string itemId, string itemType, string userId);
         Task<SharedItem> FirstOrDefaultAsync(Expression<Func<SharedItem, bool>> predicate);
 
+        Task<int> GetSharedWithMeCountAsync(string id);
+        Task<int> GetSharedByMeCountAsync(string id);
     }
 }

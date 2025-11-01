@@ -73,6 +73,14 @@ namespace DMS.Infrastructure.Repository
         {
             return await _context.SharedItems
                 .FirstOrDefaultAsync(predicate);
+
+        public async Task<int> GetSharedWithMeCountAsync(string id)
+        {
+            return await _context.SharedItems.Where(s => s.SharedWithUserId == id).CountAsync();
+        }
+        public async Task<int> GetSharedByMeCountAsync(string id)
+        {
+            return await _context.SharedItems.Where(s => s.SharedByUserId == id).CountAsync();
         }
     }
 }

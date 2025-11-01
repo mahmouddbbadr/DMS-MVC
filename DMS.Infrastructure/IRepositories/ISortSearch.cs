@@ -1,11 +1,4 @@
-﻿using DMS.Domain.Models;
-using DMS.Infrastructure.IRepositorys;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace DMS.Infrastructure.IRepositories
 {
     public interface ISortSearch<TEntity> where TEntity : class
@@ -16,5 +9,13 @@ namespace DMS.Infrastructure.IRepositories
         public IQueryable<TEntity> SortedByNameDesc();
         public IQueryable<TEntity> SortedByDate();
         public IQueryable<TEntity> SortedByDateDesc();
+        IQueryable<TEntity> GetDeleted(string userId);
+        IQueryable<TEntity> TrashedSearchAsQueryable(string searchName, string userId);
+        Task<TEntity?> GetDeletedById(string id, string userId);
+        IQueryable<TEntity> GetStarred(string userId);
+        IQueryable<TEntity> StarredSearchAsQueryable(string searchName, string userId);
+
+        // for security
+        Task<TEntity?> GetByOwnerAsync(string entityId, string ownerId);
     }
 }

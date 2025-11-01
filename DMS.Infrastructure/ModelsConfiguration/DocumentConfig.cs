@@ -15,7 +15,7 @@ namespace DMS.Infrastructure.ModelsConfiguration
             builder.HasKey(d => d.Id);
 
             builder.Property(d => d.Name)
-                .HasMaxLength(20)
+                .HasMaxLength(50)
                 .IsRequired();
 
             builder.Property(d => d.FilePath)
@@ -36,6 +36,10 @@ namespace DMS.Infrastructure.ModelsConfiguration
             builder.Property(d => d.AddedAt)
                 .HasColumnType("datetime2")
                 .HasDefaultValueSql("GETDATE()");
+
+            builder.Property(d => d.DeletedAt)
+                .HasColumnType("datetime2")
+                .IsRequired(false);
 
             builder.HasOne(d => d.Folder)
                 .WithMany(f => f.Documents)

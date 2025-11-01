@@ -54,5 +54,9 @@ namespace DMS.Infrastructure.Repository
                 _dbSet.Remove(entity);
             }
         }
+        public async Task<int> GetCountAsync()
+        {
+            return await _dbSet.CountAsync();
+        }
     }
 }

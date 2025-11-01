@@ -1,0 +1,142 @@
+﻿@model FolderIndexViewModel
+
+@if (!Model.FolderList.Any())
+{
+    <div class="text-center text-muted py-5">
+        <i class="fas fa-folder-open fa-3x mb-3"></i>
+        <p>No folders found.</p>
+    </div>
+}
+else
+{
+    <!-- Sorting row -->
+    <div class="d-flex justify-content-end mb-3">
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                Sort By @Model.SortField (@Model.SortOrder)
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item sort-link" href="#" data-field="Name">Name</a></li>
+                <li><a class="dropdown-item sort-link" href="#" data-field="ItemCount">Items</a></li>
+                <li><a class="dropdown-item sort-link" href="#" data-field="TotalSize">Size</a></li>
+                <li><a class="dropdown-item sort-link" href="#" data-field="AddedAt">Date Added</a></li>
+                <li><a class="dropdown-item sort-link" href="#" data-field="Starred">Starred</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var fol in Model.FolderList)
+        {
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div id="fol-card-@fol.Id" class="folder-card position-relative shadow-sm p-3 bg-white rounded hover-shadow cursor-pointer my-2"
+                     data-url="@Url.Content($"~/Document/Index?FolderId={fol.Id}")">
+
+                    <!-- Star -->
+                    <form method="post"
+                          asp-action="@(fol.IsStarred ? "UnStar" : "Star")"
+                          asp-route-id="@fol.Id"
+                          class="position-absolute top-0 end-0 p-2 star-toggle-form"
+                          data-id="@fol.Id"
+                          data-starred="@fol.IsStarred.ToString().ToLower()">
+                        <button type="button" class="star-toggle-button btn btn-sm p-0">
+                            <i class="@(fol.IsStarred ? "fas text-warning" : "far text-muted") fa-star fa-lg"></i>
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <i class="fas fa-folder fa-3x text-warning mb-2"></i>
+                        <h6 class="text-truncate fw-bold">@fol.Name</h6>
+                        <small class="text-muted">@fol.ItemCount items</small>
+                    </div>
+
+                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                        <a href="javascript:void(0);" data-id="@fol.Id" class="edit-fol-link text-primary">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <p>@SizeFormatter.FormatSize(fol.TotalSize)</p>
+                        <form asp-action="Trash" asp-route-id="@fol.Id" method="post" class="delete-form" data-id="@fol.Id">
+                            <button type="button" class="delete-button btn btn-sm p-0 text-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="mt-4">
+         <partial name="_Pagination" model="Model" />
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade" id="editFolderModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Folder</h5>
+                    <button type="button" class="btn p-0 border-0 bg-transparent" data-bs-dismiss="modal">
+                        <span style="font-size: 1.8rem;">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editFolderForm">
+                        <input type="hidden" id="editFolderId" name="Id" />
+                        <label class="form-label fw-semibold">Folder Name</label>
+                        <input type="text" id="editFolderName" name="Name" class="form-control" required />
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="updateFolderBtn" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .folder-card {
+        transition: .25s;
+    }
+
+    .folder-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 18px rgba(0,0,0,.12);
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .text-truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .star-toggle-button i {
+        transition: 0.25s;
+    }
+
+    .star-toggle-button:hover i {
+        transform: scale(1.25);
+    }
+
+    .fade-out {
+        animation: fadeOut 0.35s forwards;
+    }
+
+    .pagination .page-link {
+        border-radius: 6px !important;
+        margin: 0 3px;
+        padding: 6px 12px;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+</style>
