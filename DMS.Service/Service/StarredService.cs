@@ -60,7 +60,8 @@ namespace DMS.Service.Service
                         IsStarred = f.IsStarred,
                         ParentFolderName = f.ParentFolder?.Name,
                         ItemCount = f.Documents?.Count,
-                        TotalSize = _unit.FolderRepository.GetTotalSize(f.Id)
+                        TotalSize = f.Documents!.Sum(d => d.Size),
+                        //TotalSize = _unit.FolderRepository.GetTotalSize(f.Id)
                     }).ToList(),
                 }
             };
@@ -156,8 +157,8 @@ namespace DMS.Service.Service
                 ("AddedAt", "asc") => query.OrderBy(f => f.AddedAt),
                 ("AddedAt", "desc") => query.OrderByDescending(f => f.AddedAt),
 
-                //("FolderName", "asc") => query.OrderBy(f => f.ParentFolder!.Name),
-                //("FolderName", "desc") => query.OrderByDescending(f => f.ParentFolder!.Name),
+                ("TotalSize", "asc") => query.OrderBy(f => f.Documents.Sum(f => f.Size)),
+                ("TotalSize", "desc") => query.OrderByDescending(f => f.Documents.Sum(f => f.Size)),
 
                 ("ItemCount", "asc") => query.OrderBy(f => f.Documents!.Count()),
                 ("ItemCount", "desc") => query.OrderByDescending(f => f.Documents!.Count()),
@@ -165,7 +166,7 @@ namespace DMS.Service.Service
                 _ => query.OrderByDescending(f => f.AddedAt)
             };
         }
-        public IQueryable<Document> SortData
+        private IQueryable<Document> SortData
             (IQueryable<Document> query, string sortField, string sortOrder)
         {
             return (sortField, sortOrder?.ToLower()) switch

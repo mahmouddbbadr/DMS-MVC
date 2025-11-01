@@ -45,7 +45,7 @@ namespace DMS.Service.Service
 
             int totalCount = query.Count();
 
-            List<Folder> docs = await _unit.FolderRepository
+            List<Folder> folders = await _unit.FolderRepository
                 .GetAllWithPaginationAsync(query, modelQuery.PageNum, modelQuery.PageSize);
 
             //if(modelQuery.ParentId  != null)
@@ -64,14 +64,14 @@ namespace DMS.Service.Service
                 HasPrevious = modelQuery.PageNum > 1,
                 SortField = modelQuery.SortField,
                 SortOrder = modelQuery.SortOrder,
-                FolderList = docs.Select(d => new FolderListItemViewModel()
+                FolderList = folders.Select(f => new FolderListItemViewModel()
                 {
-                    Id = d.Id,
-                    Name = d.Name,
-                    AddedAt = d.AddedAt,
-                    IsStarred = d.IsStarred,
-                    ItemCount = d.Documents?.Count() ?? 0,
-                    TotalSize = d.Documents!.Sum(d => d.Size),
+                    Id = f.Id,
+                    Name = f.Name,
+                    AddedAt = f.AddedAt,
+                    IsStarred = f.IsStarred,
+                    ItemCount = f.Documents?.Count() ?? 0,
+                    TotalSize = f.Documents!.Sum(f => f.Size),
                 }).ToList(),
             };
 

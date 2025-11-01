@@ -11,4 +11,5 @@ namespace DMS.Domain.ENums
         Folder,
         Document
     }
+
 }

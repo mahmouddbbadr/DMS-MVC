@@ -52,5 +52,22 @@ namespace DMS.Infrastructure.Repository
 
         public IQueryable<Document> SortedBySize() => _context.Documents.OrderBy(f => f.Size);
         public IQueryable<Document> SortedBySizeDesc() => _context.Documents.OrderByDescending(f => f.Size);
+
+
+        // For Sharing
+        public IQueryable<Document> GetDocumentsBySharedFolderIdAsQueryable(string folderId)
+        {
+            return _context.Documents
+                .Where(d => d.FolderId == folderId)
+                .AsQueryable();
+        }
+
+        public IQueryable<Document> SearchDocumentsBySharedFolderAsQueryable
+            (string folderId, string searchName)
+        {
+            return GetDocumentsBySharedFolderIdAsQueryable(folderId)
+                .Where(d => EF.Functions.Like(d.Name, $"%{searchName}%"));
+        }
+
     }
 }

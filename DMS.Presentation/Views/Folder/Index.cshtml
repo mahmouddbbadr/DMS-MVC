@@ -4,7 +4,9 @@
 
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="text-primary fw-bold">
-            <i class="fas fa-folder-open me-2"></i> My Folders
+            <a asp-controller="Home" asp-action="Index">
+                <i class="fas fa-folder-open me-2"></i> My Folders
+            </a>
         </h3>
 
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createFolderModal">

@@ -2,8 +2,10 @@
 using DMS.Domain.Models;
 using DMS.Infrastructure.UnitOfWorks;
 using DMS.Service.IService;
+using DMS.Service.ModelViews.DocumentViews;
 using DMS.Service.ModelViews.Shared;
 using Microsoft.AspNetCore.Identity;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace DMS.Service.Service
 {
@@ -20,18 +22,22 @@ namespace DMS.Service.Service
             this._userManager = userManager;
         }
 
-        public async Task<SharedIndexViewModel>GetSharedByMeAsync
-            (
+        public async Task<SharedIndexViewModel>GetSharedByMeAsync(
             string userId,
-            string search = "",
-            string sortOrder = "dateDesc",
-            int page = 1,
-            int pageSize = 5
-            )
+            string search,
+            string sortOrder,
+            int page,
+            int pageSize)
         {
-            var items = await _unit.SharedItemRepository.GetSharedByMeQueryAsync(
+            var query =  _unit.SharedItemRepository.GetSharedByMeQuery(
                 userId, search, sortOrder, page, pageSize);
             
+            int count = query.Count();
+            int totalPages = (int)Math.Ceiling((double)count / pageSize);
+
+            var items = await _unit.SharedItemRepository
+                .GetAllWithPaginationAsync(query, page, pageSize);
+
             var viewModel = _mapper.Map<List<SharedItemViewModel>>(items);
             viewModel.ForEach(r => r.IsSharedByMe = true);
 
@@ -42,22 +48,26 @@ namespace DMS.Service.Service
                 SortOrder = sortOrder,
                 CurrentPage = page,
                 PageSize = pageSize,
+                TotalPagesByMe = totalPages
             };
 
             return (sharedIndexViewModel);
-
-
-
         }
         public async Task<SharedIndexViewModel>GetSharedWithMeAsync(
-    string userId,
-    string search = "",
-    string sortOrder = "dateDesc",
-    int page = 1,
-    int pageSize = 5)
+            string userId,
+            string search,
+            string sortOrder,
+            int page,
+            int pageSize)
         {
-            var items = await _unit.SharedItemRepository.GetSharedByMeQueryAsync(
-        userId, search, sortOrder, page, pageSize);
+            var query = _unit.SharedItemRepository.GetSharedWithMeQuery(
+                userId, search, sortOrder, page, pageSize);
+
+            int count = query.Count();
+            int totalPages = (int)Math.Ceiling((double)count / pageSize);
+
+            var items = await _unit.SharedItemRepository
+                .GetAllWithPaginationAsync(query, page, pageSize);
 
             var viewModel = _mapper.Map<List<SharedItemViewModel>>(items);
             viewModel.ForEach(r => r.IsSharedByMe = false); 
@@ -69,6 +79,7 @@ namespace DMS.Service.Service
                 SortOrder = sortOrder,
                 CurrentPage = page,
                 PageSize = pageSize,
+                TotalPagesWithMe = totalPages
             };
 
             return sharedIndexViewModel;
@@ -309,6 +320,90 @@ namespace DMS.Service.Service
             }
 
             return false;
+        }
+    
+        public async Task<bool> IsAuthorizedSharedFolderAsync(string fId, string userId)
+        {
+            var sharedFolder = await _unit.SharedItemRepository
+                .GetSharedFolderByIdAuthorizeAsync(fId, userId);
+
+            return sharedFolder != null;
+        }
+
+        public async Task<DocumentIndexViewModel> GetDocumentsBySharedFolderIdWithPaginationAsync
+            (FolderSharedViewModel modelQuery)
+        {
+            modelQuery.SearchName = modelQuery.SearchName?.Trim() ?? "";
+
+            IQueryable<Document> query;
+
+            if (!string.IsNullOrWhiteSpace(modelQuery.SearchName))
+            {
+                query = _unit.DocumentRepository
+                    .SearchDocumentsBySharedFolderAsQueryable(modelQuery.FolderId, modelQuery.SearchName);
+            }
+            else
+            {
+                query = _unit.DocumentRepository
+                .GetDocumentsBySharedFolderIdAsQueryable(modelQuery.FolderId);
+            }
+
+            query = SortData(query, modelQuery.SortField, modelQuery.SortOrder);
+            int totalCount = query.Count();
+
+            List<Document> docs = await _unit.DocumentRepository
+                .GetAllWithPaginationAsync(query, modelQuery.PageNum, modelQuery.PageSize);
+
+            Folder? folder = await _unit.FolderRepository.GetByIdAsync(modelQuery.FolderId);
+            SharedItem? sharedItem = await _unit.SharedItemRepository
+                .GetByIdAsync(modelQuery.FolderId);
+
+            int total = (int)Math.Ceiling((double)totalCount / modelQuery.PageSize);
+            var model = new DocumentIndexViewModel()
+            {
+                FolderId = modelQuery.FolderId,
+                FolderName = folder?.Name ?? "UnKnown Folder",
+                CurrentPage = modelQuery.PageNum,
+                CurrentSearch = modelQuery.SearchName,
+                TotalPages = total,
+                SortField = modelQuery.SortField,
+                SortOrder = modelQuery.SortOrder,
+                Permission = sharedItem?.PermissionLevel,
+                DocumentList = docs.Select(d => new DocumentListItemViewModel()
+                {
+                    Id = d.Id,
+                    Name = d.Name,
+                    FileType = d.FileType,
+                    FilePath = d.FilePath,
+                    AddedAt = d.AddedAt,
+                    IsStarred = d.IsStarred,
+                    Size = d.Size,
+                    FolderId = d.FolderId
+                }).ToList(),
+            };
+
+            return model;
+        }
+
+        private IQueryable<Document> SortData
+            (IQueryable<Document> query, string sortField, string sortOrder)
+        {
+            return (sortField, sortOrder?.ToLower()) switch
+            {
+                ("Name", "asc") => query.OrderBy(d => d.Name),
+                ("Name", "desc") => query.OrderByDescending(d => d.Name),
+
+                ("Size", "asc") => query.OrderBy(d => d.Size),
+                ("Size", "desc") => query.OrderByDescending(d => d.Size),
+
+                ("AddedAt", "asc") => query.OrderBy(d => d.AddedAt),
+                ("AddedAt", "desc") => query.OrderByDescending(d => d.AddedAt),
+
+                ("Starred", "asc") => query.OrderBy(d => d.IsStarred),
+                ("Starred", "desc") => query.OrderByDescending(d => d.IsStarred),
+
+                _ => query.OrderByDescending(d => d.AddedAt)
+            };
         }
     }
 }

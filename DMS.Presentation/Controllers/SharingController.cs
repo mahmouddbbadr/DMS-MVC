@@ -1,4 +1,5 @@
 using DMS.Service.IService;
+using DMS.Service.ModelViews.DocumentViews;
 using DMS.Service.ModelViews.Shared;
 using DMS.Service.Service;
 using Microsoft.AspNetCore.Authorization;
@@ -7,15 +8,15 @@ using System.Security.Claims;
 
 namespace DMS.Presentation.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class SharingController : Controller
     {
         private readonly ISharingService sharingService;
 
-//        public SharingController(ISharingService _sharingService)
-//        {
-//            sharingService = _sharingService;
-//        }
+        public SharingController(ISharingService _sharingService)
+        {
+            sharingService = _sharingService;
+        }
 
         // display all folders/documents that shared with/by me
         [AllowAnonymous]
@@ -24,10 +25,10 @@ namespace DMS.Presentation.Controllers
         public async Task <IActionResult> SharedWithMe(string search = "",
             string sortOrder = "dateDesc",
             int page = 1,
-            int pageSize = 5)
+            int pageSize = 6)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            Console.WriteLine("Current user: " + userId);
+            //Console.WriteLine("Current user: " + userId);
 
 
             var sharedWithMeItems = await sharingService.GetSharedWithMeAsync(userId, search, sortOrder, page, pageSize);
@@ -40,7 +41,7 @@ namespace DMS.Presentation.Controllers
         public async Task<IActionResult> SharedByMe(string search = "",
             string sortOrder = "dateDesc",
             int page = 1,
-            int pageSize = 5)
+            int pageSize = 6)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -215,7 +216,7 @@ namespace DMS.Presentation.Controllers
                     TempData["Error"] = "No users were unshared. Please check your selection.";
                 }
 
-                return RedirectToAction("SharedByMe", "Share");
+                return RedirectToAction("SharedByMe");
             }
             catch (Exception ex)
             {
@@ -258,5 +259,28 @@ namespace DMS.Presentation.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Folder([FromQuery] FolderSharedViewModel fromReq)
+        {
+            fromReq.OwnerId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            bool authorized = await sharingService
+                .IsAuthorizedSharedFolderAsync(fromReq.FolderId, fromReq.OwnerId);
+            if (!authorized)
+                return NotFound();
+
+            var model = await sharingService
+                .GetDocumentsBySharedFolderIdWithPaginationAsync(fromReq);
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_FolderPartialView", model);
+            }
+
+            return View("Folder", model);
+        }
     }
 }

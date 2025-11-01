@@ -1,129 +1,119 @@
 ﻿@model StarFoldersViewModel
 
-<div class="card shadow mb-4">
-    <div class="card-body">
-        @if (!Model.StarredFolder.Items.Any())
+<div class="row">
+    @if (!Model.StarredFolder.Items.Any())
+    {
+        <div class="text-center text-muted">
+            <p>No starred folders found.</p>
+        </div>
+    }
+    else
+    {
+        foreach (var f in Model.StarredFolder.Items)
         {
-            <div class="text-center text-muted">
-                <p>No starred folders found.</p>
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div id="fol-card-@f.Id" class="folder-card position-relative shadow-sm p-3 bg-white rounded hover-shadow cursor-pointer my-2"
+                     data-url="@Url.Content($"~/Document/Index?FolderId={f.Id}")">
+
+                    <!-- Share (Right) -->
+                    <a asp-controller="Sharing" asp-action="ShareFolder"
+                       asp-route-folderId="@f.Id"
+                       class="position-absolute top-0 end-0 me-1 mt-1 text-bg-primary share-fol-link">
+                        <i class="fas fa-share-alt"></i>
+                    </a>
+
+                    <!-- Unstar (Left) -->
+                    <form method="post"
+                          asp-controller="Starred"
+                          asp-action="UnStarFolder"
+                          asp-route-id="@f.Id"
+                          class="star-toggle-form">
+                        <button type="submit" class="btn btn-sm p-0 star-toggle-button">
+                            <i class="fas fa-star text-warning"></i>
+                        </button>
+                    </form>
+
+                    <div class="text-center" onclick="window.location.href='@Url.Action("Index", "Document", new { FolderId = f.Id })'">
+                        <i class="fas fa-folder fa-3x text-warning mb-2"></i>
+                        <h6 class="text-truncate fw-bold">@f.Name</h6>
+                        <small class="text-muted">@f.ItemCount items</small>
+                    </div>
+
+                    <div class="mt-3 d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">@SizeFormatter.FormatSize(f.TotalSize)</span>
+
+                        <form asp-controller="Folder"
+                              asp-action="Trash"
+                              asp-route-id="@f.Id"
+                              method="post"
+                              class="m-0 p-0 delete-form">
+                            <button type="button" class="delete-button btn btn-sm p-0 text-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
             </div>
         }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle" width="100%" cellspacing="0">
-                    <thead class="thead-light">
-                        <tr>
-                            <th>
-                                <a href="#" class="sort-link" data-field="Name">
-                                    Name
-                                    @if (Model.StarredFolder.SortField == "Name")
-                                    {
-                                        <i class="fas @(Model.StarredFolder.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="fas fa-sort ms-1"></i>
-                                    }
-                                </a>
-                            </th>
-                            <th>
-                                <a href="#" class="sort-link" data-field="ItemCount">
-                                    Items
-                                    @if (Model.StarredFolder.SortField == "ItemCount")
-                                    {
-                                        <i class="fas @(Model.StarredFolder.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="fas fa-sort ms-1"></i>
-                                    }
-                                </a>
-                            </th>
-                            <th>
-                                Total Size
-                                @* <a href="#" class="sort-link" data-field="TotalSize">
-                                    Total Size (KB)
-                                    @if (Model.StarredFolder.SortField == "TotalSize")
-                                    {
-                                        <i class="fas @(Model.StarredFolder.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="fas fa-sort ms-1"></i>
-                                    }
-                                </a> *@
-                            </th>
-                            <th>
-                                <a href="#" class="sort-link" data-field="AddedAt">
-                                    Added
-                                    @if (Model.StarredFolder.SortField == "AddedAt")
-                                    {
-                                        <i class="fas @(Model.StarredFolder.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="fas fa-sort ms-1"></i>
-                                    }
-                                </a>
-                            </th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var f in Model.StarredFolder.Items)
-                        {
-                            <tr id="fol-row-@f.Id">
-                                <td>
-                                    <a asp-controller="Document" asp-action="Index" asp-route-FolderId="@f.Id" style="text-decoration:underline">
-                                        @f.Name
-                                    </a>
-                                </td>
-                                <td>@f.ItemCount</td>
-                                <td>@SizeFormatter.FormatSize(f.TotalSize)</td>
-                                <td>@(f.AddedAt?.ToString("yyyy-MM-dd"))</td>
-                                <td class="text-center">
-                                    <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
-                                         <form asp-controller="Starred"
-                                              asp-action="UnStarFolder"
-                                              asp-route-id="@f.Id"
-                                              method="post"
-                                              class="m-0 p-0">
-                                            <button type="button" class="btn btn-warning btn-sm star-toggle-button">
-                                                <i class="fas fa-star me-1"></i> Unstar
-                                            </button>
-                                        </form>
-
-                                        <form asp-controller="Sharing"
-                                              asp-action="ShareFolder"
-                                              asp-route-id="@f.Id"
-                                              method="post"
-                                              class="m-0 p-0">
-                                            <button type="submit" class="btn btn-success btn-sm mx-2">
-                                                <i class="fas fa-share me-1"></i> Share
-                                            </button>
-                                        </form>
-
-                                        <form asp-controller="Folder"
-                                              asp-action="Trash"
-                                              asp-route-id="@f.Id"
-                                              method="post"
-                                              class="m-0 p-0 delete-form">
-                                            <button type="submit" class="btn btn-danger btn-sm delete-button">
-                                                <i class="fas fa-trash-alt me-1"></i> Delete
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-    </div>
+    }
 </div>
 
 <div class="mt-4">
     <partial name="_Pagination" model="Model.StarredFolder" />
 </div>
+<style>
+    .share-fol-link {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        z-index: 10;
+    }
+
+    .star-toggle-form {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        z-index: 10;
+        margin: 0;
+        padding: 0;
+    }
+
+    .star-toggle-button {
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+    }
+
+    .share-fol-link i,
+    .star-toggle-button i {
+        font-size: 18px;
+    }
+    .folder-card {
+        transition: .25s;
+    }
+
+    .folder-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 18px rgba(0,0,0,.12);
+    }
+
+    .folder-card i {
+        transition: .25s;
+    }
+
+    .folder-card i:hover {
+        transform: scale(1.2);
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .text-truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+</style>

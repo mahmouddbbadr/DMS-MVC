@@ -1,7 +1,6 @@
 ﻿
-@model DMS.Service.ModelViews.Shared.SharedIndexViewModel
+@model SharedIndexViewModel
 @{
-    Layout = "~/Views/Shared/_MyLayout.cshtml";
     ViewBag.Title = "Shared By Me";
 }
 
@@ -380,7 +379,7 @@
                                     <!-- Unshare All Button -->
                                     <button type="button"
                                             class="btn btn-unshare-all"
-                                            onclick="confirmUnshareAll('@itemId', '@itemType', '@itemName.Replace("'", "\\'")')">
+                                            onclick="confirmUnshareAll('@itemId', '@itemType', '@itemName?.Replace("'", "\\'")')">
                                         <i class="fas fa-user-slash me-1"></i> Unshare All
                                     </button>
 
@@ -426,6 +425,7 @@
                 }
             </ul>
         </nav>
+
     }
     else
     {

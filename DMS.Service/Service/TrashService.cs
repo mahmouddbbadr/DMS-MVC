@@ -2,6 +2,7 @@
 using DMS.Infrastructure.UnitOfWorks;
 using DMS.Service.IService;
 using DMS.Service.ModelViews.TrashViews;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.EntityFrameworkCore;
 using Document = DMS.Domain.Models.Document;
 
@@ -45,6 +46,7 @@ namespace DMS.Service.Service
                 ItemCount = f.Documents.Count()
             });
 
+            /*
             projectedQuery = (filterModel.SortField, filterModel.SortOrder?.ToLower()) switch
             {
                 ("Name", "asc") => projectedQuery.OrderBy(f => f.Name),
@@ -58,6 +60,9 @@ namespace DMS.Service.Service
 
                 _ => projectedQuery.OrderByDescending(f => f.DeletedAt)
             };
+            */
+
+            projectedQuery = SortFolderData(projectedQuery, filterModel.SortField!, filterModel.SortOrder!);
 
             var pagedItems = await projectedQuery
                 .Skip((filterModel.PageNum - 1) * filterModel.PageSize)
@@ -79,7 +84,23 @@ namespace DMS.Service.Service
                 }
             };
         }
+        private IQueryable<TrashedFolderViewModel> SortFolderData
+            (IQueryable<TrashedFolderViewModel> projectedQuery, string sortField, string sortOrder)
+        {
+            return (sortField, sortOrder?.ToLower()) switch
+            {
+                ("Name", "asc") => projectedQuery.OrderBy(f => f.Name),
+                ("Name", "desc") => projectedQuery.OrderByDescending(f => f.Name),
 
+                ("ItemCount", "asc") => projectedQuery.OrderBy(f => f.ItemCount),
+                ("ItemCount", "desc") => projectedQuery.OrderByDescending(f => f.ItemCount),
+
+                ("DeletedAt", "asc") => projectedQuery.OrderBy(f => f.DeletedAt),
+                ("DeletedAt", "desc") => projectedQuery.OrderByDescending(f => f.DeletedAt),
+
+                _ => projectedQuery.OrderByDescending(f => f.DeletedAt)
+            };
+        }
 
         public async Task<TrashDocumentsViewModel>GetTrashedDocumentAsync
             (TrashFilterViewModel filterModel)
@@ -110,6 +131,7 @@ namespace DMS.Service.Service
                 FolderIsDeleted = d.Folder.IsDeleted
             });
 
+            /*
             projectedQuery = (filterModel.SortField, filterModel.SortOrder?.ToLower()) switch
             {
                 ("Name", "asc") => projectedQuery.OrderBy(d => d.Name),
@@ -126,6 +148,9 @@ namespace DMS.Service.Service
 
                 _ => projectedQuery.OrderByDescending(d => d.DeletedAt)
             };
+            */
+            
+            projectedQuery = SortDocumentData(projectedQuery, filterModel.SortField!, filterModel.SortOrder!);
 
             List<Document> documents = await _unit.DocumentRepository.
                 GetAllWithPaginationAsync(query, filterModel.PageNum, filterModel.PageSize);
@@ -147,6 +172,26 @@ namespace DMS.Service.Service
             return trashDocumentsViewModel;
         }
 
+        private IQueryable<TrashedDocumentViewModel> SortDocumentData
+            (IQueryable<TrashedDocumentViewModel> projectedQuery, string sortField, string sortOrder)
+        {
+            return (sortField, sortOrder?.ToLower()) switch
+            {
+                ("Name", "asc") => projectedQuery.OrderBy(d => d.Name),
+                ("Name", "desc") => projectedQuery.OrderByDescending(d => d.Name),
+
+                ("Size", "asc") => projectedQuery.OrderBy(d => d.Size),
+                ("Size", "desc") => projectedQuery.OrderByDescending(d => d.Size),
+
+                ("DeletedAt", "asc") => projectedQuery.OrderBy(d => d.DeletedAt),
+                ("DeletedAt", "desc") => projectedQuery.OrderByDescending(d => d.DeletedAt),
+
+                ("FolderName", "asc") => projectedQuery.OrderBy(d => d.FolderName),
+                ("FolderName", "desc") => projectedQuery.OrderByDescending(d => d.FolderName),
+
+                _ => projectedQuery.OrderByDescending(d => d.DeletedAt)
+            };
+        }
         public async Task<Folder?> GetFolderByIdAsync(string id, string userId)
         {
             Folder? folder = await _unit.FolderRepository

@@ -32,15 +32,20 @@ else
                 <div id="fol-card-@fol.Id" class="folder-card position-relative shadow-sm p-3 bg-white rounded hover-shadow cursor-pointer my-2"
                      data-url="@Url.Content($"~/Document/Index?FolderId={fol.Id}")">
 
-                    <!-- Star -->
+                    <!-- Share Icon (Right) -->
+                    <a asp-controller="Sharing" asp-action="ShareFolder" asp-route-folderId="@fol.Id"
+                         data-id="@fol.Id"
+                       class="position-absolute top-0 end-0 me-1 mt-1 text-bg-primary share-fol-link">
+                        <i class="fas fa-share-alt"></i>
+                    </a>
+
+                    <!-- Star Icon (Left) -->
                     <form method="post"
                           asp-action="@(fol.IsStarred ? "UnStar" : "Star")"
                           asp-route-id="@fol.Id"
-                          class="position-absolute top-0 end-0 p-2 star-toggle-form"
-                          data-id="@fol.Id"
-                          data-starred="@fol.IsStarred.ToString().ToLower()">
-                        <button type="button" class="star-toggle-button btn btn-sm p-0">
-                            <i class="@(fol.IsStarred ? "fas text-warning" : "far text-muted") fa-star fa-lg"></i>
+                          class="star-toggle-form">
+                        <button type="button" class="star-toggle-button">
+                            <i class="@(fol.IsStarred ? "fas text-warning" : "far text-muted") fa-star"></i>
                         </button>
                     </form>
 
@@ -63,6 +68,7 @@ else
                     </div>
                 </div>
             </div>
+
         }
     </div>
 
@@ -97,6 +103,34 @@ else
 }
 
 <style>
+    .share-fol-link {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        z-index: 20;
+    }
+
+    .star-toggle-form {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        z-index: 20;
+        margin: 0;
+        padding: 0;
+    }
+
+    .star-toggle-button {
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+    }
+     
+    .share-fol-link i,
+    .star-toggle-button i {
+        font-size: 18px;
+    }
+
     .folder-card {
         transition: .25s;
     }

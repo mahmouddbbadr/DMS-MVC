@@ -20,8 +20,9 @@
                                     @if (Model.SortField == "Name")
                                     {
                                         <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
-                                    }else
-                                    {                                   
+                                    }
+                                    else
+                                    {
                                         <i class="fas fa-sort ms-1"></i>
                                     }
                                 </a>
@@ -33,7 +34,8 @@
                                     @if (Model.SortField == "Size")
                                     {
                                         <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
-                                    }else
+                                    }
+                                    else
                                     {
                                         <i class="fas fa-sort ms-1"></i>
                                     }
@@ -52,19 +54,7 @@
                                     }
                                 </a>
                             </th>
-                            <th>
-                                <a href="#" class="sort-link" data-field="Starred">
-                                    Starred
-                                    @if (Model.SortField == "Starred")
-                                    {
-                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="fas fa-sort ms-1"></i>
-                                    }
-                                </a>
-                            </th>
+                            
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -78,46 +68,30 @@
                                 <td>@doc.FileType</td>
                                 <td>@(doc.Size / 1024)</td>
                                 <td>@doc.AddedAt.ToString("yyyy-MM-dd")</td>
-                                <td class="text-center">
-                                    <form method="post"
-                                            asp-action="@(doc.IsStarred ? "UnStar" : "Star")"
-                                            asp-route-id="@doc.Id"
-                                            class="d-inline star-toggle-form"
-                                            data-id="@doc.Id"
-                                            data-starred="@doc.IsStarred.ToString().ToLower()">
-                                        <button type="button"
-                                                class="star-toggle-button border-0 bg-transparent p-0"
-                                                title="@(doc.IsStarred ? "Unstar" : "Star")"
-                                                data-bs-toggle="tooltip">
-                                            <i class="@(doc.IsStarred ? "fas text-warning" : "far text-muted") fa-star fa-lg"></i>
-                                        </button>
-                                    </form>
-                                </td>
+                                
                                 <td>
-                                    <div class="d-flex text-center flex-wrap align-items-center gap-2">
-                                        @* <a asp-action="Details" asp-route-id="@doc.Id" class="btn btn-info btn-sm">
-                                             Details
-                                        </a> *@
-                                        <a asp-action="Download" asp-route-id="@doc.Id" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-download mx-1"></i> Download
-                                        </a>
-                                        @* <a class="btn btn-secondary btn-sm mx-2 edit-doc-link" data-id="@doc.Id">
-                                            <i class="far fa-edit mx-1"></i> Edit 
-                                        </a> *@
-                                        <button type="button" class="btn btn-secondary btn-sm mx-2 edit-doc-btn"
-                                                data-id="@doc.Id" data-name="@doc.Name">
-                                            <i class="far fa-edit mx-1"></i> Edit
-                                        </button>
-
-                                        <a asp-action="ShareDocument" asp-controller="Sharing" asp-route-documentId="@doc.Id" class="btn btn-success btn-sm mx-2">
-                                            <i class="fas fa-share mx-1"></i> Share
-                                        </a>
-                                        <form asp-action="Trash" asp-route-id="@doc.Id" method="post" class="m-0 p-0 delete-form" data-id="@doc.Id">
-                                            <button type="submit" class="btn btn-danger btn-sm delete-button">
-                                                <i class="fas fa-trash-alt mx-1"></i> Delete
+                                    @if (Model.Permission == DMS.Domain.ENums.PermissionLevel.ReadWrite)
+                                    {
+                                        <div class="d-flex text-center flex-wrap align-items-center gap-2">
+                                            <a asp-action="Download" asp-route-id="@doc.Id" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-download mx-1"></i> Download
+                                            </a>
+                                                    
+                                            <button type="button" class="btn btn-secondary btn-sm mx-2 edit-doc-btn"
+                                                    data-id="@doc.Id" data-name="@doc.Name">
+                                                <i class="far fa-edit mx-1"></i> Edit
                                             </button>
-                                        </form>
-                                    </div>
+
+                                            <a asp-action="ShareDocument" asp-controller="Sharing" asp-route-documentId="@doc.Id" class="btn btn-success btn-sm mx-2">
+                                                <i class="fas fa-share mx-1"></i> Share
+                                            </a>
+                                            <form asp-action="Trash" asp-route-id="@doc.Id" method="post" class="m-0 p-0 delete-form" data-id="@doc.Id">
+                                                <button type="submit" class="btn btn-danger btn-sm delete-button">
+                                                    <i class="fas fa-trash-alt mx-1"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                     }
                                 </td>
 
                             </tr>
@@ -181,18 +155,3 @@
     }
 
 </style>
-
-
-
-@* <script>
-    $(document).ready(function() {
-        $(document).on("click", ".edit-doc-link", function (e) {
-            e.preventDefault();
-
-            let id = $(this).data("id");
-            let returnUrl = encodeURIComponent(window.location.href);
-
-            window.location.href = `/Document/Edit/${id}?returnUrl=${returnUrl}`;
-        });         
-    });
-</script> *@

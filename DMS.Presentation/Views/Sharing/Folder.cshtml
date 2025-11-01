@@ -5,14 +5,19 @@
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h4 text-primary mb-0">
-            <a asp-controller="Folder" asp-action="Index">
+            <a asp-controller="Sharing" asp-action="SharedWithMe">
                 <i class="fas fa-folder-open me-2"></i> @Model.FolderName Documents
             </a>
         </h1>
-
-        <a asp-action="Upload" asp-route-folderId="@Model.FolderId" class="btn btn-success">
-            <i class="fas fa-upload me-1"></i> Upload Document
-        </a>
+        @if(Model.Permission == DMS.Domain.ENums.PermissionLevel.ReadWrite)
+        {          
+            <a asp-action="Upload" asp-route-folderId="@Model.FolderId" class="btn btn-success">
+                <i class="fas fa-upload me-1"></i> Upload Document
+            </a>
+        }else
+        {
+            <h3>Read Only Folder</h3>
+        }
     </div>
 
     <!-- Search -->
@@ -45,7 +50,7 @@
             let SearchVal = $("#SearchVal").val();
 
             $.ajax({
-                url: "/Document/Index",
+                url: "/Sharing/Folder",
                 type: "GET",
                 data: {
                     folderId: "@Model?.FolderId",
@@ -78,6 +83,7 @@
                 e.preventDefault();
                 LoadDocuments($(this).data("pagenum"));
             });
+            
             $(document).on("click", ".sort-link", function (e) {
                 e.preventDefault();
 
@@ -186,71 +192,6 @@
                 });
             });
 
-            $(document).on("click", '.star-toggle-button', function (e) {
-
-                e.preventDefault();
-
-                const button = $(this);
-                const form = button.closest('form');
-                const isStarred = form.data('starred') === true || form.data('starred') === 'true';
-
-                const docId = form.data('id');
-                const action = isStarred ? 'unstar' : 'star';
-                const title = isStarred ? 'Unstar this document?' : 'Star this document?';
-                const confirmText = isStarred ? 'Yes, unstar it!' : 'Yes, star it!';
-                const successMsg = isStarred ? 'Document unstarred.' : 'Document starred.';
-
-                Swal.fire({
-                    title: title,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: confirmText,
-                    cancelButtonText: 'Cancel',
-                    confirmButtonColor: isStarred ? '#6c757d' : '#f1c40f', // grey or yellow
-                    cancelButtonColor: '#999'
-
-                }).then((result) => {
-
-                    if (result.isConfirmed) {
-
-                        $.ajax({
-                            url: form.attr('action'),
-                            type: 'POST',
-                            data: form.serialize(),
-                            success: function () {
-
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: successMsg,
-                                    timer: 1500,
-                                    showConfirmButton: false
-                                });
-
-                                // Toggle state
-                                const newAction = isStarred ? 'Star' : 'UnStar';
-                                const newTitle = isStarred ? 'Star' : 'Unstar';
-
-                                // Update form
-                                form.attr('action', `/Document/${newAction}?id=${docId}`);
-                                form.data('starred', !isStarred);
-
-                                // Update button
-                                const icon = button.find('i');
-                                if (isStarred) {
-                                    icon.removeClass('fas text-warning').addClass('far text-muted');
-                                } else {
-                                    icon.removeClass('far text-muted').addClass('fas text-warning');
-                                }
-                                button.attr('title', newTitle);
-                            },
-
-                            error: function () {
-                                Swal.fire('Error!', 'Could not update document star status.', 'error');
-                            }
-                        });
-                    }
-                });
-            });
         });
 
     </script>

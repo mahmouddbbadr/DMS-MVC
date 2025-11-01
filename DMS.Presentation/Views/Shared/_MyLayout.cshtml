@@ -65,11 +65,19 @@
                     </a>
                 </li>
 
+                @* shared nav *@
                 <li class="nav-item">
-                    <a class="nav-link" href="charts.html">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwoShare"
+                       aria-expanded="true" aria-controls="collapseTwoShare">
                         <i class="fa fa-share" style="font-size: 17px;"></i>
-                        <span style="font-weight:bold; font-size: 14px;">Shared With Me</span>
+                        <span style="font-weight:bold; font-size: 14px;">Shared</span>
                     </a>
+                    <div id="collapseTwoShare" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <a class="collapse-item" asp-controller="sharing" asp-action="SharedWithMe">Share With Me</a>
+                        <a class="collapse-item" asp-controller="sharing" asp-action="SharedByMe">Share By Me</a>
+                        </div>
+                    </div>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" asp-controller="Starred" asp-action="Index">
@@ -120,37 +128,7 @@
                 <div class="text-center d-none d-md-inline">
                     <button class="rounded-circle border-0" id="sidebarToggle"></button>
                 </div>
-
-            <!-- Nav Item - Charts -->
-            <li class="nav-item">
-                <a class="nav-link" href="charts.html">
-                    <i class="fa fa-home" style="font-size: 17px;"></i>
-                    <span style="font-weight:bold; font-size: 14px;" >Home</span>
-                </a>
-            </li>
-            <!-- Nav Item - Charts -->
             
-            @* shared nav *@
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwoShare"
-                   aria-expanded="true" aria-controls="collapseTwoShare">
-                    <i class="fa fa-share" style="font-size: 17px;"></i>
-                    <span style="font-weight:bold; font-size: 14px;">Shared</span>
-                </a>
-                <div id="collapseTwoShare" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item"asp-action="SharedWithMe">Share With Me</a>
-                        <a class="collapse-item" asp-action="SharedByMe">Share By Me</a>
-                    </div>
-                </div>
-            </li>
-
-            <li class="nav-item">
-                <a class="nav-link" href="charts.html">
-                    <i class="fa fa-star" style="font-size: 17px;"></i>
-                    <span style="font-weight:bold; font-size: 14px;" >Starred</span>
-                </a>
-            </li>
             </ul>
             <div id="content-wrapper" class="d-flex flex-column">
 
@@ -382,7 +360,7 @@
         <script src="/vendor/jquery/jquery.min.js"></script>
         <script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
-
+    @* <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> *@
         <script src="/js/sb-admin-2.min.js"></script>
         @RenderSection("Scripts", required: false)
 

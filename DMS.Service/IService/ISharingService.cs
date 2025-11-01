@@ -1,4 +1,5 @@
-﻿using DMS.Service.ModelViews.Shared;
+﻿using DMS.Service.ModelViews.DocumentViews;
+using DMS.Service.ModelViews.Shared;
 namespace DMS.Service.IService
 {
     public interface ISharingService
@@ -21,6 +22,9 @@ namespace DMS.Service.IService
         Task<bool> UnshareWithUserAsync(string itemId, string type, string userId, string currentUserId);
         Task<string> GetUserEmailAsync(string userId);
         Task<List<string>> GetUserEmailsAsync(List<string> userIds);
+        Task<bool> IsAuthorizedSharedFolderAsync(string fId, string userId);
+        Task<DocumentIndexViewModel> GetDocumentsBySharedFolderIdWithPaginationAsync
+            (FolderSharedViewModel modelQuery);
     }
 
 }

@@ -65,7 +65,20 @@
         refresh();
 
         // Tab switch
-        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', refresh);
+        //$('button[data-bs-toggle="tab"]').on('shown.bs.tab', refresh);
+        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+
+            let target = $(this).attr("data-bs-target");
+
+            if (target === "#folders") {
+                $("#documentsContent").html("");
+            } else {
+                $("#foldersContent").html("");
+            }
+
+            refresh();
+        });
+
 
         // Search
         $("#searchBtn").click(refresh);
@@ -122,10 +135,12 @@
                 if (res.isConfirmed) {
                     $.post(form.attr("action"), form.serialize())
                         .done(() => {
+
                             // Remove visually
                             form.closest(".document-row, tr, .card").fadeOut(300, function () {
                                 $(this).remove();
                             });
+                            setTimeout(refresh, 300);
                         })
                         .fail(() => Swal.fire("Error", "Unstar failed", "error"));
                 }

@@ -61,6 +61,7 @@ namespace DMS.Service.Service
                 .GetDocumentsByFolderIdAsQueryable(modelQuery.FolderId, modelQuery.OwnerId);
             }
 
+            /*
             query = (modelQuery.SortField, modelQuery.SortOrder?.ToLower()) switch
             {
                 ("Name", "asc") => query.OrderBy(d => d.Name),
@@ -77,7 +78,9 @@ namespace DMS.Service.Service
 
                 _ => query.OrderByDescending(d => d.AddedAt)
             };
+            */
 
+            query = SortData(query, modelQuery.SortField, modelQuery.SortOrder);
             int totalCount = query.Count();
 
             List<Document> docs = await _unit.DocumentRepository
@@ -93,8 +96,8 @@ namespace DMS.Service.Service
                 CurrentPage = modelQuery.PageNum,
                 CurrentSearch = modelQuery.SearchName,
                 TotalPages = total,
-                HasNext = modelQuery.PageNum < total,
-                HasPrevious = modelQuery.PageNum > 1,
+                //HasNext = modelQuery.PageNum < total,
+                //HasPrevious = modelQuery.PageNum > 1,
                 SortField = modelQuery.SortField,
                 SortOrder = modelQuery.SortOrder,
                 DocumentList = docs.Select(d => new DocumentListItemViewModel()
@@ -201,6 +204,26 @@ namespace DMS.Service.Service
             return contentType;
         }
 
+        private IQueryable<Document> SortData
+            (IQueryable<Document> query, string sortField, string sortOrder)
+        {
+            return (sortField, sortOrder?.ToLower()) switch
+            {
+                ("Name", "asc") => query.OrderBy(d => d.Name),
+                ("Name", "desc") => query.OrderByDescending(d => d.Name),
+
+                ("Size", "asc") => query.OrderBy(d => d.Size),
+                ("Size", "desc") => query.OrderByDescending(d => d.Size),
+
+                ("AddedAt", "asc") => query.OrderBy(d => d.AddedAt),
+                ("AddedAt", "desc") => query.OrderByDescending(d => d.AddedAt),
+
+                ("Starred", "asc") => query.OrderBy(d => d.IsStarred),
+                ("Starred", "desc") => query.OrderByDescending(d => d.IsStarred),
+
+                _ => query.OrderByDescending(d => d.AddedAt)
+            };
+        }
         public async Task<bool> UploadDocumentAsync(DocumentUploadViewModel model, string wwwroot)
         {
             try
@@ -347,7 +370,6 @@ namespace DMS.Service.Service
             var folder = await _unit.FolderRepository.GetFolderByIdAuthorizeAsync(fId, userId);
             return folder != null;
         }
-       
         public async Task<bool> EditDocumentModelAsync(DocumentEditModelViewModel model, string wwwroot)
         {
             Document? doc;

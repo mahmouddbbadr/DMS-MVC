@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Views\SharedItem\**" />
+    <Content Remove="Views\SharedItem\**" />
+    <EmbeddedResource Remove="Views\SharedItem\**" />
+    <None Remove="Views\SharedItem\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">
       <PrivateAssets>all</PrivateAssets>
@@ -22,10 +29,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DMS.Service\DMS.Service.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Views\SharedItem\" />
   </ItemGroup>
 
 </Project>

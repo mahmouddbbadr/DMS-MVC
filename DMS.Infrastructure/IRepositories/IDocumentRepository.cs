@@ -12,5 +12,10 @@ namespace DMS.Infrastructure.IRepositories
         IQueryable<Document> GetDocumentsByFolderIdAsQueryable(string folderId, string userId);
         IQueryable<Document> SortedBySize();
         IQueryable<Document> SortedBySizeDesc();
+
+        // For Sharing
+        IQueryable<Document> GetDocumentsBySharedFolderIdAsQueryable(string folderId);
+        IQueryable<Document> SearchDocumentsBySharedFolderAsQueryable
+            (string folderId, string searchName);
     }
 }

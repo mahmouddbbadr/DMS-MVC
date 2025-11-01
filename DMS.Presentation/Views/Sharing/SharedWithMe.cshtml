@@ -1,8 +1,7 @@
 ﻿
 
-@model DMS.Service.ModelViews.Shared.SharedIndexViewModel
+@model SharedIndexViewModel
 @{
-    Layout = "~/Views/Shared/_MyLayout.cshtml";
     ViewBag.Title = "Shared With Me";
 }
 
@@ -279,29 +278,24 @@
                                     <div class="action-buttons">
                                         @if (!string.IsNullOrEmpty(item.FolderName))
                                         {
-                                            <a href="@Url.Action("Index", "Folder", new { folderId = item.FolderId })"
+                                            <a href="@Url.Action("Folder", "Sharing", new { folderId = item.FolderId })"
                                                class="btn-open"
-                                               title="Open Folder"
-                                               onclick="showOpeningMessage('@item.FolderName', 'folder', event)">
+                                               title="Open Folder">
                                                 <i class="fas fa-folder-open"></i> Open
                                             </a>
                                         }
                                         else if (!string.IsNullOrEmpty(item.DocumentName))
                                         {
-                                            <a href="@Url.Action("View", "Document", new { id = item.DocumentId })"
+                                            <a href="@Url.Content("~/" + item.FilePath)"
+                                               target="_blank"
                                                class="btn-open"
-                                               title="Open Document"
-                                               onclick="showOpeningMessage('@item.DocumentName', 'document', event)">
+                                               title="Open Document">
                                                 <i class="fas fa-external-link-alt"></i> Open
                                             </a>
 
-                                            <a href="/@item.FilePath"
-                                               class="btn-open"
-                                               target="_blank"
-                                               rel="noopener noreferrer"
-                                               title="Download Document"
-                                               onclick="confirmDownload('@item.DocumentName', event)">
-                                                <i class="fas fa-download"></i> Download
+                                            <a asp-controller="Document" asp-action="Download" asp-route-id="@item.DocumentId"
+                                                class="btn btn-primary btn-sm">
+                                                <i class="fas fa-download mx-1"></i> Download
                                             </a>
                                         }
                                     </div>
