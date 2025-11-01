@@ -24,4 +24,8 @@
     <ProjectReference Include="..\DMS.Service\DMS.Service.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Views\SharedItem\" />
+  </ItemGroup>
+
 </Project>

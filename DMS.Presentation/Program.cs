@@ -58,7 +58,7 @@ namespace DMS.Presentation
             builder.Services.AddScoped<IStarredService, StarredService>();        
 
             var app = builder.Build();
-
+            
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
