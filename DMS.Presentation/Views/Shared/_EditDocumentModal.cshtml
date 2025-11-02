@@ -1,0 +1,95 @@
+﻿<div class="modal fade" id="editDocumentModal" tabindex="-1" aria-labelledby="editDocumentLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content app-modal-content">
+            <div class="modal-header app-modal-header">
+                <h5 class="modal-title" id="editDocumentLabel">Edit Document</h5>
+                <button type="button" class="btn-close app-btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form id="editDocForm" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" id="editDocId" name="Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted fw-semibold">Document Name</label>
+                        <input type="text" class="form-control app-input" id="editDocName" name="Name" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted fw-semibold">Replace File (Optional)</label>
+                        <input type="file" class="form-control app-input-file" id="editDocFile" name="File" accept="*" />
+                        <small class="text-muted">Leave empty if you do not want to replace the file.</small>
+                    </div>
+                </div>
+
+                <div class="modal-footer app-modal-footer">
+                    <button type="submit" class="btn app-btn-primary">Save Changes</button>
+                    <button type="button" class="btn app-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .app-modal-content {
+        background-color: var(--color-card-bg);
+        color: var(--color-text);
+        border: 1px solid var(--color-border);
+    }
+
+    .app-modal-header {
+        background-color: var(--color-page-bg);
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .app-input, .app-input-file {
+        background-color: var(--color-page-bg);
+        color: var(--color-text);
+        border-color: var(--color-border);
+    }
+
+    .app-input::placeholder,
+    .app-input-file::placeholder,
+    .app-input::-webkit-input-placeholder,
+    .app-input-file::-webkit-input-placeholder,
+    .app-input::-moz-placeholder,
+    .app-input-file::-moz-placeholder {
+        color: var(--color-text-muted) !important;
+        opacity: 0.7;
+    }
+
+    /* .app-input:focus {
+            background-color: var(--color-page-bg);
+            border-color: var(--color-primary-accent);
+            box-shadow: 0 0 0 0.25rem rgba(var(--rgb-primary-accent), 0.25);
+        } */
+
+    .app-btn-close {
+        filter: invert(var(--close-btn-filter, 0));
+        opacity: 1;
+    }
+
+    .dark-theme .app-btn-close {
+        --close-btn-filter: 1;
+    }
+
+    .app-btn-primary {
+        background-color: var(--color-primary-accent);
+        border-color: var(--color-primary-accent);
+        color: white;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .app-btn-secondary {
+        background-color: var(--color-page-bg);
+        color: var(--color-text);
+        border-color: var(--color-border);
+        transition: all 0.2s ease;
+    }
+
+    .app-btn-secondary:hover {
+        background-color: var(--color-hover-bg);
+    }
+</style>

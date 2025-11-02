@@ -1,26 +1,35 @@
 ﻿@model StarFoldersViewModel
 
-<div class="row">
-    @if (!Model.StarredFolder.Items.Any())
-    {
-        <div class="text-center text-muted">
-            <p>No starred folders found.</p>
+@if (!Model.StarredFolder.Items.Any())
+{
+    <div class="text-center text-muted py-5">
+        <i class="fas fa-star fa-3x mb-3"></i>
+        <p>No starred folders found.</p>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-end mb-3">
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                Sort By @Model.StarredFolder.SortField (@Model.StarredFolder.SortOrder)
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item sort-link" href="#" data-field="Name">Name</a></li>
+                <li><a class="dropdown-item sort-link" href="#" data-field="ItemCount">Items</a></li>
+                <li><a class="dropdown-item sort-link" href="#" data-field="TotalSize">Size</a></li>
+                <li><a class="dropdown-item sort-link" href="#" data-field="AddedAt">Date Added</a></li>
+                <li><a class="dropdown-item sort-link" href="#" data-field="Starred">Starred</a></li>
+            </ul>
         </div>
-    }
-    else
-    {
-        foreach (var f in Model.StarredFolder.Items)
+    </div>
+    <div class="row g-4">
+        @foreach (var f in Model.StarredFolder.Items)
         {
             <div class="col-6 col-md-4 col-lg-3 col-xl-2">
-                <div id="fol-card-@f.Id" class="folder-card position-relative shadow-sm p-3 bg-white rounded hover-shadow cursor-pointer my-2"
+                <div id="fol-card-@f.Id"
+                     class="folder-card position-relative shadow-sm p-3 rounded cursor-pointer my-2"
                      data-url="@Url.Content($"~/Document/Index?FolderId={f.Id}")">
-
-                    <!-- Share (Right) -->
-                    <a asp-controller="Sharing" asp-action="ShareFolder"
-                       asp-route-folderId="@f.Id"
-                       class="position-absolute top-0 end-0 me-1 mt-1 text-bg-primary share-fol-link">
-                        <i class="fas fa-share-alt"></i>
-                    </a>
 
                     <!-- Unstar (Left) -->
                     <form method="post"
@@ -28,26 +37,30 @@
                           asp-action="UnStarFolder"
                           asp-route-id="@f.Id"
                           class="star-toggle-form">
-                        <button type="submit" class="btn btn-sm p-0 star-toggle-button">
-                            <i class="fas fa-star text-warning"></i>
+                        <button type="button" class="star-toggle-button">
+                            <i class="fas fa-star star-filled"></i>
                         </button>
                     </form>
 
-                    <div class="text-center" onclick="window.location.href='@Url.Action("Index", "Document", new { FolderId = f.Id })'">
+
+                    <!-- Share (Right) -->
+                    <a asp-controller="Sharing" asp-action="ShareFolder" asp-route-folderId="@f.Id"
+                       class="share-fol-link text-primary">
+                        <i class="fas fa-share-alt"></i>
+                    </a>
+
+                    <div class="text-center mt-3">
                         <i class="fas fa-folder fa-3x text-warning mb-2"></i>
-                        <h6 class="text-truncate fw-bold">@f.Name</h6>
-                        <small class="text-muted">@f.ItemCount items</small>
+                        <h6 class="text-truncate fw-bold" title="@f.Name">@f.Name</h6>
+                        <small class="text-secondary">@f.ItemCount items</small>
                     </div>
 
-                    <div class="mt-3 d-flex justify-content-between align-items-center">
-                        <span class="text-muted small">@SizeFormatter.FormatSize(f.TotalSize)</span>
+                    <div class="mt-3 d-flex justify-content-between align-items-center folder-card-footer">
+                        <span class="text-secondary small">@SizeFormatter.FormatSize(f.TotalSize)</span>
 
-                        <form asp-controller="Folder"
-                              asp-action="Trash"
-                              asp-route-id="@f.Id"
-                              method="post"
-                              class="m-0 p-0 delete-form">
-                            <button type="button" class="delete-button btn btn-sm p-0 text-danger">
+                        <form asp-controller="Folder" asp-action="Trash" asp-route-id="@f.Id" method="post"
+                              class="delete-form m-0">
+                            <button type="button" class="delete-button btn p-0 text-danger action-icon-btn">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
@@ -55,55 +68,34 @@
                 </div>
             </div>
         }
-    }
-</div>
+    </div>
 
-<div class="mt-4">
-    <partial name="_Pagination" model="Model.StarredFolder" />
-</div>
+    <div class="app-pagination">
+        <partial name="_Pagination" model="Model.StarredFolder" />
+    </div>
+}
+
 <style>
-    .share-fol-link {
-        position: absolute;
-        top: 6px;
-        right: 6px;
-        z-index: 10;
+    .star-filled {
+        color: #f4c430 !important; /* strong gold yellow */
+        filter: drop-shadow(0 0 2px rgba(0,0,0,0.25));
+        transition: 0.25s;
     }
 
-    .star-toggle-form {
-        position: absolute;
-        top: 6px;
-        left: 6px;
-        z-index: 10;
-        margin: 0;
-        padding: 0;
+    .star-filled:hover {
+        transform: scale(1.2);
     }
 
-    .star-toggle-button {
-        background: transparent;
-        border: none;
-        padding: 0;
-        cursor: pointer;
-    }
-
-    .share-fol-link i,
-    .star-toggle-button i {
-        font-size: 18px;
-    }
     .folder-card {
-        transition: .25s;
+        background-color: var(--sidebar-bg);
+        border: 1px solid var(--border);
+        transition: all 0.25s ease;
     }
 
     .folder-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 6px 18px rgba(0,0,0,.12);
-    }
-
-    .folder-card i {
-        transition: .25s;
-    }
-
-    .folder-card i:hover {
-        transform: scale(1.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        border-color: var(--accent);
     }
 
     .cursor-pointer {
@@ -114,6 +106,40 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+    }
+
+    .star-toggle-form, .share-fol-link {
+        position: absolute;
+        top: 8px;
+        z-index: 20;
+    }
+
+    .star-toggle-form {
+        left: 8px;
+    }
+
+    .share-fol-link {
+        right: 8px;
+    }
+
+    .star-toggle-button, .delete-button {
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+    }
+
+    .star-toggle-button i, .share-fol-link i {
+        font-size: 16px;
+        transition: 0.2s;
+    }
+
+    .star-toggle-button:hover i, .share-fol-link:hover i, .action-icon-btn:hover i {
+        transform: scale(1.15);
+    }
+
+    .action-icon-btn i {
+        font-size: 14px;
     }
 
 </style>

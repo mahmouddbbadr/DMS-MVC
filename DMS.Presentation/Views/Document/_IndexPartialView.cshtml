@@ -1,198 +1,330 @@
 ﻿@model DocumentIndexViewModel
 
-<div class="card shadow mb-4">
-    <div class="card-body">
+<div class="card app-card shadow-lg mb-4">
+    <div class="card-body p-0">
+
         @if (!Model.DocumentList.Any())
         {
-            <div class="text-center text-muted">
-                <p>No documents found in this folder.</p>
+            <div class="text-center py-5 empty-state">
+                <i class="fas fa-file-alt fa-3x mb-3 text-secondary-emphasis"></i>
+                <p class="text-secondary-emphasis fs-5">No documents found in this folder. Start by uploading one!</p>
             </div>
         }
         else
         {
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover" width="100%" cellspacing="0">
-                    <thead class="thead-light">
+            <div class="table-responsive app-table-wrapper">
+                <table class="table table-hover app-table m-0">
+                    <thead>
                         <tr>
-                            <th>
-                                <a href="#" class="sort-link" data-field="Name">
+                            <th class="ps-3 table-header-item" style="width: 50%;">
+                                <a href="#" class="sort-link text-decoration-none" data-field="Name">
                                     Name
                                     @if (Model.SortField == "Name")
                                     {
-                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
-                                    }else
-                                    {                                   
-                                        <i class="fas fa-sort ms-1"></i>
+                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down") ms-1 text-primary-accent"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-sort ms-1 text-muted"></i>
                                     }
                                 </a>
                             </th>
-                            <th>Type</th>
-                            <th>
-                                <a href="#" class="sort-link" data-field="Size">
+                            <th class="table-header-item d-none d-md-table-cell">Type</th>
+                            <th class="table-header-item text-center d-none d-lg-table-cell" style="width: 120px;">
+                                <a href="#" class="sort-link text-decoration-none" data-field="Size">
                                     Size (KB)
                                     @if (Model.SortField == "Size")
                                     {
-                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
-                                    }else
+                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down") ms-1 text-primary-accent"></i>
+                                    }
+                                    else
                                     {
-                                        <i class="fas fa-sort ms-1"></i>
+                                        <i class="fas fa-sort ms-1 text-muted"></i>
                                     }
                                 </a>
                             </th>
-                            <th>
-                                <a href="#" class="sort-link" data-field="AddedAt">
+                            <th class="table-header-item text-center d-none d-sm-table-cell" style="width: 150px;">
+                                <a href="#" class="sort-link text-decoration-none" data-field="AddedAt">
                                     Added
                                     @if (Model.SortField == "AddedAt")
                                     {
-                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
+                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down") ms-1 text-primary-accent"></i>
                                     }
                                     else
                                     {
-                                        <i class="fas fa-sort ms-1"></i>
+                                        <i class="fas fa-sort ms-1 text-muted"></i>
                                     }
                                 </a>
                             </th>
-                            <th>
-                                <a href="#" class="sort-link" data-field="Starred">
-                                    Starred
-                                    @if (Model.SortField == "Starred")
-                                    {
-                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="fas fa-sort ms-1"></i>
-                                    }
+                            <th class="table-header-item text-center" style="width: 80px;">
+                                <a href="#" class="sort-link text-decoration-none" data-field="Starred" title="Sort by Starred">
+                                    <i class="fas fa-star fa-lg star-filled"></i>
                                 </a>
                             </th>
-                            <th>Actions</th>
+                            <th class="table-header-item text-center" style="width: 180px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var doc in Model.DocumentList)
                         {
-                            <tr id="doc-row-@doc.Id" style="cursor:pointer" data-url="@Url.Content($"~/Document/Details/{doc.Id}")">
-                                <td>
-                                    <a style="text-decoration:underline" href="~/@doc.FilePath" target="_blank">@doc.Name</a>
+                            <tr id="doc-row-@doc.Id" class="document-row main-doc" data-url="@Url.Content($"~/Document/Details/{doc.Id}")">
+                                <td class="ps-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-file me-2 file-icon text-primary-accent" title="@doc.FileType"></i>
+                                        <a class="document-name-text text-decoration-none" href="~/@doc.FilePath" target="_blank">@doc.Name</a>
+                                    </div>
                                 </td>
-                                <td>@doc.FileType</td>
-                                <td>@(doc.Size / 1024)</td>
-                                <td>@doc.AddedAt.ToString("yyyy-MM-dd")</td>
+
+                                <td class="d-none d-md-table-cell text-muted small">@doc.FileType</td>
+
+                                <td class="text-center d-none d-lg-table-cell text-muted small">
+                                    @(doc.Size / 1024) KB
+                                </td>
+
+                                <td class="text-center d-none d-sm-table-cell text-muted small">@doc.AddedAt.ToString("yyyy-MM-dd")</td>
+
                                 <td class="text-center">
                                     <form method="post"
-                                            asp-action="@(doc.IsStarred ? "UnStar" : "Star")"
-                                            asp-route-id="@doc.Id"
-                                            class="d-inline star-toggle-form"
-                                            data-id="@doc.Id"
-                                            data-starred="@doc.IsStarred.ToString().ToLower()">
+                                          asp-action="@(doc.IsStarred ? "UnStar" : "Star")"
+                                          asp-route-id="@doc.Id"
+                                          class="d-inline star-toggle-form"
+                                          data-id="@doc.Id"
+                                          data-starred="@doc.IsStarred.ToString().ToLower()">
                                         <button type="button"
                                                 class="star-toggle-button border-0 bg-transparent p-0"
                                                 title="@(doc.IsStarred ? "Unstar" : "Star")"
                                                 data-bs-toggle="tooltip">
-                                            <i class="@(doc.IsStarred ? "fas text-warning" : "far text-muted") fa-star fa-lg"></i>
+                                            <i class="@(doc.IsStarred ? "fas" : "far") fa-star fa-lg star-filled"></i>
                                         </button>
                                     </form>
                                 </td>
-                                <td>
-                                    <div class="d-flex text-center flex-wrap align-items-center gap-2">
-                                        @* <a asp-action="Details" asp-route-id="@doc.Id" class="btn btn-info btn-sm">
-                                             Details
-                                        </a> *@
-                                        <a asp-action="Download" asp-route-id="@doc.Id" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-download mx-1"></i> Download
+
+                                <td class="text-center actions-cell">
+                                    <div class="d-flex justify-content-center flex-wrap align-items-center gap-1">
+
+                                        <a asp-action="Download" asp-route-id="@doc.Id" class="btn btn-icon btn-action-download" title="Download">
+                                            <i class="fas fa-download"></i>
                                         </a>
-                                        @* <a class="btn btn-secondary btn-sm mx-2 edit-doc-link" data-id="@doc.Id">
-                                            <i class="far fa-edit mx-1"></i> Edit 
-                                        </a> *@
-                                        <button type="button" class="btn btn-secondary btn-sm mx-2 edit-doc-btn"
-                                                data-id="@doc.Id" data-name="@doc.Name">
-                                            <i class="far fa-edit mx-1"></i> Edit
+
+                                        <button type="button" class="btn btn-icon btn-action-edit edit-doc-btn"
+                                                data-id="@doc.Id" data-name="@doc.Name" title="Edit Name">
+                                            <i class="far fa-edit"></i>
                                         </button>
 
-                                        <a asp-action="ShareDocument" asp-controller="Sharing" asp-route-documentId="@doc.Id" class="btn btn-success btn-sm mx-2">
-                                            <i class="fas fa-share mx-1"></i> Share
+                                        <a asp-action="ShareDocument" asp-controller="Sharing" asp-route-documentId="@doc.Id" class="btn btn-icon btn-action-share" title="Share">
+                                            <i class="fas fa-share-alt"></i>
                                         </a>
+
                                         <form asp-action="Trash" asp-route-id="@doc.Id" method="post" class="m-0 p-0 delete-form" data-id="@doc.Id">
-                                            <button type="submit" class="btn btn-danger btn-sm delete-button">
-                                                <i class="fas fa-trash-alt mx-1"></i> Delete
+                                            <button type="button" class="btn btn-icon btn-action-delete delete-button" title="Delete">
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
                                     </div>
                                 </td>
-
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
 
-            <!-- EDIT DOCUMENT MODAL -->
-            <div class="modal fade" id="editDocumentModal" tabindex="-1" aria-labelledby="editDocumentLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header bg-primary text-white">
-                            <h5 class="modal-title" id="editDocumentLabel">Edit Document</h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                        </div>
-
-                        <form id="editDocForm" enctype="multipart/form-data">
-                            <div class="modal-body">
-
-                                <input type="hidden" id="editDocId" name="Id" />
-
-                                <div class="mb-3">
-                                    <label class="form-label">Document Name</label>
-                                    <input type="text" class="form-control" id="editDocName" name="Name" required />
-                                </div>
-
-                                <div class="mb-3">
-                                    <label class="form-label">Replace File (Optional)</label>
-                                    <input type="file" class="form-control" id="editDocFile" name="File" accept="*" />
-                                    <small class="text-muted">Leave empty if you do not want to replace the file.</small>
-                                </div>
-
-                            </div>
-
-                            <div class="modal-footer">
-                                <button type="submit" class="btn btn-primary">Save Changes</button>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            </div>
-                        </form>
-
-                    </div>
-                </div>
-            </div>
+            @await Html.PartialAsync("_EditDocumentModal")
 
         }
     </div>
 </div>
 
-
-<div class="mt-4">
+<div class="app-pagination">
     <partial name="_Pagination" model="Model" />
 </div>
 
-<style>
-    .table .btn-sm {
-        min-width: 36px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+
+
+<link href="~/css/themeIndex.css" rel="stylesheet" />
+@* <style>
+
+    :root {
+        --color-page-bg: #f5f5f5;
+        --color-card-bg: #ffffff;
+        --color-text: #212529;
+        --color-text-muted: #6c757d;
+        --color-border: #e9ecef;
+        --color-primary-accent: #0d6efd;
+        --color-hover-bg: #f8f9fa;
+        --color-text-emphasis: #495057;
+        --color-warning-light: #ffc107; 
+        --rgb-primary-accent: 13, 110, 253;
+        --rgb-danger: 220, 53, 69;
+        --rgb-success: 32, 201, 151;
+        --rgb-info: 108, 117, 125;
     }
 
-</style>
+    .dark-theme {
+        --color-page-bg: #121417; 
+        --color-card-bg: #1c1f23; 
+        --color-text: #e2e6ea; 
+        --color-text-muted: #adb5bd; 
+        --color-border: #3b4249;
+        --color-primary-accent: #66b3ff;
+        --color-hover-bg: #343a40;
+        --color-text-emphasis: #c9c9c9;
+        --color-table-header-bg: #212529; 
+        --color-table-hover-bg-dark: #3a3f44;
+        --rgb-primary-accent: 102, 179, 255;
+        --rgb-danger: 255, 102, 102;
+        --rgb-success: 64, 224, 133;
+        --rgb-info: 173, 181, 189;
+    }
 
+    .app-card {
+        background-color: var(--color-card-bg);
+        border: 1px solid var(--color-border);
+    }
 
+    .text-primary-accent {
+        color: var(--color-primary-accent) !important;
+    }
 
-@* <script>
-    $(document).ready(function() {
-        $(document).on("click", ".edit-doc-link", function (e) {
-            e.preventDefault();
+    .text-secondary-emphasis {
+        color: var(--color-text-emphasis) !important;
+    }
 
-            let id = $(this).data("id");
-            let returnUrl = encodeURIComponent(window.location.href);
+    .text-warning {
+        color: var(--color-warning-light) !important;
+    }
 
-            window.location.href = `/Document/Edit/${id}?returnUrl=${returnUrl}`;
-        });         
-    });
-</script> *@
+    .dark-theme .text-warning {
+        color: white !important;
+    }
+
+    .dark-theme .text-muted {
+        color: var(--color-text-muted) !important;
+    }
+
+    .app-table-wrapper {
+        border-radius: 0.5rem 0.5rem 0 0;
+        overflow: hidden;
+        border: 1px solid var(--color-border);
+    }
+
+    .app-table {
+        --bs-table-bg: var(--color-card-bg);
+        --bs-table-color: var(--color-text);
+        --bs-table-hover-bg: var(--color-hover-bg);
+        --bs-table-border-color: var(--color-border);
+    }
+
+    .dark-theme .app-table {
+        --bs-table-bg: var(--color-card-bg);
+        --bs-table-hover-bg: var(--color-table-hover-bg-dark);
+    }
+
+    .dark-theme table.app-table thead {
+        background-color: var(--color-table-header-bg);
+    }
+
+    .document-row {
+        cursor: pointer;
+        transition: background-color 0.15s;
+    }
+
+    .app-table td, .app-table th {
+        vertical-align: middle !important;
+        padding-top: 0.8rem !important;
+        padding-bottom: 0.8rem !important;
+        border-bottom: 1px solid var(--bs-table-border-color) !important;
+    }
+
+    .app-table th {
+        color: var(--color-text-muted) !important;
+        background-color: var(--color-page-bg);
+        font-weight: 600;
+        border-bottom: 2px solid var(--color-border) !important;
+    }
+
+    .dark-theme .app-table th {
+        background-color: var(--color-table-header-bg);
+    }
+
+    .document-name-text {
+        color: var(--color-text); 
+        font-weight: 500;
+        max-width: 90%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .document-row td.text-muted,
+    .document-row td.small {
+        color: var(--color-text-muted) !important;
+    }
+
+    .btn-icon {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border-radius: 50%;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+    }
+
+    .btn-action-download {
+        color: var(--color-text-muted);
+        background-color: rgba(var(--rgb-info), 0.1);
+        border-color: rgba(var(--rgb-info), 0.2);
+    }
+
+    .btn-action-edit {
+        color: var(--color-primary-accent);
+        background-color: rgba(var(--rgb-primary-accent), 0.1);
+        border-color: rgba(var(--rgb-primary-accent), 0.2);
+    }
+
+    .btn-action-share {
+        color: #20c997;
+        background-color: rgba(var(--rgb-success), 0.1);
+        border-color: rgba(var(--rgb-success), 0.2);
+    }
+
+    .btn-action-delete {
+        color: #dc3545;
+        background-color: rgba(var(--rgb-danger), 0.1);
+        border-color: rgba(var(--rgb-danger), 0.2);
+    }
+
+    .btn-icon:hover {
+        transform: translateY(-2px) scale(1.05);
+        opacity: 1;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .dark-theme .btn-icon:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-action-download:hover {
+        background-color: rgba(var(--rgb-info), 0.2);
+    }
+
+    .btn-action-edit:hover {
+        background-color: rgba(var(--rgb-primary-accent), 0.2);
+    }
+
+    .btn-action-share:hover {
+        background-color: rgba(var(--rgb-success), 0.2);
+    }
+
+    .btn-action-delete:hover {
+        background-color: rgba(var(--rgb-danger), 0.2);
+    }
+
+    .star-toggle-button:hover i {
+        transform: scale(1.2);
+        opacity: 0.9;
+    }
+</style> *@

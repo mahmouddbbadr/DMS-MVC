@@ -2,32 +2,56 @@
 
 <div class="container-fluid mt-4">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h4 text-primary mb-0">
-            <a asp-controller="Folder" asp-action="Index">
-                <i class="fas fa-folder-open me-2"></i> @Model.FolderName Documents
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom header-area">
+       
+        <h3 class="text-accent fw-bold page-title">
+            <a asp-controller="Folder" asp-action="Index" class="text-decoration-none">
+                <i class="fas fa-folder-open me-2 text-warning"></i>@Model.FolderName Documents
             </a>
-        </h1>
+        </h3>
 
-        <a asp-action="Upload" asp-route-folderId="@Model.FolderId" class="btn btn-success">
+        <a asp-action="Upload" asp-route-folderId="@Model.FolderId" class="btn btn-primary btn-upload-doc shadow-sm">
             <i class="fas fa-upload me-1"></i> Upload Document
         </a>
     </div>
 
-    <!-- Search -->
-    <div class="input-group mb-3 w-50">
-        <input type="text" id="SearchVal" class="form-control" value="@Model?.CurrentSearch" placeholder="Search documents..." />
-        <button id="searchBtn" class="btn btn-outline-secondary">
+    <div class="input-group mb-4 w-100 w-lg-50 search-input-group">
+        <input type="text" id="SearchVal" class="form-control search-input"
+            value="@Model?.CurrentSearch"
+            placeholder="Search documents..." />
+        <button id="searchBtn" class="btn btn-search-icon">
             <i class="fas fa-search"></i>
         </button>
     </div>
 
-    <!-- Results -->
     <div id="partial" class="mt-3">
-        <div class="text-center text-muted py-5">
-            <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
-            <p>Loading documents...</p>
+        <div class="text-center py-5 loading-state">
+            <i class="fas fa-spinner fa-spin fa-2x mb-3 text-accent"></i>
+            <p class="text-muted">Loading documents...</p>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editDocumentModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content modal-custom">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Document</h5>
+                    <button type="button" class="btn p-0 border-0 bg-transparent close-btn" data-bs-dismiss="modal">
+                        <span style="font-size: 1.8rem; line-height: 1; color: var(--text);">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editDocForm">
+                        <input type="hidden" id="editDocId" name="Id" />
+                        <label class="form-label fw-semibold">Document Name</label>
+                        <input type="text" id="editDocName" name="Name" class="form-control modal-input" required />
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" form="editDocForm" class="btn btn-primary btn-custom-accent">Save</button>
+                    <button type="button" class="btn btn-secondary modal-secondary-btn" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -37,7 +61,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
-
         let sortField = "@Model?.SortField";
         let sortOrder = "@Model?.SortOrder";
 
@@ -255,3 +278,148 @@
 
     </script>
 }
+
+<style>
+
+    :root {
+        --bg: #f8f9fa; 
+        --sidebar-bg: #ffffff; 
+        --text: #212529; 
+        --text-muted: #6c757d; 
+        --border: #dee2e6; 
+        --accent: #007bff; 
+        --hover-bg: #f1f1f1;
+        --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .dark-theme {
+        --bg: #212529;
+        --sidebar-bg: #2b3035;
+        --text: #e2e6ea;
+        --text-muted: #adb5bd;
+        --border: #495057;
+        --accent: #0d6efd; 
+        --hover-bg: #343a40;
+        --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.4);
+    }
+
+    .container-fluid {
+        background-color: var(--bg);
+        color: var(--text);
+    }
+
+    .header-area {
+        border-color: var(--border) !important;
+    }
+
+    .page-title a {
+        color: var(--text);
+        transition: color 0.2s;
+    }
+
+    .page-title a:hover {
+        color: var(--accent) !important;
+    }
+
+    .btn-upload-doc {
+        background-color: var(--accent);
+        border-color: var(--accent);
+        color: white;
+        transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .btn-upload-doc:hover {
+        background-color: var(--accent);
+        border-color: var(--accent);
+        opacity: 0.9;
+    }
+
+    .search-input-group {
+        max-width: 500px; 
+    }
+
+    .search-input {
+        background-color: var(--sidebar-bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    .search-input::placeholder {
+        color: var(--text-muted);
+        opacity: 0.7;
+    }
+
+    .search-input:focus {
+        background-color: var(--sidebar-bg);
+        color: var(--text);
+        border-color: var(--accent);
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); 
+    }
+
+    .btn-search-icon {
+        background-color: var(--hover-bg); 
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+        border-left: none; 
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+    .btn-search-icon:hover {
+        background-color: var(--accent);
+        color: white;
+        border-color: var(--accent);
+    }
+
+    .loading-state {
+        color: var(--text-muted) !important;
+    }
+
+    .loading-state i {
+        color: var(--accent) !important;
+    }
+
+    .modal-custom {
+        background-color: var(--sidebar-bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .modal-custom .modal-header {
+        border-color: var(--border);
+    }
+
+    .modal-custom .modal-footer {
+        border-color: var(--border);
+    }
+
+    .modal-input {
+        background-color: var(--bg);
+        color: var(--text);
+        border-color: var(--border);
+    }
+
+    .modal-input:focus {
+        background-color: var(--bg);
+        border-color: var(--accent);
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    .btn-custom-accent {
+        background-color: var(--accent);
+        border-color: var(--accent);
+        color: white;
+    }
+
+    .modal-secondary-btn {
+        background-color: var(--text-muted);
+        border-color: var(--text-muted);
+        color: white;
+    }
+
+    @@media (min-width: 992px) {
+        .w-lg-50 {
+            width: 50% !important;
+        }
+    }
+</style>
+

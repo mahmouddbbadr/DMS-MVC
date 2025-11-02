@@ -50,3 +50,90 @@
         <a asp-action="Index" asp-route-folderId="@Model.FolderId" class="btn btn-secondary">Back to Documents</a>
     </div>
 </div>
+
+
+
+<style>
+
+    :root {
+        --color-page-bg: #f5f5f5;
+        --color-card-bg: #ffffff;
+        --color-text: #212529;
+        --color-text-muted: #6c757d;
+        --color-border: #e9ecef;
+        --color-primary-accent: #0d6efd;
+        --color-hover-bg: #f8f9fa;
+        --color-warning-light: #ffc107;
+    }
+
+    .dark-theme {
+        --color-page-bg: #121417;
+        --color-card-bg: #1c1f23;
+        --color-text: #e2e6ea;
+        --color-text-muted: #adb5bd;
+        --color-border: #3b4249;
+        --color-primary-accent: #66b3ff;
+        --color-hover-bg: #343a40;
+    }
+
+    .card {
+        background-color: var(--color-card-bg);
+        border: 1px solid var(--color-border);
+        color: var(--color-text);
+    }
+
+    .text-primary {
+        color: var(--color-primary-accent) !important;
+    }
+
+    .text-warning {
+        color: var(--color-warning-light) !important;
+    }
+
+    .dark-theme .text-warning {
+        color: white !important;
+    }
+
+    .text-muted {
+        color: var(--color-text-muted) !important;
+    }
+
+    .card dt {
+        color: var(--color-text-muted);
+        font-weight: 500;
+    }
+    .card dd {
+        color: var(--color-text);
+        font-weight: 400;
+    }
+
+    .btn-primary {
+        background-color: var(--color-primary-accent);
+        border-color: var(--color-primary-accent);
+        color: white;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .btn-secondary {
+        background-color: var(--color-page-bg);
+        color: var(--color-text);
+        border-color: var(--color-border);
+        transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--color-hover-bg);
+        color: var(--color-text);
+    }
+
+    .dark-theme .btn-secondary {
+        background-color: var(--color-card-bg); 
+        color: var(--color-text);
+        border-color: var(--color-border);
+    }
+
+    .dark-theme .btn-secondary:hover {
+        background-color: var(--color-hover-bg);
+    }
+</style>
