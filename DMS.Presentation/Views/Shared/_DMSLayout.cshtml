@@ -1,0 +1,303 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"] - Document Manager</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+
+    <style>
+        /* ========== THEME VARIABLES ========== */
+        :root {
+            --bg: #f6f7fb;
+            --sidebar-bg: #ffffff;
+            --text: #2d2d2d;
+            --text-muted: #6c757d;
+            --border: #e5e7eb;
+            --accent: #0d6efd;
+        }
+
+        .dark-theme {
+            --bg: #111827;
+            --sidebar-bg: #1f2937;
+            --text: #e5e7eb;
+            --text-muted: #9ca3af;
+            --border: #374151;
+            --accent: #60a5fa;
+        }
+
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            margin: 0;
+            padding-top: 60px;
+            transition: .3s;
+        }
+
+        /* ========== NAVBAR ========== */
+        nav.navbar {
+            background: var(--accent);
+            height: 60px;
+            box-shadow: 0px 2px 10px rgba(0,0,0,.15);
+        }
+
+        .profile-img {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* ========== SIDEBAR ========== */
+        .sidebar {
+            width: 230px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            top: 60px;
+            bottom: 0;
+            left: 0;
+            padding-top: 15px;
+            overflow-y: auto;
+            transition: .3s;
+            z-index: 1000;
+        }
+
+        .sidebar a {
+            color: var(--text);
+            padding: 12px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 3px solid transparent;
+            font-size: 15px;
+            transition: .25s;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background: rgba(13,110,253,.1);
+            color: var(--accent);
+            border-left-color: var(--accent);
+        }
+       
+        .submenu {
+            display: none;
+            margin-left: 35px;
+        }
+
+        .show-submenu > .submenu {
+            display: block;
+        }
+
+        .submenu {
+            display: none;
+            padding-left: 25px;
+        }
+
+        .submenu.show {
+            display: block;
+        }
+
+        .sidebar a.active {
+            background: #0d6efd;
+            color: #fff !important;
+            border-radius: 6px;
+        }
+
+        /* ========== CONTENT ========== */
+        .content {
+            margin-left: 230px;
+            padding: 30px;
+            width: 100%;
+            transition: 0.3s;
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @@media (max-width: 768px) {
+            .sidebar
+            {
+                left: -230px;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .content {
+                margin-left: 0 !important;
+            }
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar fixed-top px-3 d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center">
+            <button class="btn btn-light d-md-none me-3" id="toggleSidebar">
+                <i class="fa fa-bars"></i>
+            </button>
+
+            <button class="btn btn-light me-3" id="toggleTheme">
+                <i class="fa fa-moon"></i>
+            </button>
+
+            <span class="navbar-brand text-white fw-bold">Document Manager</span>
+        </div>
+
+        <div class="dropdown">
+            <button class="d-flex align-items-center text-white text-decoration-none dropdown-toggle bg-transparent border-0"
+                    data-bs-toggle="dropdown" type="button">
+                @{
+                    var fName = User.FindFirst("FName")?.Value;
+                    var lName = User.FindFirst("LName")?.Value;
+                    var fullName = $"{fName} {lName}".Trim();
+                }
+                <span class="me-2">@fullName</span>
+                <img src="/img/undraw_profile.svg" class="profile-img" style="width:38px;border-radius:50%;">
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+                <li><a class="dropdown-item" href="/Profile">Profile</a></li>
+                <li>
+                    <form asp-controller="Account" asp-action="Logout" method="get">
+                        <button class="dropdown-item text-danger" type="submit">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+
+
+    </nav>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <a asp-controller="Home" asp-action="Index"><i class="fa fa-home"></i> Home</a>
+
+        <a asp-controller="Folder" asp-action="Index">
+            <i class="fa fa-folder"></i> My Folders
+        </a>
+
+        <div class="menu-group">
+            <a href="#" class="toggle-submenu d-flex align-items-center">
+                <i class="fa fa-share-alt me-2"></i> Shared
+                <i class="fa fa-chevron-down ms-auto"></i>
+            </a>
+            <div class="submenu">
+                <a asp-controller="sharing" asp-action="SharedWithMe">Shared With Me</a>
+                <a asp-controller="sharing" asp-action="SharedByMe">Shared By Me</a>
+            </div>
+        </div>
+
+
+        <a asp-controller="Starred" asp-action="Index"><i class="fa fa-star"></i> Starred</a>
+        <a asp-controller="Trash" asp-action="Index"><i class="fa fa-trash"></i> Trash</a>
+        
+        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+        {           
+            <a asp-action="Unblocked" asp-controller="User"><i class="fa fa-users"></i> Users</a>
+            <a asp-action="blocked" asp-controller="User"><i class="fa fa-ban"></i> Blocked Users</a>
+        }
+        
+        <a asp-controller="Home" asp-action="About"><i class="fa fa-info-circle"></i> About</a>
+        <a asp-controller="Home" asp-action="Contact"><i class="fa fa-envelope"></i> Contact Us</a>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main class="content">
+        @RenderBody()
+    </main>
+
+    <script>
+        document.getElementById("toggleSidebar").onclick =
+            () => document.getElementById("sidebar").classList.toggle("active");
+
+                // Toggle submenu
+        document.querySelectorAll('.toggle-submenu').forEach(toggle => {
+            toggle.addEventListener('click', function (e) {
+                e.preventDefault();
+                const submenu = this.nextElementSibling;
+                submenu.classList.toggle('show');
+            });
+        });
+
+        // Set active link on click
+        document.querySelectorAll('.sidebar a:not(.toggle-submenu)').forEach(link => {
+            link.addEventListener("click", function () {
+                document.querySelectorAll('.sidebar a.active').forEach(a => a.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Set active link based on current page (when page loads)
+        const currentUrl = window.location.pathname.toLowerCase();
+        document.querySelectorAll('.submenu a').forEach(link => {
+            const linkUrl = (link.getAttribute("href") || "").toLowerCase();
+
+            if (currentUrl.includes(linkUrl) && linkUrl !== "#") {
+                link.classList.add("active");
+                link.closest('.submenu').classList.add("show");
+            }
+        });
+
+
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener("click", function () {
+
+                document.querySelectorAll('.sidebar a.active')
+                    .forEach(a => a.classList.remove('active'));
+
+                this.classList.add('active');
+
+                // highlight parent menu if exists
+                let parent = this.closest('.has-submenu');
+                if (parent) parent.querySelector('a.main-link').classList.add('active');
+            });
+        });
+
+        // Theme Toggle
+        const body = document.body;
+        const btn = document.getElementById("toggleTheme");
+        if (localStorage.getItem("theme") === "dark") body.classList.add("dark-theme");
+        btn.onclick = () => {
+            body.classList.toggle("dark-theme");
+            localStorage.setItem("theme", body.classList.contains("dark-theme") ? "dark" : "light");
+            btn.innerHTML = body.classList.contains("dark-theme") ? `<i class="fa fa-sun"></i>` : `<i class="fa fa-moon"></i>`;
+        };
+
+        const currentPath = window.location.pathname.toLowerCase();
+
+        document.querySelectorAll('.sidebar > a').forEach(link => {
+            let href = (link.getAttribute("href") || "").toLowerCase();
+
+            if ((href === "/" || href === "/home" || href === "/home/index") &&
+                (currentPath === "/" || currentPath === "/home" || currentPath === "/home/index")) {
+                link.classList.add("active");
+                return;
+            }
+
+            if (href !== "/" && currentPath.startsWith(href)) {
+                link.classList.add("active");
+            }
+        });
+
+    </script>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+    @RenderSection("Scripts", required: false)
+
+</body>
+</html>

@@ -4,8 +4,8 @@
     <h2 class="mb-4">Trash</h2>
 
     <div class="mb-3 d-flex w-50">
-        <input type="text" id="SearchVal" class="form-control me-2" placeholder="Search..." />
-        <button id="searchBtn" class="btn btn-primary">Search</button>
+        <input type="text" id="SearchVal" class="form-control me-2 search-input" placeholder="Search..." />
+        <button id="searchBtn" class="btn btn-primary search-input">Search</button>
     </div>
 
     <!-- Tabs -->
@@ -46,7 +46,7 @@
          initTabPage({
              loadFoldersUrl: "/Trash/LoadFolders",
              loadDocumentsUrl: "/Trash/LoadDocuments",
-             pageSize: 3,
+             pageSize: 6,
              sortFieldFolders: "DeletedAt",
              sortFieldDocuments: "DeletedAt"
          });
@@ -205,3 +205,4 @@
 }
 
 
+<link rel="stylesheet" href="~/css/themeIndex.css"/>

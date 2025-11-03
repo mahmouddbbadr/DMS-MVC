@@ -1,0 +1,118 @@
+﻿<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        @if (Model.HasPrevious)
+        {
+            <li class="page-item">
+                <a href="#" class="page-link" data-pagenum="@(Model.CurrentPage - 1)">Previous</a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link">Previous</span>
+            </li>
+        }
+
+        @for (int i = 1; i <= Model.TotalPages; i++)
+        {
+            if (i == Model.CurrentPage)
+            {
+                <li class="page-item active">
+                    <span class="page-link">@i</span>
+                </li>
+            }
+            else
+            {
+                <li class="page-item">
+                    <a href="#" class="page-link" data-pagenum="@i">@i</a>
+                </li>
+            }
+        }
+
+        @if (Model.HasNext)
+        {
+            <li class="page-item">
+                <a href="#" class="page-link" data-pagenum="@(Model.CurrentPage + 1)">Next</a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link">Next</span>
+            </li>
+        }
+    </ul>
+</nav>
+
+
+<style>
+    :root {
+        --color-card-bg: #ffffff;
+        --color-text-muted: #6c757d;
+        --color-border: #e9ecef;
+        --color-primary-accent: #0d6efd;
+        --color-hover-bg: #f8f9fa;
+    }
+
+    .dark-theme {
+        --color-card-bg: #1c1f23;
+        --color-text: #e2e6ea;
+        --color-text-muted: #adb5bd;
+        --color-border: #3b4249;
+        --color-primary-accent: #66b3ff;
+        --color-hover-bg: #343a40;
+    }
+
+    .app-pagination .pagination {
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .app-pagination .page-link {
+        color: var(--color-primary-accent);
+        background-color: var(--color-card-bg);
+        border-color: var(--color-border);
+        transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .dark-theme .app-pagination .page-link {
+        color: var(--color-text-muted);
+        background-color: var(--color-card-bg);
+        border-color: var(--color-border);
+    }
+
+    .app-pagination .page-item:not(.active) .page-link:hover {
+        color: var(--color-primary-accent);
+        background-color: var(--color-hover-bg);
+        border-color: var(--color-border);
+        z-index: 2;
+    }
+
+    .dark-theme .app-pagination .page-item:not(.active) .page-link:hover {
+        color: var(--color-primary-accent);
+        background-color: var(--color-hover-bg);
+    }
+
+    .app-pagination .page-item.disabled .page-link,
+    .app-pagination .page-item.disabled .page-link:hover {
+        color: var(--color-text-muted) !important;
+        background-color: var(--color-card-bg) !important;
+        border-color: var(--color-border) !important;
+        cursor: not-allowed;
+    }
+
+    .app-pagination .page-item.active .page-link,
+    .app-pagination .page-item.active .page-link:hover {
+        background-color: var(--color-primary-accent);
+        border-color: var(--color-primary-accent);
+        color: white;
+        z-index: 3;
+    }
+
+    .dark-theme .app-pagination .page-item.active .page-link {
+        background-color: var(--color-hover-bg); 
+        border-color: var(--color-primary-accent); 
+        color: var(--color-text); 
+    }
+
+</style>

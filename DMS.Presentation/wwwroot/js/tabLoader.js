@@ -65,7 +65,20 @@
         refresh();
 
         // Tab switch
-        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', refresh);
+        //$('button[data-bs-toggle="tab"]').on('shown.bs.tab', refresh);
+        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+
+            let target = $(this).attr("data-bs-target");
+
+            if (target === "#folders") {
+                $("#documentsContent").html("");
+            } else {
+                $("#foldersContent").html("");
+            }
+
+            refresh();
+        });
+
 
         // Search
         $("#searchBtn").click(refresh);
@@ -108,7 +121,6 @@
 
       
 
-        // Unstar
         $(document).on("click", ".star-toggle-button", function (e) {
             e.preventDefault();
             const form = $(this).closest("form");
@@ -122,11 +134,19 @@
             }).then(res => {
                 if (res.isConfirmed) {
                     $.post(form.attr("action"), form.serialize())
-                        .done(() => setTimeout(refresh, 300))
+                        .done(() => {
+
+                            // Remove visually
+                            form.closest(".document-row, tr, .card").fadeOut(300, function () {
+                                $(this).remove();
+                            });
+                            setTimeout(refresh, 300);
+                        })
                         .fail(() => Swal.fire("Error", "Unstar failed", "error"));
                 }
             });
         });
+
 
         // Delete (move to trash)
         $(document).on("click", ".delete-button", function (e) {
@@ -188,12 +208,67 @@
         });
 
         // Edit
-        $(document).on("click", ".edit-doc-link", function (e) {
-            e.preventDefault();
-            let id = $(this).data("id");
-            let returnUrl = encodeURIComponent(window.location.href);
-            window.location.href = `/Document/Edit/${id}?returnUrl=${returnUrl}`;
+        //$(document).on("click", ".edit-doc-link", function (e) {
+        //    e.preventDefault();
+        //    let id = $(this).data("id");
+        //    let returnUrl = encodeURIComponent(window.location.href);
+        //    window.location.href = `/Document/Edit/${id}?returnUrl=${returnUrl}`;
+        //});
+
+        $(document).on("click", ".edit-doc-btn", function () {
+            $("#editDocId").val($(this).data("id"));
+            $("#editDocName").val($(this).data("name"));
+            $("#editDocumentModal").modal("show");
         });
 
+        $(document).on("submit", "#editDocForm", function (e) {
+            e.preventDefault();
+
+            let formData = new FormData(this);
+
+            $.ajax({
+                url: "/Document/EditModal",
+                type: "POST",
+                contentType: false,
+                processData: false,
+                data: formData,
+                success: function (response) {
+                    const modalEl = document.getElementById('editDocumentModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    modal.hide();
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Saved Successfully!',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                    refresh();
+                },
+
+                error: function () {
+                    Swal.fire('Error!', 'Could not update document.', 'error');
+                }
+            });
+        });
+
+        $(document).on("click", ".folder-card", function (e) {
+
+            // Ignore clicks on control buttons/icons
+            if (
+                $(e.target).closest(".star-toggle-button").length ||
+                $(e.target).closest(".share-fol-link").length ||
+                $(e.target).closest(".edit-fol-link").length ||
+                $(e.target).closest(".delete-button").length
+            ) {
+                return;
+            }
+
+            const url = $(this).data("url");
+            if (url) {
+                window.location.href = url;
+            }
+        });
     });
 }

@@ -18,6 +18,7 @@ namespace DMS.Service.ModelViews.DocumentViews
         public string FolderId { get; set; } = string.Empty;
         public string FolderName { get; set; } = string.Empty;
     }
+
 }
 
 

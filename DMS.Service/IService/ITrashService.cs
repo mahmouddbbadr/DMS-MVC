@@ -17,9 +17,8 @@ namespace DMS.Service.IService
         Task<TrashDocumentsViewModel> GetTrashedDocumentAsync
             (TrashFilterViewModel filterModel);
         Task<Folder?> GetFolderByIdAsync(string id, string userId);
-        Task<Document?> GetDocumentByIdAsync(string id, string userId);
-        Task<bool> RestoreFolderAsync(Folder folder);
-        Task<bool> RestoreDocumentAsync(Document document);
+        Task<(bool Success, string Message)> RestoreDocumentAsync(string documentId, string userId);
+        Task<(bool Success, string Message)> RestoreFolderAsync(string folderId, string userId);
         Task<bool> DeleteFolderAsync(string folderId, string userId);
         Task<bool> DeleteDocumentAsync(string documentId, string userId, string wwwroot);
     }

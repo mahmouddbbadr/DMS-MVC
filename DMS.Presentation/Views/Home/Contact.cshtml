@@ -1,0 +1,75 @@
+﻿
+@{
+    ViewData["Title"] = "Contact";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-4 p-4">
+                <div class="card-body">
+                    <h1 class="text-center text-primary mb-4">
+                        <i class="bi bi-envelope-fill"></i> Contact Us
+                    </h1>
+
+                 
+                    <p class="lead text-center mb-4">
+                        We’d love to hear from you! Whether you have a question about  or anything else, our team is ready to answer all your questions.
+                    </p>
+
+                    <hr class="my-4" />
+
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success text-center">
+                            @TempData["SuccessMessage"]
+                        </div>
+                    }
+
+                    <form method="post" asp-action="Contact">
+                        <div class="mb-3">
+                            <label for="name" class="form-label fw-semibold">Full Name</label>
+                            <input type="text" class="form-control form-control-lg" id="name" placeholder="Enter your name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label fw-semibold">Email Address</label>
+                            <input type="email" class="form-control form-control-lg" id="email" placeholder="name@example.com" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="subject" class="form-label fw-semibold">Subject</label>
+                            <input type="text" class="form-control form-control-lg" id="subject" placeholder="Enter the subject" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="message" class="form-label fw-semibold">Message</label>
+                            <textarea class="form-control form-control-lg" id="message" rows="5" placeholder="Type your message here..." required></textarea>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <i class="bi bi-send-fill"></i> Send Message
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr class="my-5" />
+
+                    <div class="text-center">
+                        <h4 class="text-secondary mb-3">Contact Information</h4>
+                        <p class="text-muted mb-1">
+                            <i class="bi bi-geo-alt-fill text-danger"></i> Cairo, Egypt
+                        </p>
+                        <p class="text-muted mb-1">
+                            <i class="bi bi-telephone-fill text-success"></i> +20 100 123 4567
+                        </p>
+                        <p class="text-muted">
+                            <i class="bi bi-envelope-at-fill text-primary"></i> support@dms-system.com
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

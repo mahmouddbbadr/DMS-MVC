@@ -4,8 +4,9 @@
     <h2 class="mb-4">Starred</h2>
 
     <div class="mb-3 d-flex w-50">
-        <input type="text" id="SearchVal" class="form-control me-2" placeholder="Search..." />
-        <button id="searchBtn" class="btn btn-primary">Search</button>
+        <input type="text" id="SearchVal" class="form-control me-2 search-input"
+            placeholder="Search..." />
+        <button id="searchBtn" class="btn btn-primary search-input">Search</button>
     </div>
 
     <!-- Tabs -->
@@ -46,10 +47,11 @@
         initTabPage({
             loadFoldersUrl: "/Starred/LoadFolders",
             loadDocumentsUrl: "/Starred/LoadDocuments",
-            pageSize: 3,
+            pageSize: 6,
             sortFieldFolders: "AddedAt",
             sortFieldDocuments: "AddedAt"
         });
     </script>
 }
 
+<link rel="stylesheet" href="~/css/themeIndex.css" />

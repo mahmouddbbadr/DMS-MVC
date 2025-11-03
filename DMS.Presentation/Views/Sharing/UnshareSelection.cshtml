@@ -1,0 +1,552 @@
+﻿
+@model UnshareSelectionViewModel
+@{
+    ViewBag.Title = "Manage Sharing";
+}
+
+<style>
+    .sharing-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .sharing-header {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 30px rgba(26, 115, 232, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .item-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+        background: #fff;
+        border: 1px solid #e8f0fe;
+    }
+
+        .item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+
+    .item-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        margin-right: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .folder-icon {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        color: white;
+    }
+
+    .file-icon {
+        background: linear-gradient(135deg, #34a853 0%, #4caf50 100%);
+        color: white;
+    }
+
+    .users-table {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        background: #fff;
+        border: 1px solid #e8f0fe;
+    }
+
+        .users-table .table {
+            margin-bottom: 0;
+            background: #fff;
+            width: 100%;
+        }
+
+        .users-table thead th {
+            background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+            color: white;
+            border: none;
+            padding: 1.25rem 1rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .users-table tbody tr {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #f8f9fa;
+        }
+
+            .users-table tbody tr:last-child {
+                border-bottom: none;
+            }
+
+            .users-table tbody tr:hover {
+                background: #f8f9ff;
+            }
+
+    .user-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 12px;
+        box-shadow: 0 2px 8px rgba(26, 115, 232, 0.2);
+    }
+
+    .bulk-actions {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.1);
+        border: 1px solid #e8f0fe;
+    }
+
+    .btn-unshare {
+        background: linear-gradient(135deg, #ea4335 0%, #d93025 100%);
+        border: none;
+        color: white;
+        border-radius: 10px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(234, 67, 53, 0.2);
+    }
+
+        .btn-unshare:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(234, 67, 53, 0.3);
+            color: white;
+        }
+
+        .btn-unshare:disabled {
+            background: #dadce0;
+            transform: none;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+    .btn-single-unshare {
+        background: linear-gradient(135deg, #ea4335 0%, #d93025 100%);
+        border: none;
+        color: white;
+        border-radius: 8px;
+        padding: 0.5rem 1.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(234, 67, 53, 0.2);
+    }
+
+        .btn-single-unshare:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(234, 67, 53, 0.3);
+            color: white;
+        }
+
+    .empty-state {
+        padding: 3rem 2rem;
+        text-align: center;
+        background: #f8f9ff;
+        border-radius: 16px;
+        margin: 1.5rem;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: #1a73e8;
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+
+    .form-check-input {
+        width: 1.2em;
+        height: 1.2em;
+        margin-top: 0;
+        cursor: pointer;
+        border: 2px solid #dadce0;
+        transition: all 0.2s ease;
+    }
+
+        .form-check-input:checked {
+            background-color: #1a73e8;
+            border-color: #1a73e8;
+        }
+
+        .form-check-input:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.25);
+        }
+
+        .form-check-input:indeterminate {
+            background-color: #1a73e8;
+            border-color: #1a73e8;
+        }
+
+    .table-checkbox {
+        text-align: center;
+        vertical-align: middle;
+        width: 60px;
+    }
+
+    .selected-count {
+        background: rgba(255, 255, 255, 0.3);
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(10px);
+    }
+
+    .back-btn {
+        background: white;
+        border: 2px solid #1a73e8;
+        color: #1a73e8;
+        border-radius: 10px;
+        padding: 0.75rem 1.75rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .back-btn:hover {
+            background: #1a73e8;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
+        }
+
+    .user-email {
+        font-weight: 500;
+        color: #202124;
+    }
+
+    .shared-date {
+        color: #5f6368;
+        font-size: 0.875rem;
+    }
+
+    .card-title {
+        color: #202124;
+        font-weight: 600;
+    }
+
+    .badge-type {
+        background: #e8f0fe;
+        color: #1a73e8;
+        font-weight: 500;
+        padding: 0.3rem 0.7rem;
+        border-radius: 6px;
+        border: 1px solid #d2e3fc;
+    }
+
+    .form-check-label {
+        color: white;
+        font-weight: 500;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    .users-table .table {
+        min-width: 600px;
+    }
+
+    .card-header h6 {
+        padding: 1rem 1.5rem;
+        margin: 0 !important;
+    }
+</style>
+
+<div class="container-fluid px-4 my-4 sharing-container">
+    <!-- Header -->
+    <div class="sharing-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-2 fw-bold">
+                    <i class="fas fa-users-cog me-2"></i> Manage Sharing
+                </h1>
+                <p class="mb-0 opacity-85">Control and manage access to your shared content</p>
+            </div>
+            <a href="@Url.Action("SharedByMe")" class="back-btn">
+                <i class="fas fa-arrow-left me-2"></i> Back to Shared Items
+            </a>
+        </div>
+    </div>
+
+    <!-- Item Info -->
+    <div class="card item-card">
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <div class="item-icon @(Model.Type == "folder" ? "folder-icon" : "file-icon")">
+                    <i class="fas @(Model.Type == "folder" ? "fa-folder" : "fa-file")"></i>
+                </div>
+                <div>
+                    <h5 class="card-title mb-2">@Model.ItemName</h5>
+                    <p class="text-muted mb-0">
+                        <span class="badge-type">@Model.Type.ToUpper()</span>
+                        • Shared with @Model.SharedUsers.Count users
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared Users List -->
+    <div class="card item-card">
+        <div class="card-header bg-transparent border-0">
+            <h6 class="fw-bold text-dark fs-5 m-0 p-3">
+                <i class="fas fa-share-alt me-2 text-primary"></i>
+                Shared Users (@Model.SharedUsers.Count)
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            @if (Model.SharedUsers.Any())
+            {
+                <form id="unshareForm" asp-action="UnshareSelection" method="post" asp-antiforgery="true">
+                    <input type="hidden" asp-for="ItemId" />
+                    <input type="hidden" asp-for="Type" />
+                    <input type="hidden" asp-for="ItemName" />
+
+                    <div class="users-table">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="table-checkbox">
+                                            <div class="form-check d-flex justify-content-center">
+                                            </div>
+                                        </th>
+                                        <th>User</th>
+                                        <th>Shared Date</th>
+                                        <th style="width: 140px;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in Model.SharedUsers)
+                                    {
+                                        <tr>
+                                            <td class="table-checkbox">
+                                                <div class="form-check d-flex justify-content-center">
+                                                    <input type="checkbox"
+                                                           name="SelectedUserIds"
+                                                           value="@user.UserId"
+                                                           class="form-check-input user-checkbox" />
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="user-avatar">
+                                                        @user.Email[0].ToString().ToUpper()
+                                                    </div>
+                                                    <div>
+                                                        <div class="user-email">@user.Email</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="shared-date">
+                                                    <i class="far fa-clock me-1"></i>
+                                                    @user.FormattedSharedDate
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <button type="button"
+                                                        class="btn btn-single-unshare"
+                                                        onclick="confirmSingleUnshare('@user.UserId', '@user.Email.Replace("'", "\\'")')">
+                                                    <i class="fas fa-user-times me-1"></i> Unshare
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Bulk Actions -->
+                    <div class="bulk-actions">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="form-check">
+                                <input type="checkbox" id="selectAllFooter" class="form-check-input" />
+                                <label class="form-check-label fw-semibold" for="selectAllFooter">
+                                    <i class="fas fa-check-double me-2"></i>Select All Users
+                                </label>
+                            </div>
+                            <div>
+                                <button type="button"
+                                        id="unshareSelectedBtn"
+                                        class="btn btn-unshare"
+                                        disabled>
+                                    <i class="fas fa-user-slash me-2"></i>
+                                    Unshare Selected
+                                    <span class="selected-count ms-2" id="selectedCount">0</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Single Unshare Form (Hidden) -->
+                <form id="singleUnshareForm" asp-action="UnshareSingle" method="post" asp-antiforgery="true" style="display: none;">
+                    <input type="hidden" name="itemId" value="@Model.ItemId" />
+                    <input type="hidden" name="type" value="@Model.Type" />
+                    <input type="hidden" name="userId" id="singleUnshareUserId" />
+                </form>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-users-slash"></i>
+                    </div>
+                    <h5 class="text-muted mb-3 fw-bold">No Shared Users</h5>
+                    <p class="text-muted mb-0 fs-6">This item is not currently shared with any users.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Select All functionality 
+        function setupSelectAll() {
+            const selectAllFooter = document.getElementById('selectAllFooter');
+            const userCheckboxes = document.querySelectorAll('.user-checkbox');
+
+            // Footer select all 
+            if (selectAllFooter) {
+                selectAllFooter.addEventListener('change', function() {
+                    const isChecked = this.checked;
+                    userCheckboxes.forEach(checkbox => {
+                        checkbox.checked = isChecked;
+                    });
+                    updateSelectedCount();
+                });
+            }
+
+            // Individual checkbox changes
+            userCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    updateSelectAllStates();
+                    updateSelectedCount();
+                });
+            });
+        }
+
+        // Update select all states based on individual checkboxes 
+        function updateSelectAllStates() {
+            const userCheckboxes = document.querySelectorAll('.user-checkbox');
+            const selectAllFooter = document.getElementById('selectAllFooter');
+
+            const checkedCount = document.querySelectorAll('.user-checkbox:checked').length;
+            const totalCount = userCheckboxes.length;
+
+            if (selectAllFooter) {
+                if (checkedCount === 0) {
+                    selectAllFooter.checked = false;
+                    selectAllFooter.indeterminate = false;
+                } else if (checkedCount === totalCount) {
+                    selectAllFooter.checked = true;
+                    selectAllFooter.indeterminate = false;
+                } else {
+                    selectAllFooter.checked = false;
+                    selectAllFooter.indeterminate = true;
+                }
+            }
+        }
+
+        // Update selected count
+        function updateSelectedCount() {
+            const selectedCount = document.querySelectorAll('.user-checkbox:checked').length;
+            const selectedCountElement = document.getElementById('selectedCount');
+            const unshareSelectedBtn = document.getElementById('unshareSelectedBtn');
+
+            if (selectedCountElement) {
+                selectedCountElement.textContent = selectedCount;
+            }
+            if (unshareSelectedBtn) {
+                unshareSelectedBtn.disabled = selectedCount === 0;
+            }
+        }
+
+        // Bulk unshare confirmation
+        document.addEventListener('DOMContentLoaded', function() {
+            const unshareSelectedBtn = document.getElementById('unshareSelectedBtn');
+            if (unshareSelectedBtn) {
+                unshareSelectedBtn.addEventListener('click', function() {
+                    const selectedCount = document.querySelectorAll('.user-checkbox:checked').length;
+                    if (selectedCount > 0) {
+                        Swal.fire({
+                            title: 'Unshare Item?',
+                            html: `You are about to remove access to <strong>"@Model.ItemName"</strong> for <strong>${selectedCount}</strong> user(s).`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#ea4335',
+                            cancelButtonColor: '#1a73e8',
+                            confirmButtonText: `<i class="fas fa-user-slash me-2"></i> Unshare ${selectedCount} User(s)`,
+                            cancelButtonText: 'Cancel',
+                            reverseButtons: true,
+                            background: '#fff',
+                            backdrop: 'rgba(0,0,0,0.1)'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                document.getElementById('unshareForm').submit();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
+        // Single unshare confirmation
+        function confirmSingleUnshare(userId, email) {
+            Swal.fire({
+                title: 'Remove Access?',
+                html: `Remove <strong>${email}</strong>'s access to <strong>"@Model.ItemName"</strong>?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#ea4335',
+                cancelButtonColor: '#1a73e8',
+                confirmButtonText: '<i class="fas fa-user-times me-2"></i> Remove Access',
+                cancelButtonText: 'Keep Shared',
+                reverseButtons: true,
+                background: '#fff',
+                backdrop: 'rgba(0,0,0,0.1)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('singleUnshareUserId').value = userId;
+                    document.getElementById('singleUnshareForm').submit();
+                }
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setupSelectAll();
+            updateSelectedCount();
+            updateSelectAllStates();
+        });
+    </script>
+}

@@ -1,8 +1,420 @@
-﻿
-@{
-    ViewData["Title"] = "Index";
-    Layout = "_MyLayout";
+﻿@model FolderIndexViewModel
+
+<div class="container-fluid mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+        <h3 class="text-accent fw-bold page-title">
+            <a asp-controller="Home" asp-action="Index" class="text-decoration-none">
+                <i class="fas fa-folder-open me-2"></i> My Folders
+            </a>
+        </h3>
+
+        <button class="btn btn-primary btn-custom-accent shadow-sm" data-bs-toggle="modal" data-bs-target="#createFolderModal">
+            <i class="fas fa-folder-plus me-1"></i> Create Folder
+        </button>
+    </div>
+
+    <div class="modal fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content modal-custom">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createFolderModalLabel">Create New Folder</h5>
+
+                    <button type="button" class="btn p-0 border-0 bg-transparent" data-bs-dismiss="modal" aria-label="Close">
+                        <span style="font-size: 1.8rem; line-height: 1; color: var(--text);">&times;</span>
+                    </button>
+
+                </div>
+
+                <div class="modal-body">
+                    <form id="createFolderForm">
+                        <label class="form-label fw-semibold">Folder Name</label>
+                        <input type="text" name="Name" class="form-control" placeholder="Enter folder name..." required />
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" id="saveFolderBtn" class="btn btn-primary btn-custom-accent">Create</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div class="input-group mb-3 w-100 w-lg-50 search-input-group">
+        <input type="text" id="SearchVal" class="form-control search-input" value="@Model?.CurrentSearch" placeholder="Search folder..." />
+        <button id="searchBtn" class="btn btn-search-icon">
+            <i class="fas fa-search"></i>
+        </button>
+    </div>
+
+    <div id="partial" class="mt-3">
+        <div class="text-center py-5 loading-state">
+            <i class="fas fa-spinner fa-spin fa-2x mb-3 text-accent"></i>
+            <p class="text-muted">Loading folders...</p>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .page-title a {
+        color: var(--text);
+        transition: color 0.2s;
+    }
+
+    .page-title a:hover {
+        color: var(--accent) !important;
+    }
+
+    .text-accent {
+        color: var(--accent) !important;
+    }
+
+    .btn-custom-accent {
+        background-color: var(--accent);
+        border-color: var(--accent);
+        color: white;
+        transition: background-color 0.2s, border-color 0.2s, opacity 0.2s;
+    }
+
+    .btn-custom-accent:hover {
+        opacity: 0.9;
+        background-color: var(--accent);
+        border-color: var(--accent);
+    }
+
+    .modal-custom {
+        background-color: var(--sidebar-bg); 
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    .search-input-group {
+        max-width: 500px; 
+    }
+
+    .search-input {
+        background-color: var(--sidebar-bg);
+        color: var(--text);
+        border: 1px solid var(--border);
+    }
+
+    .search-input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); 
+    }
+
+    .btn-search-icon {
+        background-color: var(--bg); 
+        color: var(--text-muted);
+        border: 1px solid var(--border);
+        border-left: none; 
+    }
+
+    .btn-search-icon:hover {
+        background-color: var(--accent);
+        color: white;
+        border-color: var(--accent);
+    }
+
+    .loading-state i.fa-spin {
+        color: var(--accent) !important;
+    }
+
+    @@media (min-width: 992px) {
+        .w-lg-50 {
+            width: 50% !important;
+        }
+    }
+
+    .dark-theme .search-input::placeholder {
+        color: #fff !important;
+    }
+
+</style>
+
+
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+        let sortField = "@Model?.SortField";
+        let sortOrder = "@Model?.SortOrder";
+
+        function LoadFolders(pageNum = 1) {
+            let SearchVal = $("#SearchVal").val();
+
+            $.ajax({
+                url: "/Folder/Index",
+                type: "GET",
+                data: {
+                    searchName: SearchVal,
+                    pageNum: pageNum,
+                    sortField: sortField,
+                    sortOrder: sortOrder
+                },
+                success: function (result) {
+                    $("#partial").html(result);
+                },
+                error: function () {
+                    $("#partial").html('<div class="text-danger text-center">Failed to load folders.</div>');
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            // Initial load
+            LoadFolders();
+
+            // Search functionality
+            $("#SearchVal").on("input", function () {
+                LoadFolders();
+            });
+
+            $("#searchBtn").click(function () {
+                LoadFolders();
+            });
+
+            // Pagination
+            $(document).on("click", ".pagination a", function (e) {
+                e.preventDefault();
+                LoadFolders($(this).data("pagenum"));
+            });
+
+            // Sorting
+            $(document).on("click", ".sort-link", function (e) {
+                e.preventDefault();
+
+                const field = $(this).data("field");
+
+                sortOrder = (sortField === field && sortOrder === "asc") ? "desc" : "asc";
+                sortField = field;
+
+                LoadFolders();
+            });
+
+            // Create Folder
+            $(document).on("click", "#saveFolderBtn", function () {
+                let form = $("#createFolderForm");
+                let folderName = form.find("input[name='Name']").val().trim();
+
+                if (folderName.length === 0) {
+                    Swal.fire("Folder name is required!", "", "warning");
+                    return;
+                }
+
+                $.ajax({
+                    url: "/Folder/Create",
+                    type: "POST",
+                    data: form.serialize(),
+                    success: function (res) {
+
+                        if (res.success) {
+
+                            const modalEl = document.getElementById('createFolderModal');
+                            const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                            modalInstance.hide();
+
+                            $(".modal-backdrop").remove();
+                            $("body").removeClass("modal-open").css("padding-right", "");
+
+                            Swal.fire({
+                                icon: "success",
+                                title: "Folder created!",
+                                timer: 1400,
+                                showConfirmButton: false
+                            });
+
+                            LoadFolders();
+                        }
+                        else {
+                            Swal.fire({
+                                icon: "warning",
+                                title: res.message || "Something went wrong.",
+                                showConfirmButton: true
+                            });
+                        }
+
+                    },
+                    error: function () {
+                        Swal.fire("Error", "Could not create folder.", "error");
+                    }
+                });
+            });
+
+
+
+            // Star/Unstar Toggle
+            $(document).on("click", ".star-toggle-button", function (e) {
+
+                e.preventDefault();
+
+                const button = $(this);
+                const form = button.closest('form');
+                const isStarred = form.data('starred') === true || form.data('starred') === 'true';
+
+                const folId = form.data('id');
+                const title = isStarred ? 'Unstar this folder?' : 'Star this folder?';
+                const confirmText = isStarred ? 'Yes, unstar it!' : 'Yes, star it!';
+                const successMsg = isStarred ? 'Folder unstarred.' : 'Folder starred.';
+
+                Swal.fire({
+                    title: title,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: confirmText,
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: isStarred ? '#6c757d' : '#f1c40f',
+                    cancelButtonColor: '#999'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        $.ajax({
+                            url: form.attr('action'),
+                            type: 'POST',
+                            data: form.serialize(),
+                            success: function () {
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: successMsg,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+
+                                const newAction = isStarred ? 'Star' : 'UnStar';
+                                const newTitle = isStarred ? 'Star' : 'Unstar';
+
+                                form.attr('action', `/Folder/${newAction}?id=${folId}`);
+                                form.data('starred', !isStarred);
+
+                                const icon = button.find('i');
+                                icon.toggleClass('fas text-warning far text-muted');
+
+                                button.attr('title', newTitle);
+                            },
+                            error: function () {
+                                Swal.fire('Error!', 'Could not update folder star status.', 'error');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Delete Folder
+            $(document).on("click", ".delete-button", function (e) {
+
+                e.preventDefault();
+                const form = $(this).closest('form');
+                const folId = form.data('id');
+
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: "This folder will be moved to trash.",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+
+                        $.ajax({
+                            url: form.attr("action"),
+                            type: 'POST',
+                            data: form.serialize(),
+                            success: function () {
+
+                                Swal.fire('Deleted!', 'Folder has been trashed.', 'success');
+
+                                $("#fol-card-" + folId).fadeOut(300, function () {
+                                    $(this).remove();
+
+                                    LoadFolders();
+                                });
+                            },
+                            error: function () {
+                                Swal.fire('Error!', 'Something went wrong.', 'error');
+                            }
+                        });
+                    }
+                })
+            });
+
+            // Navigate to folder on card click
+            $(document).on("click", ".folder-card[data-url]", function(e) {
+                if(!$(e.target).closest("button, a, form").length){
+                    window.open($(this).data("url"), "_self");
+                }
+            });
+
+            // Edit Folder Modal setup
+            $(document).on("click", ".edit-fol-link", function (e) {
+                e.preventDefault();
+
+                const id = $(this).data("id");
+
+                $.get(`/Folder/Edit?id=${id}`, function (data) {
+
+                    $("#editFolderId").val(data.id);
+                    $("#editFolderName").val(data.name);
+
+                    const modal = new bootstrap.Modal(document.getElementById('editFolderModal'));
+                    modal.show();
+                });
+            });
+
+            // Update Folder
+            $(document).on("click","#updateFolderBtn", function(e) {
+                let form = $("#editFolderForm");
+                let folderName = form.find("input[name='Name']").val().trim();
+
+                if (folderName.length === 0) {
+                    Swal.fire("Folder name is required!", "", "warning");
+                    return;
+                }
+
+                $.ajax({
+                    url: "/Folder/Edit",
+                    type: "POST",
+                    data: form.serialize(),
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (res) {
+
+                        if(res.success){
+                            Swal.fire({
+                                icon: 'success',
+                                title: res.message,
+                                timer: 1200,
+                                showConfirmButton: false
+                            });
+
+                            const modalEl = document.getElementById('editFolderModal');
+                            bootstrap.Modal.getInstance(modalEl).hide();
+
+                            LoadFolders();
+                        }else {
+                                Swal.fire({
+                                icon: 'warning',
+                                title: res.message || 'Something went wrong.',
+                                showConfirmButton: true
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire("Error", "Update failed", "error");
+                    }
+                });
+            });
+        });
+    </script>
 }
-
-<h1>Index</h1>
-

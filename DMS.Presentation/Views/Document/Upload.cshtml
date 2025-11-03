@@ -1,33 +1,186 @@
 ﻿@model DocumentUploadViewModel
 
-<div class="container">
-    <h3>Upload Document</h3>
-    <form asp-action="Upload" asp-route-folderId="@Model.FolderId" asp-route-ownerId="@Model.OwnerId"
-        method="post" enctype="multipart/form-data">
+<div class="upload-container">
+    <div class="upload-card">
+        <h3 class="upload-title">Upload Document</h3>
 
-        @Html.AntiForgeryToken()
+        <form asp-action="Upload" asp-route-folderId="@Model.FolderId" asp-route-ownerId="@Model.OwnerId"
+              method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
 
-        @* <input type="hidden" asp-for="OwnerId" /> *@
+            <div class="form-group">
+                <label asp-for="Name" class="form-label">Document Name</label>
+                <input asp-for="Name" class="form-control" placeholder="Optional name..." />
+                <span asp-validation-for="Name" class="field-validation-error"></span>
+            </div>
 
-        <div class="form-group">
-            <label asp-for="Name">Document Name</label>
-            <input asp-for="Name" class="form-control" placeholder="Optional name..." />
-            <span asp-validation-for="Name" class="text-danger"></span>
-        </div>
+            <div class="form-group">
+                <label asp-for="File" class="form-label">Choose File</label>
+                <input asp-for="File" type="file" class="form-control" />
+                <span asp-validation-for="File" class="field-validation-error"></span>
+            </div>
 
-        <div class="form-group">
-            <label asp-for="File">Choose File</label>
-            <input asp-for="File" type="file" class="form-control" />
-            <span asp-validation-for="File" class="text-danger"></span>
-        </div>
-
-        <button type="submit" class="btn btn-success">Upload</button>
-        <a asp-action="Index" asp-route-folderId="@Model.FolderId" class="btn btn-secondary">Cancel</a>
-    </form>
+            <div class="button-group">
+                <button type="submit" class="btn-upload ">Upload</button>
+                <a asp-action="Index" asp-route-folderId="@Model.FolderId" class="btn-cancel">Cancel</a>
+            </div>
+        </form>
+    </div>
 </div>
+
 
 
 @section Scripts {
     <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
     <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"></script>
 }
+
+<style>
+    :root {
+        --color-primary: #1a73e8; 
+        --color-primary-accent: #4285f4;
+        --color-danger: #d93025; 
+        --rgb-primary: 26, 115, 232;
+        --color-card-bg: #ffffff;
+        --color-input-bg: #f5f5f5;
+        --color-button-bg: #f0f0f0; 
+        --color-border: #e8e8e8;
+        --color-text: #202124;
+        --color-text-muted: #666;
+        --color-shadow: 0 8px 30px rgba(0,0,0,0.07);
+    }
+
+    .dark-theme {
+        --color-primary: #669df6;
+        --color-primary-accent: #4285f4;
+        --color-danger: #ff6e6e;
+        --rgb-primary: 102, 157, 246;
+        --color-card-bg: #2b2b2b;
+        --color-input-bg: #3c3c3c;
+        --color-button-bg: #444;
+        --color-border: #4a4a4a;
+        --color-text: #e8e8e8;
+        --color-text-muted: #b0b0b0;
+        --color-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+
+    .upload-container {
+        max-width: 600px;
+        margin: 2.5rem auto;
+        padding: 0 1rem;
+    }
+
+    .upload-card {
+        background: var(--color-card-bg);
+        border: 1px solid var(--color-border);
+        border-radius: 16px;
+        box-shadow: var(--color-shadow);
+        transition: all .3s ease;
+    }
+
+    .upload-title {
+        text-align: center;
+        font-weight: 700; 
+        font-size: 1.75rem;
+        margin-bottom: 2rem;
+        color: var(--color-primary); 
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: .5rem;
+        color: var(--color-text);
+        display: block; 
+    }
+
+    .form-control {
+        background: var(--color-input-bg);
+        color: var(--color-text);
+        border: 1px solid var(--color-border);
+        border-radius: 12px;
+        padding: .9rem 1.1rem; 
+        font-size: 1rem;
+        transition: all .3s ease;
+        width: 100%; 
+    }
+
+    .form-control:hover {
+        border-color: var(--color-primary);
+    }
+
+    .form-control:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 .2rem rgba(var(--rgb-primary),.35);
+        outline: none;
+    }
+
+    .form-control::placeholder {
+        color: var(--color-text-muted);
+        opacity: .8;
+    }
+
+    .dark-theme .form-control::placeholder {
+        opacity: .95;
+    }
+
+    .field-validation-error {
+        color: var(--color-danger);
+        font-size: .875rem;
+        margin-top: .4rem;
+        display: block;
+        font-weight: 500;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1.5rem; 
+        margin-top: 2rem;
+    }
+
+    .btn-upload {
+        background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-accent) 100%);
+        color: #fff;
+        border: none;
+        flex: 1;
+        padding: .85rem 0; 
+        border-radius: 12px;
+        font-weight: 700; 
+        font-size: 1.05rem;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(var(--rgb-primary),.2);
+        transition: all .3s ease;
+        text-decoration: none; 
+    }
+
+    .btn-upload:hover {
+        box-shadow: 0 10px 25px rgba(var(--rgb-primary),.45); 
+        color: #fff;
+    }
+
+    .dark-theme .btn-upload {
+        background: linear-gradient(135deg, var(--color-primary-accent) 0%, var(--color-primary) 100%);
+    }
+
+    .btn-cancel {
+        background: var(--color-button-bg);
+        border: 1px solid var(--color-border);
+        color: var(--color-text);
+        flex: 1;
+        padding: .85rem 0;
+        text-align: center;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all .3s ease;
+        text-decoration: none; 
+    }
+
+    .btn-cancel:hover {
+        background: var(--color-card-bg);
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+    }
+</style>

@@ -1,0 +1,432 @@
+﻿
+
+@model SharedIndexViewModel
+@{
+    ViewBag.Title = "Shared With Me";
+}
+
+<style>
+    .shared-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .shared-header {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 30px rgba(26, 115, 232, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .search-box {
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        border: 1px solid #e8f0fe;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e8f0fe;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.25);
+        }
+
+    .btn-search {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        border: none;
+        color: white;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.2);
+    }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.3);
+            color: white;
+        }
+
+    .shared-item-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        transition: all 0.3s ease;
+        background: #fff;
+        border: 1px solid #e8f0fe;
+        margin-bottom: 1rem;
+    }
+
+        .shared-item-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+        }
+
+    .item-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        margin-right: 1rem;
+    }
+
+    .folder-icon {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        color: white;
+    }
+
+    .file-icon {
+        background: linear-gradient(135deg, #34a853 0%, #4caf50 100%);
+        color: white;
+    }
+
+    .item-name {
+        font-weight: 600;
+        color: #202124;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+        
+    .shared-by {
+        color: #5f6368;
+        font-size: 0.875rem;
+    }
+
+    .shared-date {
+        color: #5f6368;
+        font-size: 0.875rem;
+    }
+
+    .permission-badge {
+        background: linear-gradient(135deg, #fbbc05 0%, #f9ab00 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 0.3rem 0.8rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .btn-open {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        border: none;
+        color: white;
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(26, 115, 232, 0.2);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .btn-open:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+            color: white;
+        }
+
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+        border-radius: 16px;
+        margin: 2rem 0;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: #1a73e8;
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+
+    .pagination .page-link {
+        border: 2px solid #e8f0fe;
+        border-radius: 10px;
+        margin: 0 0.25rem;
+        color: #1a73e8;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+        .pagination .page-link:hover {
+            background: #1a73e8;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        border-color: #1a73e8;
+        color: white;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+    }
+</style>
+
+<div class="container-fluid px-4 my-4 shared-container">
+    <!-- Header -->
+    <div class="shared-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-2 fw-bold">
+                    <i class="fas fa-users me-2"></i> Shared With Me
+                </h1>
+                <p class="mb-0 opacity-85">Items that others have shared with you</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search & Sort -->
+    <div class="search-box">
+        <form asp-action="SharedWithMe" method="get" class="row gy-3 gx-3 align-items-center">
+            <div class="col-md-5">
+                <input type="text" name="search" value="@Model.SearchTerm"
+                       class="form-control shadow-sm"
+                       placeholder="Search by name..." />
+            </div>
+            <div class="col-md-4">
+                <select name="sortOrder" class="form-select shadow-sm">
+                    <option value="dateDesc" selected="@(Model.SortOrder == "dateDesc")">Newest First</option>
+                    <option value="dateAsc" selected="@(Model.SortOrder == "dateAsc")">Oldest First</option>
+                    <option value="nameAsc" selected="@(Model.SortOrder == "nameAsc")">Name A-Z</option>
+                    <option value="nameDesc" selected="@(Model.SortOrder == "nameDesc")">Name Z-A</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-search w-100">
+                    <i class="fas fa-search me-2"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Shared Items -->
+    @if (Model.SharedWithMe.Any())
+    {
+        <div class="row">
+            <div class="col-12">
+                @foreach (var item in Model.SharedWithMe)
+                {
+                    <div class="shared-item-card">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        @if (!string.IsNullOrEmpty(item.FolderName))
+                                        {
+                                            <div class="item-icon folder-icon">
+                                                <i class="fas fa-folder"></i>
+                                            </div>
+                                            <div>
+                                                <div class="item-name">
+                                                    @item.FolderName
+                                                </div>
+                                                <div class="shared-date mt-1">
+                                                    <i class="far fa-clock me-1"></i>
+                                                    Shared on: @item.SharedDate.ToString("dd MMM yyyy")
+                                                </div>
+                                            </div>
+                                        }
+                                        else if (!string.IsNullOrEmpty(item.DocumentName))
+                                        {
+                                            <div class="item-icon file-icon">
+                                                <i class="fas fa-file"></i>
+                                            </div>
+                                            <div>
+                                                <div class="item-name">
+                                                    @item.DocumentName
+                                                </div>
+                                                <div class="shared-date mt-1">
+                                                    <i class="far fa-clock me-1"></i>
+                                                    Shared on: @item.SharedDate.ToString("dd MMM yyyy")
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="shared-by">
+                                        <i class="fas fa-user me-1"></i>
+                                        Shared by: @item.SharedByUserName
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="action-buttons">
+                                        @if (!string.IsNullOrEmpty(item.FolderName))
+                                        {
+                                            <a href="@Url.Action("Folder", "Sharing", new { folderId = item.FolderId })"
+                                               class="btn-open"
+                                               title="Open Folder">
+                                                <i class="fas fa-folder-open"></i> Open
+                                            </a>
+                                        }
+                                        else if (!string.IsNullOrEmpty(item.DocumentName))
+                                        {
+                                            <a href="@Url.Content("~/" + item.FilePath)"
+                                               target="_blank"
+                                               class="btn-open"
+                                               title="Open Document">
+                                                <i class="fas fa-external-link-alt"></i> Open
+                                            </a>
+
+                                            <a asp-controller="Document" asp-action="Download" asp-route-id="@item.DocumentId"
+                                                class="btn btn-primary btn-sm">
+                                                <i class="fas fa-download mx-1"></i> Download
+                                            </a>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                @if (Model.CurrentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("SharedWithMe", new { page = Model.CurrentPage - 1, search = Model.SearchTerm, sortOrder = Model.SortOrder })">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= Model.TotalPagesWithMe; i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("SharedWithMe", new { page = i, search = Model.SearchTerm, sortOrder = Model.SortOrder })">@i</a>
+                    </li>
+                }
+
+                @if (Model.CurrentPage < Model.TotalPagesWithMe)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("SharedWithMe", new { page = Model.CurrentPage + 1, search = Model.SearchTerm, sortOrder = Model.SortOrder })">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <h5 class="text-muted mb-3 fw-bold">No Shared Items</h5>
+            <p class="text-muted mb-0 fs-6">No items have been shared with you yet.</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // تأثيرات hover للأزرار
+            const buttons = document.querySelectorAll('.btn-open');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+
+        function confirmDownload(fileName, event) {
+            event.preventDefault();
+            const downloadUrl = event.currentTarget.href;
+
+            Swal.fire({
+                title: 'Download File?',
+                html: `Are you sure you want to download <strong>"${fileName}"</strong>?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#1a73e8',
+                cancelButtonColor: '#ea4335',
+                confirmButtonText: '<i class="fas fa-download me-2"></i> Download',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                background: '#fff',
+                backdrop: 'rgba(0,0,0,0.1)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.open(downloadUrl, '_blank');
+
+                    Swal.fire({
+                        title: 'Download Started!',
+                        html: `Downloading <strong>"${fileName}"</strong>...`,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        background: '#fff'
+                    });
+                }
+            });
+        }
+
+        function showOpeningMessage(itemName, itemType, event) {
+            event.preventDefault();
+            const openUrl = event.currentTarget.href;
+
+            Swal.fire({
+                title: `Opening ${itemType.charAt(0).toUpperCase() + itemType.slice(1)}`,
+                html: `Opening <strong>"${itemName}"</strong>...`,
+                icon: 'info',
+                showConfirmButton: false,
+                timer: 1500,
+                background: '#fff',
+                backdrop: 'rgba(0,0,0,0.1)'
+            }).then(() => {
+                if (itemType === 'folder') {
+                    window.location.href = openUrl;
+                } else {
+                    window.open(openUrl, '_blank');
+                }
+            });
+        }
+
+        function showSuccessMessage(itemName, itemType) {
+            Swal.fire({
+                title: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} Opened!`,
+                html: `<strong>"${itemName}"</strong> has been opened successfully.`,
+                icon: 'success',
+                timer: 2000,
+                showConfirmButton: false,
+                background: '#fff'
+            });
+        }
+    </script>
+}

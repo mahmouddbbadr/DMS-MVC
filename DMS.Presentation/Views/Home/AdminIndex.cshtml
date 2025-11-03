@@ -1,0 +1,63 @@
+﻿@model DashBoardViewModel
+
+<h2 class="text-center mb-5 fw-bold text-primary">Administrator Control Panel</h2>
+
+<div class="container">
+
+    <div class="row justify-content-center g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg rounded-4 text-white" style="background: linear-gradient(135deg, #007bff, #00c6ff) !important;">
+                <div class="card-body text-center">
+                    <i class="fa fa-users fa-2x mb-2"></i>
+                    <h4 class="fw-bold">@Model.TotalUsers</h4>
+                    <p class="mb-0">Total Users</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg rounded-4 text-white" style="background: linear-gradient(135deg, #ff416c, #ff4b2b) !important;">
+                <div class="card-body text-center">
+                    <i class="fa fa-user-slash fa-2x mb-2"></i>
+                    <h4 class="fw-bold">@Model.BlockedUsers</h4>
+                    <p class="mb-0">Blocked Users</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg rounded-4 text-white" style="background: linear-gradient(135deg, #28a745, #8fd3f4) !important;">
+                <div class="card-body text-center">
+                    <i class="fa fa-file-alt fa-2x mb-2"></i>
+                    <h4 class="fw-bold">@Model.TotalDocuments</h4>
+                    <p class="mb-0">Documents</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-0 shadow-lg rounded-4 text-white" style="background: linear-gradient(135deg, #ffb347, #ffcc33) !important;">
+                <div class="card-body text-center">
+                    <i class="fa fa-folder fa-2x mb-2"></i>
+                    <h4 class="fw-bold">@Model.TotalFolders</h4>
+                    <p class="mb-0">Folders</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center g-4">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-lg rounded-4 text-white" style="background: linear-gradient(135deg, #6a11cb, #2575fc) !important;">
+                <div class="card-body text-center">
+                    <i class="fa fa-database fa-2x mb-2"></i>
+                    <h4 class="fw-bold">@SizeFormatter.FormatSize(Model.TotalStorage)</h4>
+                    <p class="mb-0">Used Space</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

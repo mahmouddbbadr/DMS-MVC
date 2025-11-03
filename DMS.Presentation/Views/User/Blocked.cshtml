@@ -1,0 +1,98 @@
+﻿@model List<DMS.Service.ModelViews.Account.UserOutputViewModel>
+@{
+    ViewData["Title"] = "Blocked Users";
+}
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h4 text-danger mb-0">
+            <i class="fas fa-user-lock me-2"></i> Blocked Users
+        </h1>
+        <a asp-action="Unblocked" class="btn btn-outline-primary">
+            <i class="fas fa-users me-1"></i> View Unblocked Users
+        </a>
+    </div>
+
+    <div class="input-group mb-3 w-50">
+        <input type="text" id="SearchEmail" class="form-control" placeholder="Search by email..." value="@ViewBag.SearchEmail" />
+    </div>
+
+    <div id="userListPartial">
+        <div class="text-center text-muted py-5">
+            <i class="fas fa-spinner fa-spin fa-2x mb-3"></i>
+            <p>Loading users...</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        function loadUsers(page = 1) {
+            let searchEmail = $("#SearchEmail").val();
+
+            $.ajax({
+                url: '/User/Blocked', 
+                type: 'GET',
+                data: { searchEmail: searchEmail, page: page },
+                success: function (res) {
+                    $("#userListPartial").html(res);
+                },
+                error: function () {
+                    $("#userListPartial").html('<div class="text-danger text-center">Failed to load users.</div>');
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            loadUsers(@(ViewBag.CurrentPage ?? 1)); 
+
+            let typingTimer;
+            $("#SearchEmail").on("input", function () {
+                clearTimeout(typingTimer);
+                typingTimer = setTimeout(() => loadUsers(1), 400); 
+            });
+
+            $(document).on("click", "#userListPartial .pagination a", function (e) {
+                e.preventDefault();
+
+                if ($(this).parent().hasClass("disabled")) {
+                    return;
+                }
+
+                const newPage = $(this).data("page");
+                loadUsers(newPage);
+            });
+
+            $(document).on("click", ".unblock-btn", function () {
+                const email = $(this).data("email");
+
+                Swal.fire({
+                    title: "Unblock User?",
+                    text: `Are you sure you want to unblock ${email}?`,
+                    icon: "question",
+                    showCancelButton: true,
+                    confirmButtonColor: "#198754",
+                    cancelButtonColor: "#6c757d",
+                    confirmButtonText: "Yes, unblock"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.post('/User/Unblock', { email: email }) 
+                            .done(() => {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "User Unblocked!",
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                });
+                                loadUsers(@(ViewBag.CurrentPage ?? 1)); 
+                            })
+                            .fail(() => {
+                                Swal.fire("Error", "Could not unblock user.", "error");
+                            });
+                    }
+                });
+            });
+        });
+    </script>
+}

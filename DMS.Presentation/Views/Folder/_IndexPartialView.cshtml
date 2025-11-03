@@ -1,0 +1,206 @@
+﻿@model FolderIndexViewModel
+
+@if (!Model.FolderList.Any())
+{
+    <div class="text-center text-muted py-5">
+        <i class="fas fa-folder-open fa-3x mb-3"></i>
+        <p>No folders found.</p>
+    </div>
+}
+else
+{
+    <div class="d-flex justify-content-end mb-3">
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                Sort By @Model.SortField (@Model.SortOrder)
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item sort-link" href="#" data-field="Name">Name</a></li>
+                <li><a class="dropdown-item sort-link" href="#" data-field="ItemCount">Items</a></li>
+                <li><a class="dropdown-item sort-link" href="#" data-field="TotalSize">Size</a></li>
+                <li><a class="dropdown-item sort-link" href="#" data-field="AddedAt">Date Added</a></li>
+                <li><a class="dropdown-item sort-link" href="#" data-field="Starred">Starred</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var fol in Model.FolderList)
+        {
+            <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                <div id="fol-card-@fol.Id" class="folder-card position-relative shadow-sm p-3 rounded cursor-pointer my-2"
+                     data-url="@Url.Content($"~/Document/Index?FolderId={fol.Id}")">
+
+                    <form method="post"
+                          asp-action="@(fol.IsStarred ? "UnStar" : "Star")"
+                          asp-route-id="@fol.Id"
+                          class="star-toggle-form">
+                        <button type="button" class="star-toggle-button">
+                            <i class="@(fol.IsStarred ? "fas text-warning" : "far text-secondary") fa-star"></i>
+                        </button>
+                    </form>
+
+                    <a asp-controller="Sharing" asp-action="ShareFolder" asp-route-folderId="@fol.Id"
+                       data-id="@fol.Id"
+                       class="share-fol-link text-primary">
+                        <i class="fas fa-share-alt"></i>
+                    </a>
+
+                    <div class="text-center mt-3">
+                        <i class="fas fa-folder fa-3x text-warning mb-2"></i>
+                        <h6 class="text-truncate fw-bold" title="@fol.Name">@fol.Name</h6>
+                        <small class="text-secondary">@fol.ItemCount items</small>
+                    </div>
+
+                    <div class="mt-3 d-flex justify-content-between align-items-center folder-card-footer">
+
+                        <div class="d-flex gap-2">
+                            <a href="javascript:void(0);" data-id="@fol.Id" class="edit-fol-link text-primary action-icon-btn">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form asp-action="Trash" asp-route-id="@fol.Id" method="post" class="delete-form m-0" data-id="@fol.Id">
+                                <button type="button" class="delete-button btn p-0 text-danger action-icon-btn">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+
+                        <span class="text-secondary small">@SizeFormatter.FormatSize(fol.TotalSize)</span>
+
+                    </div>
+                </div>
+            </div>
+
+        }
+    </div>
+
+    <div class="app-pagination">
+        <partial name="_Pagination" model="Model" />
+    </div>
+
+    <div class="modal fade" id="editFolderModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Folder</h5>
+                    <button type="button" class="btn p-0 border-0 bg-transparent" data-bs-dismiss="modal">
+                        <span style="font-size: 1.8rem;">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editFolderForm">
+                        <input type="hidden" id="editFolderId" name="Id" />
+                        <label class="form-label fw-semibold">Folder Name</label>
+                        <input type="text" id="editFolderName" name="Name" class="form-control" required />
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="updateFolderBtn" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+
+    .folder-card {
+        background-color: var(--sidebar-bg); 
+        border: 1px solid var(--border); 
+        transition: all 0.25s ease;
+        padding-bottom: 5px !important; 
+    }
+
+    .folder-card:hover {
+        transform: translateY(-2px); 
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        border-color: var(--accent); 
+    }
+
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .text-truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .star-toggle-form {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        z-index: 20;
+        margin: 0;
+        padding: 0;
+    }
+
+    .star-toggle-button {
+        background: transparent;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+    }
+
+    
+    .share-fol-link {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        z-index: 20;
+        text-decoration: none; 
+    }
+
+        
+    .share-fol-link i,
+    .star-toggle-button i {
+        font-size: 16px; 
+        transition: 0.2s;
+    }
+
+    .star-toggle-button:hover i,
+    .share-fol-link:hover i {
+        transform: scale(1.15);
+    }
+
+    
+    .action-icon-btn {
+        transition: color 0.2s;
+    }
+
+    .action-icon-btn i {
+        font-size: 14px;
+    }
+
+    .folder-card h6 {
+        color: var(--text);
+    }
+
+    .pagination .page-link {
+        border-radius: 6px !important;
+        margin: 0 3px;
+        padding: 6px 12px;
+        color: var(--text);
+        background-color: var(--sidebar-bg);
+        border-color: var(--border);
+        transition: all 0.2s;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: var(--accent);
+        border-color: var(--accent);
+        color: #ffffff;
+    }
+
+    .pagination .page-link:hover {
+        background-color: rgba(13, 110, 253, 0.1);
+        color: var(--accent);
+        border-color: var(--accent);
+    }
+
+    .fade-out {
+        animation: fadeOut 0.35s forwards;
+    }
+</style>

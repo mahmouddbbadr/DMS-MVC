@@ -1,0 +1,552 @@
+﻿
+@model SharedIndexViewModel
+@{
+    ViewBag.Title = "Shared By Me";
+}
+
+<style>
+    .shared-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .shared-header {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 30px rgba(26, 115, 232, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .item-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        transition: all 0.3s ease;
+        background: #fff;
+        border: 1px solid #e8f0fe;
+        height: 100%;
+    }
+
+        .item-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+    .folder-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        margin-right: 1rem;
+        box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .folder-icon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(26, 115, 232, 0.4);
+        }
+
+    .file-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #34a853 0%, #4caf50 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        margin-right: 1rem;
+        box-shadow: 0 4px 12px rgba(52, 168, 83, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .file-icon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(52, 168, 83, 0.4);
+        }
+
+    .btn-unshare-all {
+        background: linear-gradient(135deg, #ea4335 0%, #d93025 100%);
+        border: none;
+        color: white;
+        border-radius: 10px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(234, 67, 53, 0.2);
+        font-size: 0.875rem;
+    }
+
+        .btn-unshare-all:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(234, 67, 53, 0.3);
+            color: white;
+        }
+
+    .btn-manage {
+        background: linear-gradient(135deg, #fbbc05 0%, #f9ab00 100%);
+        border: none;
+        color: white;
+        border-radius: 10px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(251, 188, 5, 0.2);
+        font-size: 0.875rem;
+    }
+
+        .btn-manage:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(251, 188, 5, 0.3);
+            color: white;
+        }
+
+    .btn-open-item {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        border: none;
+        color: white;
+        border-radius: 10px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(26, 115, 232, 0.2);
+        font-size: 0.875rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .btn-open-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.3);
+            color: white;
+        }
+
+    .search-box {
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        border: 1px solid #e8f0fe;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e8f0fe;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #1a73e8;
+            box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.25);
+        }
+
+    .btn-search {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        border: none;
+        color: white;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.2);
+    }
+
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, 0.3);
+            color: white;
+        }
+
+    .alert-success {
+        background: linear-gradient(135deg, #34a853 0%, #4caf50 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(52, 168, 83, 0.2);
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #ea4335 0%, #d93025 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(234, 67, 53, 0.2);
+    }
+
+    .alert-info {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.2);
+        padding: 3rem 2rem;
+    }
+
+    .pagination .page-link {
+        border: 2px solid #e8f0fe;
+        border-radius: 10px;
+        margin: 0 0.25rem;
+        color: #1a73e8;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+        .pagination .page-link:hover {
+            background: #1a73e8;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+    .pagination .page-item.active .page-link {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        border-color: #1a73e8;
+        color: white;
+    }
+
+    .item-name {
+        font-weight: 600;
+        color: #202124;
+        text-decoration: none;
+        transition: color 0.3s ease;
+        cursor: pointer;
+        padding: 0.5rem 0;
+        border-radius: 8px;
+        display: inline-block;
+    }
+
+        .item-name:hover {
+            color: #1a73e8;
+            background: rgba(26, 115, 232, 0.05);
+            padding: 0.5rem;
+            margin: -0.5rem;
+        }
+
+    .shared-date {
+        color: #5f6368;
+        font-size: 0.875rem;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.7;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .action-row {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: space-between;
+    }
+
+    .clickable-area {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .clickable-area:hover {
+            background: rgba(26, 115, 232, 0.02);
+        }
+</style>
+
+<div class="container-fluid px-4 my-4 shared-container">
+    <!-- ✅ Success & Error Messages -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center" role="alert">
+            <i class="fas fa-check-circle me-2 fa-lg"></i>
+            <span class="flex-grow-1">@TempData["Success"]</span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center" role="alert">
+            <i class="fas fa-exclamation-triangle me-2 fa-lg"></i>
+            <span class="flex-grow-1">@TempData["Error"]</span>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- ✅ Header -->
+    <div class="shared-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-2 fw-bold">
+                    <i class="fas fa-share-alt me-2"></i> Shared By Me
+                </h1>
+                <p class="mb-0 opacity-85">Manage items you've shared with others</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ Search & Sort Bar -->
+    <div class="search-box">
+        <form asp-action="SharedByMe" method="get" class="row gy-3 gx-3 align-items-center">
+            <div class="col-md-5">
+                <input type="text" name="search" value="@Model.SearchTerm"
+                       class="form-control shadow-sm"
+                       placeholder="Search by name..." />
+            </div>
+            <div class="col-md-4">
+                <select name="sortOrder" class="form-select shadow-sm">
+                    <option value="dateDesc" selected="@(Model.SortOrder == "dateDesc")">Newest First</option>
+                    <option value="dateAsc" selected="@(Model.SortOrder == "dateAsc")">Oldest First</option>
+                    <option value="nameAsc" selected="@(Model.SortOrder == "nameAsc")">Name A-Z</option>
+                    <option value="nameDesc" selected="@(Model.SortOrder == "nameDesc")">Name Z-A</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-search w-100">
+                    <i class="fas fa-search me-2"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ✅ Shared Items -->
+    @if (Model.SharedByMe.Any())
+    {
+        <div class="row g-4">
+            @foreach (var item in Model.SharedByMe)
+            {
+                var itemId = item.FolderId ?? item.DocumentId;
+                var itemType = string.IsNullOrEmpty(item.FolderId) ? "document" : "folder";
+                var itemName = item.FolderName ?? item.DocumentName;
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="card item-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex align-items-center mb-3 clickable-area"
+                                 onclick="openItem('@item.FolderId', '@item.DocumentId', '@item.FolderName', '@item.DocumentName', '@item.FilePath', '@itemType')">
+                                @if (!string.IsNullOrEmpty(item.FolderName))
+                                {
+                                    <div class="folder-icon" title="Click to open folder">
+                                        <i class="fas fa-folder"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="item-name" title="Click to open folder">
+                                            @item.FolderName
+                                        </div>
+                                    </div>
+                                }
+                                else if (!string.IsNullOrEmpty(item.DocumentName))
+                                {
+                                    <div class="file-icon" title="Click to open document">
+                                        <i class="fas fa-file"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="item-name" title="Click to open document">
+                                            @item.DocumentName
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+
+                            <!-- Shared Date -->
+                            <div class="shared-date mb-3">
+                                <i class="far fa-clock me-1"></i>
+                                Shared on: @item.SharedDate.ToString("dd MMM yyyy")
+                            </div>
+
+                            <!-- ✅ Action Buttons -->
+                            <div class="action-buttons">
+                               
+
+                                <div class="action-row">
+                                    <!-- Unshare All Button -->
+                                    <button type="button"
+                                            class="btn btn-unshare-all"
+                                            onclick="confirmUnshareAll('@itemId', '@itemType', '@itemName?.Replace("'", "\\'")')">
+                                        <i class="fas fa-user-slash me-1"></i> Unshare All
+                                    </button>
+
+                                    <!-- Manage Button -->
+                                    <a href="@Url.Action("UnshareSelection", "Sharing", new { id = itemId, type = itemType })"
+                                       class="btn btn-manage">
+                                        <i class="fas fa-users-cog me-1"></i> Manage
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- ✅ Pagination -->
+        <nav class="mt-5">
+            <ul class="pagination justify-content-center">
+                @if (Model.CurrentPage > 1)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("SharedByMe", new { page = Model.CurrentPage - 1, search = Model.SearchTerm, sortOrder = Model.SortOrder })">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                }
+
+                @for (int i = 1; i <= Model.TotalPagesByMe; i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("SharedByMe", new { page = i, search = Model.SearchTerm, sortOrder = Model.SortOrder })">@i</a>
+                    </li>
+                }
+
+                @if (Model.CurrentPage < Model.TotalPagesByMe)
+                {
+                    <li class="page-item">
+                        <a class="page-link" href="@Url.Action("SharedByMe", new { page = Model.CurrentPage + 1, search = Model.SearchTerm, sortOrder = Model.SortOrder })">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </nav>
+
+    }
+    else
+    {
+        <div class="alert alert-info text-center py-5">
+            <div class="empty-icon">
+                <i class="fas fa-share-alt"></i>
+            </div>
+            <h5 class="fw-bold mb-2">No Shared Items</h5>
+            <p class="mb-0 opacity-85">You haven't shared any documents or folders yet.</p>
+        </div>
+    }
+</div>
+
+<!-- ✅ Hidden Form for Unshare -->
+<form id="unshareAllForm" asp-action="UnshareAll" method="post" asp-antiforgery="true" style="display: none;">
+    <input type="hidden" id="itemId" name="id" />
+    <input type="hidden" id="itemType" name="type" />
+</form>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function openItem(folderId, documentId, folderName, documentName, filePath, itemType) {
+            const name = folderName || documentName;
+
+            Swal.fire({
+                title: `Opening ${itemType.charAt(0).toUpperCase() + itemType.slice(1)}`,
+                html: `Opening <strong>"${name}"</strong>...`,
+                icon: 'info',
+                showConfirmButton: false,
+                timer: 1500,
+                background: '#fff',
+                backdrop: 'rgba(0,0,0,0.1)'
+            }).then(() => {
+                if (itemType === 'folder') {
+                    window.location.href = '@Url.Action("Index", "Folder")' + '?folderId=' + folderId;
+                } else {
+                    window.open('@Url.Action("View", "Document")' + '?id=' + documentId, '_blank');
+                }
+            });
+        }
+
+        function confirmUnshareAll(id, type, name) {
+            Swal.fire({
+                title: 'Unshare With All Users?',
+                html: `You are about to remove <strong>"${name}"</strong> from all users.<br><br>This action cannot be undone.`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ea4335',
+                cancelButtonColor: '#1a73e8',
+                confirmButtonText: '<i class="fas fa-user-slash me-2"></i> Unshare All',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                background: '#fff',
+                backdrop: 'rgba(0,0,0,0.1)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('itemId').value = id;
+                    document.getElementById('itemType').value = type;
+                    document.getElementById('unshareAllForm').submit();
+                }
+            });
+        }
+
+        function confirmDownload(fileName, event) {
+            event.preventDefault();
+            const downloadUrl = event.currentTarget.href;
+
+            Swal.fire({
+                title: 'Download File?',
+                html: `Are you sure you want to download <strong>"${fileName}"</strong>?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#1a73e8',
+                cancelButtonColor: '#ea4335',
+                confirmButtonText: '<i class="fas fa-download me-2"></i> Download',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true,
+                background: '#fff',
+                backdrop: 'rgba(0,0,0,0.1)'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.open(downloadUrl, '_blank');
+
+                    Swal.fire({
+                        title: 'Download Started!',
+                        html: `Downloading <strong>"${fileName}"</strong>...`,
+                        icon: 'success',
+                        timer: 2000,
+                        showConfirmButton: false,
+                        background: '#fff'
+                    });
+                }
+            });
+        }
+
+        function showOpeningMessage(itemName, itemType, event) {
+            event.preventDefault();
+            const openUrl = event.currentTarget.href;
+
+            Swal.fire({
+                title: `Opening ${itemType.charAt(0).toUpperCase() + itemType.slice(1)}`,
+                html: `Opening <strong>"${itemName}"</strong>...`,
+                icon: 'info',
+                showConfirmButton: false,
+                timer: 1500,
+                background: '#fff',
+                backdrop: 'rgba(0,0,0,0.1)'
+            }).then(() => {
+                if (itemType === 'folder') {
+                    window.location.href = openUrl;
+                } else {
+                    window.open(openUrl, '_blank');
+                }
+            });
+        }
+
+        setTimeout(() => {
+            document.querySelectorAll('.alert-dismissible').forEach(alert => {
+                bootstrap.Alert.getOrCreateInstance(alert).close();
+            });
+        }, 5000);
+    </script>
+}

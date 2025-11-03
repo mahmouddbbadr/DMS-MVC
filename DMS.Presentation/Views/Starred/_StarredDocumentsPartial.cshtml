@@ -1,177 +1,167 @@
 ﻿@model StarDocumentsViewModel
 
-<div class="card shadow mb-4">
-    <div class="card-body">
+<div class="card app-card shadow-lg mb-4">
+    <div class="card-body p-0">
+
         @if (!Model.StarredDocument.Items.Any())
         {
-            <div class="text-center text-muted">
-                <p>No starred documents found.</p>
+            <div class="text-center py-5 empty-state">
+                <i class="fas fa-star fa-3x mb-3 text-warning"></i>
+                <p class="text-secondary-emphasis fs-5">No starred documents found.</p>
             </div>
         }
         else
         {
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover" width="100%" cellspacing="0">
-                    <thead class="thead-light">
+            <div class="table-responsive app-table-wrapper">
+                <table class="table table-hover app-table m-0">
+                    <thead>
                         <tr>
-                            <th>
-                                <a href="#" class="sort-link" data-field="Name">
+                            <th class="ps-3 table-header-item" style="width: 45%;">
+                                <a href="#" class="sort-link text-decoration-none" data-field="Name">
                                     Name
                                     @if (Model.StarredDocument.SortField == "Name")
                                     {
-                                        <i class="fas @(Model.StarredDocument.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
+                                        <i class="fas @(Model.StarredDocument.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down") ms-1 text-primary-accent"></i>
                                     }
                                     else
                                     {
-                                        <i class="fas fa-sort ms-1"></i>
+                                        <i class="fas fa-sort ms-1 text-muted"></i>
                                     }
                                 </a>
                             </th>
-                            <th>Type</th>
-                            <th>
-                                <a href="#" class="sort-link" data-field="Size">
+
+                            <th class="table-header-item d-none d-md-table-cell">Type</th>
+
+                            <th class="table-header-item text-center d-none d-lg-table-cell" style="width: 120px;">
+                                <a href="#" class="sort-link text-decoration-none" data-field="Size">
                                     Size (KB)
                                     @if (Model.StarredDocument.SortField == "Size")
                                     {
-                                        <i class="fas @(Model.StarredDocument.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
+                                        <i class="fas @(Model.StarredDocument.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down") ms-1 text-primary-accent"></i>
                                     }
                                     else
                                     {
-                                        <i class="fas fa-sort ms-1"></i>
+                                        <i class="fas fa-sort ms-1 text-muted"></i>
                                     }
                                 </a>
                             </th>
-                            <th>
-                                <a href="#" class="sort-link" data-field="AddedAt">
-                                    Added At
+
+                            <th class="table-header-item text-center d-none d-sm-table-cell" style="width:150px;">
+                                <a href="#" class="sort-link text-decoration-none" data-field="AddedAt">
+                                    Added
                                     @if (Model.StarredDocument.SortField == "AddedAt")
                                     {
-                                        <i class="fas @(Model.StarredDocument.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
+                                        <i class="fas @(Model.StarredDocument.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down") ms-1 text-primary-accent"></i>
                                     }
                                     else
                                     {
-                                        <i class="fas fa-sort ms-1"></i>
+                                        <i class="fas fa-sort ms-1 text-muted"></i>
                                     }
                                 </a>
-                            </th>                        
-                            <th>
-                                <a href="#" class="sort-link" data-field="FolderName">
+                            </th>
+
+                            <th class="table-header-item text-center d-none d-sm-table-cell" style="width:150px;">
+                                <a href="#" class="sort-link text-decoration-none" data-field="FolderName">
                                     Folder
                                     @if (Model.StarredDocument.SortField == "FolderName")
                                     {
-                                        <i class="fas @(Model.StarredDocument.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
+                                        <i class="fas @(Model.StarredDocument.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down") ms-1 text-primary-accent"></i>
                                     }
                                     else
                                     {
-                                        <i class="fas fa-sort ms-1"></i>
+                                        <i class="fas fa-sort ms-1 text-muted"></i>
                                     }
                                 </a>
-                            </th>                        
-                            <th>Starred</th>
-                            <th>Actions</th>
+                            </th>
+
+                            <th class="table-header-item text-center" style="width: 80px;">
+                                <i class="fas fa-star fa-lg star-filled"></i>
+                            </th>
+
+                            <th class="table-header-item text-center" style="width: 180px;">Actions</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         @foreach (var doc in Model.StarredDocument.Items)
                         {
-                            <tr id="doc-row-@doc.Id">
-                                <td>
-                                    <a style="text-decoration:underline" href="~/@doc.FilePath" target="_blank">@doc.Name</a>
+                            <tr id="doc-row-@doc.Id" class="document-row">
+                                <td class="ps-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-file me-2 file-icon text-primary-accent"></i>
+                                        <a class="document-name-text text-decoration-none" href="~/@doc.FilePath" target="_blank">@doc.Name</a>
+                                    </div>
                                 </td>
-                                <td>@doc.FileType</td>
-                                <td>@(doc.Size / 1024)</td>
-                                <td>@(doc.AddedAt.ToString("yyyy-MM-dd"))</td>
-                                <td>@doc.FolderName</td>
+
+                                <td class="d-none d-md-table-cell text-muted small">@doc.FileType</td>
+
+                                <td class="text-center d-none d-lg-table-cell text-muted small">@(doc.Size / 1024) KB</td>
+
+                                <td class="text-center d-none d-sm-table-cell text-muted small">@doc.AddedAt.ToString("yyyy-MM-dd")</td>
+
+                                <td class="d-none d-lg-table-cell text-muted small">@doc.FolderName</td>
+
                                 <td class="text-center">
                                     <form method="post"
-                                          asp-action="UnStarDocument"
-                                          asp-route-id="@doc.Id"
-                                          class="d-inline star-toggle-form"
-                                          data-id="@doc.Id"
-                                          data-starred="@doc.IsStarred.ToString().ToLower()">
-                                        <button type="button"
-                                                class="star-toggle-button border-0 bg-transparent p-0"
-                                                title="Unstar"
-                                                data-bs-toggle="tooltip">
-                                            <i class="fas text-warning fa-star fa-lg"></i>
+                                        asp-action="UnStarDocument"
+                                        asp-route-id="@doc.Id"
+                                        class="star-toggle-form">
+                                        <button type="button" 
+                                            class="star-toggle-button border-0 bg-transparent p-0" title="Unstar">
+                                            <i class="fas fa-star fa-lg star-filled"></i>
                                         </button>
                                     </form>
                                 </td>
-                                <td>
-                                    <div class="d-flex flex-wrap align-items-center gap-2">
-                                        <a asp-controller="Document" asp-action="Download" asp-route-id="@doc.Id" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-download me-1"></i> Download
+
+                                <td class="text-center actions-cell">
+                                    <div class="d-flex justify-content-center flex-wrap align-items-center gap-1">
+
+                                        <a asp-action="Download" asp-route-id="@doc.Id" class="btn btn-icon btn-action-download">
+                                            <i class="fas fa-download"></i>
                                         </a>
-                                        @* <a asp-controller="Document" asp-action="Edit" asp-route-id="@doc.Id"
-                                        class="btn btn-secondary btn-sm">
-                                            <i class="far fa-edit me-1"></i> Edit
-                                        </a> *@
-                                        <a data-id="@doc.Id"
-                                           class="btn btn-secondary btn-sm mx-2 edit-doc-link">
-                                            <i class="far fa-edit me-1"></i> Edit
+
+                                        <button type="button" class="btn btn-icon btn-action-edit edit-doc-btn"
+                                                data-id="@doc.Id" data-name="@doc.Name">
+                                            <i class="far fa-edit"></i>
+                                        </button>
+
+                                        <a asp-controller="Sharing" asp-action="ShareDocument" asp-route-documentId="@doc.Id" class="btn btn-icon btn-action-share">
+                                            <i class="fas fa-share-alt"></i>
                                         </a>
-                                        <a asp-controller="Document" asp-action="ShareDocument" asp-controller="Sharing" asp-route-documentId="@doc.Id" class="btn btn-success btn-sm mx-2">
-                                            <i class="fas fa-share me-1"></i> Share
-                                        </a>
-                                        <form asp-controller="Document" asp-action="Trash" asp-route-id="@doc.Id" method="post" class="m-0 p-0 delete-form" data-id="@doc.Id">
-                                            <button type="submit" class="btn btn-danger btn-sm delete-button">
-                                                <i class="fas fa-trash-alt me-1"></i> Delete
+
+                                        <form asp-controller="Document" asp-action="Trash" asp-route-id="@doc.Id" method="post" class="delete-form">
+                                            <button type="button" class="btn btn-icon btn-action-delete delete-button">
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
                                     </div>
                                 </td>
-
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
+
+            @await Html.PartialAsync("_EditDocumentModal")
         }
     </div>
 </div>
 
-<nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center">
-        @if (Model.StarredDocument.HasPrevious)
-        {
-            <li class="page-item">
-                <a href="#" class="page-link" data-pagenum="@(Model.StarredDocument.CurrentPage - 1)">Previous</a>
-            </li>
-        }
-        else
-        {
-            <li class="page-item disabled">
-                <span class="page-link">Previous</span>
-            </li>
-        }
+<div class="app-pagination">
+    <partial name="_Pagination" model="Model.StarredDocument" />
+</div>
 
-        @for (int i = 1; i <= Model.StarredDocument.TotalPages; i++)
-        {
-            if (i == Model.StarredDocument.CurrentPage)
-            {
-                <li class="page-item active">
-                    <span class="page-link">@i</span>
-                </li>
-            }
-            else
-            {
-                <li class="page-item">
-                    <a href="#" class="page-link" data-pagenum="@i">@i</a>
-                </li>
-            }
-        }
+@* <style>
+    .star-filled {
+        color: #f4c430 !important;
+        filter: drop-shadow(0 0 2px rgba(0,0,0,0.25));
+        transition: 0.25s;
+    }
 
-        @if (Model.StarredDocument.HasNext)
-        {
-            <li class="page-item">
-                <a href="#" class="page-link" data-pagenum="@(Model.StarredDocument.CurrentPage + 1)">Next</a>
-            </li>
-        }
-        else
-        {
-            <li class="page-item disabled">
-                <span class="page-link">Next</span>
-            </li>
-        }
-    </ul>
-</nav>
+    .star-filled:hover {
+        transform: scale(1.2);
+    }
+
+</style> *@
+
+<link href="~/css/themeIndex.css" rel="stylesheet" />

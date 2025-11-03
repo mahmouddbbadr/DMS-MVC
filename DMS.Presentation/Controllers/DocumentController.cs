@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Claims;
+using System.Threading.Tasks;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace DMS.Presentation.Controllers
 {
@@ -21,19 +23,6 @@ namespace DMS.Presentation.Controllers
             directory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> Index(string folderId)
-        //{ 
-        //    if(!string.IsNullOrEmpty(folderId))
-        //    {
-        //        DocumentIndexViewModel model = await documentService
-        //            .GetDocumentsByFolderIdAsync(folderId);
-
-        //        return View("Index", model);
-        //    }
-        //    return NotFound();
-        //}
-
         [HttpGet]
         public async Task<IActionResult> Index([FromQuery] DocumentQueryViewModel query)
         {
@@ -41,6 +30,11 @@ namespace DMS.Presentation.Controllers
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+
+            bool authorized = await documentService
+                .IsAuthorizedFolderAsync(query.FolderId, UserId);
+            if (!authorized)
+                return NotFound();
 
             var model = await documentService
                 .GetDocumentsByFolderIdWithPaginationAsync(query);
@@ -69,8 +63,16 @@ namespace DMS.Presentation.Controllers
         }
 
         [HttpGet]
-        public IActionResult Upload(string folderId)
+        public async Task<IActionResult> Upload(string folderId)
         {
+            if(string.IsNullOrEmpty(folderId))
+                return BadRequest();
+
+            bool authorized = await documentService
+                .IsAuthorizedFolderAsync(folderId, UserId);
+            if (!authorized)
+                return NotFound();
+
             DocumentUploadViewModel model = new() 
             {       
                 FolderId = folderId,
@@ -85,13 +87,23 @@ namespace DMS.Presentation.Controllers
         {
             if (ModelState.IsValid)
             {
-                if(await documentService.UploadDocumentAsync(model, directory))
-                    return RedirectToAction("Index", new { folderId = model.FolderId});
+                var result = await documentService.UploadDocumentAsync(model, directory);
+
+                if (result.Success)
+                    return RedirectToAction("Index", new { folderId = model.FolderId });
+
+                if (result.NameExists)
+                {
+                    ModelState.AddModelError("Name", "A document with this name already exists in this folder.");
+                    return View("Upload", model);
+                }
 
                 ModelState.AddModelError("", "Something went wrong while uploading.");
             }
+
             return View("Upload", model);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Download(string id)
@@ -106,7 +118,6 @@ namespace DMS.Presentation.Controllers
 
             return File(result.FileBytes, result.ContentType, result.FileName);
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Edit(DocumentEditViewModel fromRequest)
@@ -129,6 +140,7 @@ namespace DMS.Presentation.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(DocumentUploadViewModel model)
         {
+            
             if (!ModelState.IsValid)
                 return View("Edit", model);
 
@@ -146,6 +158,27 @@ namespace DMS.Presentation.Controllers
             return RedirectToAction("Index", new { folderId = model.FolderId });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> EditModal(DocumentEditModelViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return Json(new { success = false, message = "Invalid Document"});
+
+            model.OwnerId = UserId;
+
+            try
+            {
+                bool updated = await documentService.EditDocumentModelAsync(model, directory);
+
+                if (updated)
+                    return Json(new { success = true, message = "Document updated successfully." });
+                return Json(new { success = false, message = "Document Not Found." });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -170,7 +203,6 @@ namespace DMS.Presentation.Controllers
                 return StatusCode(500, "An error occurred while deleting the document.");
             }
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -210,6 +242,7 @@ namespace DMS.Presentation.Controllers
             }
             return BadRequest();
         }
+
     }
 }
 

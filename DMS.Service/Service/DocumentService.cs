@@ -4,6 +4,7 @@ using DMS.Infrastructure.UnitOfWorks;
 using DMS.Service.IService;
 using DMS.Service.ModelViews.DocumentViews;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
 using Document = DMS.Domain.Models.Document;
 
 namespace DMS.Service.Service
@@ -55,12 +56,13 @@ namespace DMS.Service.Service
             {
                 query = _unit.DocumentRepository
                     .SearchDocumentByFolderAsQueryable(modelQuery.FolderId, modelQuery.OwnerId, modelQuery.SearchName);
-            }else
+            } else
             {
                 query = _unit.DocumentRepository
                 .GetDocumentsByFolderIdAsQueryable(modelQuery.FolderId, modelQuery.OwnerId);
             }
 
+            /*
             query = (modelQuery.SortField, modelQuery.SortOrder?.ToLower()) switch
             {
                 ("Name", "asc") => query.OrderBy(d => d.Name),
@@ -77,7 +79,9 @@ namespace DMS.Service.Service
 
                 _ => query.OrderByDescending(d => d.AddedAt)
             };
+            */
 
+            query = SortData(query, modelQuery.SortField, modelQuery.SortOrder);
             int totalCount = query.Count();
 
             List<Document> docs = await _unit.DocumentRepository
@@ -93,8 +97,8 @@ namespace DMS.Service.Service
                 CurrentPage = modelQuery.PageNum,
                 CurrentSearch = modelQuery.SearchName,
                 TotalPages = total,
-                HasNext = modelQuery.PageNum < total,
-                HasPrevious = modelQuery.PageNum > 1,
+                //HasNext = modelQuery.PageNum < total,
+                //HasPrevious = modelQuery.PageNum > 1,
                 SortField = modelQuery.SortField,
                 SortOrder = modelQuery.SortOrder,
                 DocumentList = docs.Select(d => new DocumentListItemViewModel()
@@ -116,7 +120,7 @@ namespace DMS.Service.Service
         public async Task DeleteDocumentAsync(string docId, string userId)
         {
             Document? doc = await _unit.DocumentRepository.GetByOwnerAsync(docId, userId);
-            if(doc == null)
+            if (doc == null)
                 throw new Exception("Document Not Found Or You Don't Have Access");
             try
             {
@@ -145,8 +149,8 @@ namespace DMS.Service.Service
         public async Task<bool> StarDocumentAsync(string docId, string userId, bool isStar)
         {
             Document? doc = await _unit.DocumentRepository.GetByOwnerAsync(docId, userId);
-            
-            if(doc != null)
+
+            if (doc != null)
             {
                 doc.IsStarred = isStar;
                 _unit.DocumentRepository.Update(doc);
@@ -158,7 +162,7 @@ namespace DMS.Service.Service
         public async Task<DocumentFileResultViewModel?> GetFileToDownloadAsync
             (string docId, string userId, string wwwroot)
         {
-            if(docId != null)
+            if (docId != null)
             {
                 Document? doc = await _unit.DocumentRepository.GetByOwnerAsync(docId, userId);
 
@@ -176,7 +180,7 @@ namespace DMS.Service.Service
                 }
 
                 byte[] bytes = await File.ReadAllBytesAsync(filePath);
-                
+
                 string contentType = GetContentType(filePath);
 
                 return new DocumentFileResultViewModel()
@@ -186,7 +190,7 @@ namespace DMS.Service.Service
                     FileName = doc.Name + Path.GetExtension(filePath)
                 };
             }
-               
+
             return null;
         }
 
@@ -201,8 +205,35 @@ namespace DMS.Service.Service
             return contentType;
         }
 
-        public async Task<bool> UploadDocumentAsync(DocumentUploadViewModel model, string wwwroot)
+        private IQueryable<Document> SortData
+            (IQueryable<Document> query, string sortField, string sortOrder)
         {
+            return (sortField, sortOrder?.ToLower()) switch
+            {
+                ("Name", "asc") => query.OrderBy(d => d.Name),
+                ("Name", "desc") => query.OrderByDescending(d => d.Name),
+
+                ("Size", "asc") => query.OrderBy(d => d.Size),
+                ("Size", "desc") => query.OrderByDescending(d => d.Size),
+
+                ("AddedAt", "asc") => query.OrderBy(d => d.AddedAt),
+                ("AddedAt", "desc") => query.OrderByDescending(d => d.AddedAt),
+
+                ("Starred", "asc") => query.OrderBy(d => d.IsStarred),
+                ("Starred", "desc") => query.OrderByDescending(d => d.IsStarred),
+
+                _ => query.OrderByDescending(d => d.AddedAt)
+            };
+        }
+        public async Task<UploadResult> UploadDocumentAsync(DocumentUploadViewModel model, string wwwroot)
+        {
+            model.Name = model.Name?.Trim() ?? "";
+
+            if (await _unit.DocumentRepository
+                .DocumentNameExistAsync(model.OwnerId, model.FolderId, model.Name))
+            {
+                return new UploadResult { Success = false, NameExists = true };
+            }
             try
             {
                 string uploadPath = Path.Combine(wwwroot, "files");
@@ -232,17 +263,17 @@ namespace DMS.Service.Service
                     IsDeleted = false,
                     IsStarred = false,
                     OwnerId = model.OwnerId,
-                    Size = (int) model.File.Length
+                    Size = (int) (model.File.Length) // Size in Bytes
                 };
 
                 await _unit.DocumentRepository.AddAsync(doc);
                 _unit.Save();
 
-                return true;
+                return new UploadResult { Success = true };
             }
             catch
             {
-                return false;
+                return new UploadResult { Success = false };
             }
 
         }
@@ -342,5 +373,68 @@ namespace DMS.Service.Service
             };
         }
 
+        public async Task<bool> IsAuthorizedFolderAsync(string fId, string userId)
+        {
+            var folder = await _unit.FolderRepository.GetFolderByIdAuthorizeAsync(fId, userId);
+            return folder != null;
+        }
+        public async Task<bool> EditDocumentModelAsync(DocumentEditModelViewModel model, string wwwroot)
+        {
+            if (model.Id == null) return false;
+
+            Document? doc;
+
+            doc = await _unit.DocumentRepository.GetByIdAsync(model.Id);
+            if (doc == null) return false;
+
+            doc.Name = string.IsNullOrWhiteSpace(model.Name) ? doc.Name : model.Name;
+
+            bool exist = await _unit.DocumentRepository
+                .DocumentNameExistAsync(model.OwnerId, doc.FolderId, doc.Name, execludeId: doc.Id);
+
+            if(exist)
+                throw new Exception("Document Name Already Exists in the Folder");
+
+            if (model.File != null || model?.File?.Length > 0)
+            {
+                try
+                {
+                    string uploadPath = Path.Combine(wwwroot, "files");
+
+                    if (!Directory.Exists(uploadPath))
+                    {
+                        Directory.CreateDirectory(uploadPath);
+                    }
+
+                    string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(model.File.FileName);
+
+                    string filePath = Path.Combine(uploadPath, uniqueFileName);
+
+                    using (var fs = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.File.CopyToAsync(fs);
+                    }
+
+                    if (!string.IsNullOrEmpty(doc.FilePath))
+                    {
+                        string oldPath = Path.Combine(wwwroot, doc.FilePath).Replace("/", "\\");
+                        if (File.Exists(oldPath))
+                            File.Delete(oldPath);
+                    }
+
+                    doc.FileType = Path.GetExtension(model.File.FileName);
+                    doc.FilePath = Path.Combine("files", uniqueFileName).Replace("\\", "/");
+                    doc.Size = (int)model.File.Length;
+                }
+                catch(Exception ex)
+                {
+                    throw new Exception(ex.Message);
+                }
+            }
+
+            _unit.DocumentRepository.Update(doc);
+            _unit.Save();
+            return true;
+        }
     }
 }

@@ -1,98 +1,75 @@
 ﻿using DMS.Service.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace DMS.Presentation.Controllers
 {
     [Authorize(Roles = "Admin")]
-    public class UserController : Controller
+    public class UserController(IUserService userService) : Controller
     {
-        private readonly IUserService userService;
+        private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
-        public UserController(IUserService _userService)
-        {
-            userService = _userService;
-        }
-        // Get all users
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Unblocked(string? searchEmail, int page = 1, int pageSize = 8)
         {
-            return View();
-        }
-        // Details of a user
-        [HttpGet]
-        public IActionResult Details(string id)
-        {
-            return View();
-        }
-        //open form to create user
-        [HttpGet]
-        public IActionResult Create()
-        {
-            return View();
-        }
-        // save data and create user
-        // instead of (object model) you will create UserViewModel and pass it
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Create(object model)//(UserViewModel model)
-        {
-            if (!ModelState.IsValid)
+
+            var result = string.IsNullOrEmpty(searchEmail)
+                ? await userService.GetAllUnBlockedAsnyc(UserId, page, pageSize)
+                : await userService.SearchUnBlockedUsersAsnyc(UserId, searchEmail, page, pageSize);
+
+            ViewBag.TotalCount = result.totalCount;
+            ViewBag.TotalPages = result.totalPages;
+            ViewBag.CurrentPage = page;
+            ViewBag.SearchEmail = searchEmail;
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                return View(model);
+                return PartialView("_UserListPartial", result.users);
+            }
+            return View("Unblocked", result.users);
+        }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> Blocked(string? searchEmail, int page = 1, int pageSize = 8)
+        {
+            var result = string.IsNullOrEmpty(searchEmail)
+                ? await userService.GetAllBlockedAsnyc(page, pageSize)
+                : await userService.SearchBlockedUsersAsnyc(searchEmail, page, pageSize);
+
+            ViewBag.TotalCount = result.totalCount;
+            ViewBag.TotalPages = result.totalPages;
+            ViewBag.CurrentPage = page;
+            ViewBag.SearchEmail = searchEmail;
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_UserListPartial", result.users);
             }
 
-            // Unlock user logic
+            return View("Blocked", result.users);
+        }
 
-            return RedirectToAction(nameof(Index));
-        }
-        // open form to edit user
-        [HttpGet]
-        public IActionResult Edit(string id)
-        {
-            return View();
-        }
-        // save editing
-        // instead of (object model) you will use UserViewModel that you created
+
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Edit(object model)//(UserViewModel model)
+        public async Task<IActionResult> Block(string email)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-            // Unlock user logic
+            if (await userService.BlockUserAsnyc(email))
+                return Ok();
 
-            return RedirectToAction(nameof(Index));
+            return BadRequest("Failed to block user.");
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult Delete(string id)
+        public async Task<IActionResult> Unblock(string email)
         {
-            // Unlock user logic
+            if (await userService.UnBlockUserAsnyc(email))
+                return Ok();
 
-            return RedirectToAction(nameof(Index));
+            return BadRequest("Failed to unblock user.");
         }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult LockUser(string id)
-        {
-            // Unlock user logic
-
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult UnlockUser(string id)
-        {
-            // Unlock user logic
-
-            return RedirectToAction(nameof(Index));
-        }
-
     }
 }

@@ -1,0 +1,336 @@
+﻿@model ShareViewModel
+@{
+    ViewBag.Title = "Share Document";
+}
+
+<style>
+    .share-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .share-header {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        color: white;
+        border-radius: 16px;
+        padding: 2.5rem;
+        margin-bottom: 2.5rem;
+        box-shadow: 0 8px 30px rgba(26, 115, 232, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: center;
+    }
+
+    .share-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        background: #fff;
+        border: 1px solid #e8f0fe;
+        padding: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #202124;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e8f0fe;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #1a73e8;
+        box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.25);
+        outline: none;
+    }
+
+    .btn-share {
+        background: linear-gradient(135deg, #1a73e8 0%, #4285f4 100%);
+        border: none;
+        color: white;
+        border-radius: 12px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.2);
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    .btn-share:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(26, 115, 232, 0.3);
+        color: white;
+    }
+
+    .validation-summary-errors {
+        background: linear-gradient(135deg, #ea4335 0%, #d93025 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 15px rgba(234, 67, 53, 0.2);
+    }
+
+    .validation-summary-errors ul {
+        margin: 0;
+        padding-left: 1rem;
+    }
+
+    .validation-summary-errors li {
+        list-style: none;
+        position: relative;
+        padding-left: 1.5rem;
+    }
+
+    .validation-summary-errors li:before {
+        content: "⚠️";
+        position: absolute;
+        left: 0;
+    }
+
+    .field-validation-error {
+        color: #ea4335;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: block;
+        font-weight: 500;
+    }
+
+    .input-validation-error {
+        border-color: #ea4335 !important;
+        background-color: #fff8f8;
+    }
+
+    .input-validation-error:focus {
+        border-color: #ea4335 !important;
+        box-shadow: 0 0 0 0.2rem rgba(234, 67, 53, 0.25) !important;
+    }
+
+    .permission-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .permission-option {
+        position: relative;
+    }
+
+    .permission-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .permission-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 1.5rem 1rem;
+        border: 2px solid #e8f0fe;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        background: white;
+    }
+
+    .permission-option input[type="radio"]:checked + .permission-label {
+        border-color: #1a73e8;
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.1);
+    }
+
+    .permission-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .permission-read .permission-icon {
+        color: #34a853;
+    }
+
+    .permission-write .permission-icon {
+        color: #fbbc05;
+    }
+
+    .permission-title {
+        font-weight: 600;
+        color: #202124;
+        margin-bottom: 0.25rem;
+    }
+
+    .permission-desc {
+        font-size: 0.875rem;
+        color: #5f6368;
+        line-height: 1.4;
+    }
+
+    .document-info {
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid #e8f0fe;
+    }
+
+    .document-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #34a853 0%, #4caf50 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+    }
+
+    .document-details {
+        flex-grow: 1;
+    }
+
+    .document-name {
+        font-weight: 600;
+        color: #202124;
+        margin-bottom: 0.25rem;
+    }
+
+    .document-type {
+        color: #5f6368;
+        font-size: 0.875rem;
+    }
+</style>
+
+<div class="share-container">
+    <!-- Header -->
+    <div class="share-header">
+        <h1 class="h3 mb-2 fw-bold">
+            <i class="fas fa-share-alt me-2"></i> Share Document
+        </h1>
+        <p class="mb-0 opacity-85">Share this document with other users</p>
+    </div>
+
+    <!-- Document Info -->
+    <div class="document-info d-flex align-items-center">
+        <div class="document-icon">
+            <i class="fas fa-file"></i>
+        </div>
+        <div class="document-details">
+            <div class="document-type">DOCUMENT</div>
+        </div>
+    </div>
+
+    <!-- Share Form -->
+    <div class="share-card">
+        <form asp-action="Share" method="post">
+            <input type="hidden" asp-for="DocumentId" />
+
+            <!-- Validation Summary -->
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+            <!-- Email Input -->
+            <div class="form-group">
+                <label class="form-label" asp-for="SharedWithUserEmail">
+                    <i class="fas fa-envelope me-2"></i>Email Address
+                </label>
+                <input asp-for="SharedWithUserEmail" class="form-control" 
+                       placeholder="Enter user's email address" />
+                <span asp-validation-for="SharedWithUserEmail" class="field-validation-error"></span>
+            </div>
+
+            <!-- Permission Selection -->
+            <div class="form-group">
+                <label class="form-label" asp-for="Permission">
+                    <i class="fas fa-key me-2"></i>Permission Level
+                </label>
+                
+                <div class="permission-options">
+                    <div class="permission-option permission-read">
+                        <input type="radio" asp-for="Permission" value="Read" id="permissionRead" checked />
+                        <label class="permission-label" for="permissionRead">
+                            <div class="permission-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="permission-title">Read Only</div>
+                            <div class="permission-desc">User can view but not modify</div>
+                        </label>
+                    </div>
+                    
+                    <div class="permission-option permission-write">
+                        <input type="radio" asp-for="Permission" value="ReadWrite" id="permissionWrite" />
+                        <label class="permission-label" for="permissionWrite">
+                            <div class="permission-icon">
+                                <i class="fas fa-edit"></i>
+                            </div>
+                            <div class="permission-title">Read & Write</div>
+                            <div class="permission-desc">User can view and modify</div>
+                        </label>
+                    </div>
+                </div>
+                <span asp-validation-for="Permission" class="field-validation-error"></span>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-share">
+                <i class="fas fa-share me-2"></i> Share Document
+            </button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-dismiss validation errors after 5 seconds
+        setTimeout(() => {
+            const validationSummary = document.querySelector('.validation-summary-errors');
+            if (validationSummary) {
+                validationSummary.style.display = 'none';
+            }
+        }, 5000);
+
+        // Add focus styles for better accessibility
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('.form-control, .form-select');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('focused');
+                });
+            });
+
+            // Enhance radio button interactions
+            const permissionOptions = document.querySelectorAll('.permission-option');
+            permissionOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    permissionOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

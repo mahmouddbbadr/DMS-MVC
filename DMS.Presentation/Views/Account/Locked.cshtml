@@ -1,0 +1,43 @@
+﻿@{
+    // Optional: Set a specific layout if you have one for error pages
+    Layout = "_LockedLayout"; 
+    ViewData["Title"] = "Account Access Denied";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+
+        <i class="fas fa-lock text-danger" style="font-size: 80px; margin-bottom: 20px;"></i>
+
+        <h1>Access Revoked</h1>
+        <hr />
+
+        <p class="lead">
+            Your account has been **temporarily or permanently locked** by the system administrator.
+        </p>
+
+        <p>
+            This is usually done to protect your account or maintain compliance with our organizational policies.
+        </p>
+
+        <h3 class="mt-4 text-warning">What to do next:</h3>
+
+        <div class="card card-body bg-light">
+            <p class="mb-0">
+                Please contact our support team immediately to resolve this issue and restore your access.
+            </p>
+        </div>
+
+        <div class="mt-4">
+            <p><strong>Support Contact Information:</strong></p>
+            <p>
+                Email: <a href="mahmoudbadr29062000@gmail.com">mahmoudbadr29062000@gmail.com</a><br />
+                Phone: +201065607859
+            </p>
+        </div>
+
+        <div class="mt-5">
+            <a asp-action="Login" asp-asp-controller="Account" class="btn btn-secondary" style="margin-top: -70px;">Return to Login</a>
+        </div>
+    </div>
+</div>

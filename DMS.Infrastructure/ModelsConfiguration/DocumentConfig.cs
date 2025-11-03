@@ -1,6 +1,7 @@
 ﻿using DMS.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Reflection.Emit;
 
 namespace DMS.Infrastructure.ModelsConfiguration
 {
@@ -10,12 +11,15 @@ namespace DMS.Infrastructure.ModelsConfiguration
         {
             builder.ToTable("Documents");
 
+            builder.HasIndex(d => new { d.OwnerId, d.FolderId, d.Name })
+                .IsUnique();
+
             builder.HasQueryFilter(d => !d.IsDeleted);
 
             builder.HasKey(d => d.Id);
 
             builder.Property(d => d.Name)
-                .HasMaxLength(20)
+                .HasMaxLength(50)
                 .IsRequired();
 
             builder.Property(d => d.FilePath)

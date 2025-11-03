@@ -1,322 +1,143 @@
 ﻿@model DocumentIndexViewModel
 
-<div class="card shadow mb-4">
-    <div class="card-body">
+<div class="card app-card shadow-lg mb-4">
+    <div class="card-body p-0">
+
         @if (!Model.DocumentList.Any())
         {
-            <div class="text-center text-muted">
-                <p>No documents found in this folder.</p>
+            <div class="text-center py-5 empty-state">
+                <i class="fas fa-file-alt fa-3x mb-3 text-secondary-emphasis"></i>
+                <p class="text-secondary-emphasis fs-5">No documents found in this folder. Start by uploading one!</p>
             </div>
         }
         else
         {
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover" width="100%" cellspacing="0">
-                    <thead class="thead-light">
+            <div class="table-responsive app-table-wrapper">
+                <table class="table table-hover app-table m-0">
+                    <thead>
                         <tr>
-                            <th>
-                                <a href="#" class="sort-link" data-field="Name">
+                            <th class="ps-3 table-header-item" style="width: 50%;">
+                                <a href="#" class="sort-link text-decoration-none" data-field="Name">
                                     Name
                                     @if (Model.SortField == "Name")
                                     {
-                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
-                                    }else
-                                    {                                   
-                                        <i class="fas fa-sort ms-1"></i>
+                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down") ms-1 text-primary-accent"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-sort ms-1 text-muted"></i>
                                     }
                                 </a>
                             </th>
-                            <th>Type</th>
-                            <th>
-                                <a href="#" class="sort-link" data-field="Size">
+                            <th class="table-header-item d-none d-md-table-cell">Type</th>
+                            <th class="table-header-item text-center d-none d-lg-table-cell" style="width: 120px;">
+                                <a href="#" class="sort-link text-decoration-none" data-field="Size">
                                     Size (KB)
                                     @if (Model.SortField == "Size")
                                     {
-                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
-                                    }else
+                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down") ms-1 text-primary-accent"></i>
+                                    }
+                                    else
                                     {
-                                        <i class="fas fa-sort ms-1"></i>
+                                        <i class="fas fa-sort ms-1 text-muted"></i>
                                     }
                                 </a>
                             </th>
-                            <th>
-                                <a href="#" class="sort-link" data-field="AddedAt">
+                            <th class="table-header-item text-center d-none d-sm-table-cell" style="width: 150px;">
+                                <a href="#" class="sort-link text-decoration-none" data-field="AddedAt">
                                     Added
                                     @if (Model.SortField == "AddedAt")
                                     {
-                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
+                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down") ms-1 text-primary-accent"></i>
                                     }
                                     else
                                     {
-                                        <i class="fas fa-sort ms-1"></i>
+                                        <i class="fas fa-sort ms-1 text-muted"></i>
                                     }
                                 </a>
                             </th>
-                            <th>
-                                <a href="#" class="sort-link" data-field="Starred">
-                                    Starred
-                                    @if (Model.SortField == "Starred")
-                                    {
-                                        <i class="fas @(Model.SortOrder == "asc" ? "fa-arrow-up" : "fa-arrow-down")"></i>
-                                    }
-                                    else
-                                    {
-                                        <i class="fas fa-sort ms-1"></i>
-                                    }
+                            <th class="table-header-item text-center" style="width: 80px;">
+                                <a href="#" class="sort-link text-decoration-none" data-field="Starred" title="Sort by Starred">
+                                    <i class="fas fa-star fa-lg star-filled"></i>
                                 </a>
                             </th>
-                            <th>Actions</th>
+                            <th class="table-header-item text-center" style="width: 180px;">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var doc in Model.DocumentList)
                         {
-                            <tr id="doc-row-@doc.Id" style="cursor:pointer" data-url="@Url.Content($"~/Document/Details/{doc.Id}")">
-                                <td>
-                                    <a style="text-decoration:underline" href="~/@doc.FilePath" target="_blank">@doc.Name</a>
+                            <tr id="doc-row-@doc.Id" class="document-row main-doc" data-url="@Url.Content($"~/Document/Details/{doc.Id}")">
+                                <td class="ps-3">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-file me-2 file-icon text-primary-accent" title="@doc.FileType"></i>
+                                        <a class="document-name-text text-decoration-none" href="~/@doc.FilePath" target="_blank">@doc.Name</a>
+                                    </div>
                                 </td>
-                                <td>@doc.FileType</td>
-                                <td>@(doc.Size / 1024)</td>
-                                <td>@doc.AddedAt.ToString("yyyy-MM-dd")</td>
+
+                                <td class="d-none d-md-table-cell text-muted small">@doc.FileType</td>
+
+                                <td class="text-center d-none d-lg-table-cell text-muted small">
+                                    @(doc.Size / 1024) KB
+                                </td>
+
+                                <td class="text-center d-none d-sm-table-cell text-muted small">@doc.AddedAt.ToString("yyyy-MM-dd")</td>
+
                                 <td class="text-center">
                                     <form method="post"
-                                            asp-action="@(doc.IsStarred ? "UnStar" : "Star")"
-                                            asp-route-id="@doc.Id"
-                                            class="d-inline star-toggle-form"
-                                            data-id="@doc.Id"
-                                            data-starred="@doc.IsStarred.ToString().ToLower()">
+                                          asp-action="@(doc.IsStarred ? "UnStar" : "Star")"
+                                          asp-route-id="@doc.Id"
+                                          class="d-inline star-toggle-form"
+                                          data-id="@doc.Id"
+                                          data-starred="@doc.IsStarred.ToString().ToLower()">
                                         <button type="button"
                                                 class="star-toggle-button border-0 bg-transparent p-0"
                                                 title="@(doc.IsStarred ? "Unstar" : "Star")"
                                                 data-bs-toggle="tooltip">
-                                            <i class="@(doc.IsStarred ? "fas text-warning" : "far text-muted") fa-star fa-lg"></i>
+                                            <i class="@(doc.IsStarred ? "fas" : "far") fa-star fa-lg star-filled"></i>
                                         </button>
                                     </form>
                                 </td>
-                                <td>
-                                    <div class="d-flex text-center flex-wrap align-items-center gap-2">
-                                        @* <a asp-action="Details" asp-route-id="@doc.Id" class="btn btn-info btn-sm">
-                                             Details
-                                        </a> *@
-                                        <a asp-action="Download" asp-route-id="@doc.Id" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-download mx-1"></i> Download
+
+                                <td class="text-center actions-cell">
+                                    <div class="d-flex justify-content-center flex-wrap align-items-center gap-1">
+
+                                        <a asp-action="Download" asp-route-id="@doc.Id" class="btn btn-icon btn-action-download" title="Download">
+                                            <i class="fas fa-download"></i>
                                         </a>
-                                        @* <a asp-action="Edit" asp-route-id="@doc.Id"
-                                           class="btn btn-secondary btn-sm edit-doc-link">
-                                            <i class="far fa-edit me-1"></i> Edit
-                                        </a> *@
-                                        <a class="btn btn-secondary btn-sm mx-2 edit-doc-link" data-id="@doc.Id">
-                                            <i class="far fa-edit mx-1"></i> Edit
+
+                                        <button type="button" class="btn btn-icon btn-action-edit edit-doc-btn"
+                                                data-id="@doc.Id" data-name="@doc.Name" title="Edit Name">
+                                            <i class="far fa-edit"></i>
+                                        </button>
+
+                                        <a asp-action="ShareDocument" asp-controller="Sharing" asp-route-documentId="@doc.Id" class="btn btn-icon btn-action-share" title="Share">
+                                            <i class="fas fa-share-alt"></i>
                                         </a>
-                                        <a asp-action="ShareDocument" asp-controller="Sharing" asp-route-documentId="@doc.Id" class="btn btn-success btn-sm mx-2">
-                                            <i class="fas fa-share mx-1"></i> Share
-                                        </a>
+
                                         <form asp-action="Trash" asp-route-id="@doc.Id" method="post" class="m-0 p-0 delete-form" data-id="@doc.Id">
-                                            <button type="submit" class="btn btn-danger btn-sm delete-button">
-                                                <i class="fas fa-trash-alt mx-1"></i> Delete
+                                            <button type="button" class="btn btn-icon btn-action-delete delete-button" title="Delete">
+                                                <i class="fas fa-trash-alt"></i>
                                             </button>
                                         </form>
                                     </div>
                                 </td>
-
                             </tr>
                         }
                     </tbody>
                 </table>
             </div>
+
+            @await Html.PartialAsync("_EditDocumentModal")
+
         }
     </div>
 </div>
 
-<nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center">
-        @if (Model.HasPrevious)
-        {
-            <li class="page-item">
-                <a href="#" class="page-link" data-pagenum="@(Model.CurrentPage - 1)">Previous</a>
-            </li>
-        }
-        else
-        {
-            <li class="page-item disabled">
-                <span class="page-link">Previous</span>
-            </li>
-        }
-
-        @for (int i = 1; i <= Model.TotalPages; i++)
-        {
-            if (i == Model.CurrentPage)
-            {
-                <li class="page-item active">
-                    <span class="page-link">@i</span>
-                </li>
-            }
-            else
-            {
-                <li class="page-item">
-                    <a href="#" class="page-link" data-pagenum="@i">@i</a>
-                </li>
-            }
-        }
-
-        @if (Model.HasNext)
-        {
-            <li class="page-item">
-                <a href="#" class="page-link" data-pagenum="@(Model.CurrentPage + 1)">Next</a>
-            </li>
-        }
-        else
-        {
-            <li class="page-item disabled">
-                <span class="page-link">Next</span>
-            </li>
-        }
-    </ul>
-</nav>
-
-<style>
-    .table .btn-sm {
-        min-width: 36px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-</style>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    $(document).ready(function() {
-
-        $(document).on("click", ".edit-doc-link", function (e) {
-            e.preventDefault();
-
-            let id = $(this).data("id");
-            let returnUrl = encodeURIComponent(window.location.href);
-
-            window.location.href = `/Document/Edit/${id}?returnUrl=${returnUrl}`;
-        });
+<div class="app-pagination">
+    <partial name="_Pagination" model="Model" />
+</div>
 
 
-        $('.star-toggle-button').click(function (e) {
 
-            e.preventDefault();
-
-            const button = $(this);
-            const form = button.closest('form');
-            const isStarred = form.data('starred') === true || form.data('starred') === 'true';
-
-            const docId = form.data('id');
-            const action = isStarred ? 'unstar' : 'star';
-            const title = isStarred ? 'Unstar this document?' : 'Star this document?';
-            const confirmText = isStarred ? 'Yes, unstar it!' : 'Yes, star it!';
-            const successMsg = isStarred ? 'Document unstarred.' : 'Document starred.';
-
-            Swal.fire({
-                title: title,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: confirmText,
-                cancelButtonText: 'Cancel',
-                confirmButtonColor: isStarred ? '#6c757d' : '#f1c40f', // grey or yellow
-                cancelButtonColor: '#999'
-
-            }).then((result) => {
-
-                if (result.isConfirmed) {
-
-                    $.ajax({
-                        url: form.attr('action'),
-                        type: 'POST',
-                        data: form.serialize(),
-                        success: function () {
-
-                            Swal.fire({
-                                icon: 'success',
-                                title: successMsg,
-                                timer: 1500,
-                                showConfirmButton: false
-                            });
-
-                            // Toggle state
-                            const newAction = isStarred ? 'Star' : 'UnStar';
-                            const newTitle = isStarred ? 'Star' : 'Unstar';
-
-                            // Update form
-                            form.attr('action', `/Document/${newAction}?id=${docId}`);
-                            form.data('starred', !isStarred);
-
-                            // Update button
-                            const icon = button.find('i');
-                            if (isStarred) {
-                                icon.removeClass('fas text-warning').addClass('far text-muted');
-                            } else {
-                                icon.removeClass('far text-muted').addClass('fas text-warning');
-                            }
-                            button.attr('title', newTitle);
-                        },
-
-                        error: function () {
-                            Swal.fire('Error!', 'Could not update document star status.', 'error');
-                        }
-                    });
-                }
-            });
-        });
-
-        $(".delete-button").click(function(e){
-
-            e.preventDefault();
-            const btn = $(this);
-            const form = btn.closest('form');
-            const docId = form.data('id');
-
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "This document will be moved to trash.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-
-                if(result.isConfirmed){
-
-                    $.ajax({
-                        url: form.attr("action"),
-                        type: 'POST',
-                        data: form.serialize(),
-                        success: function(){
-
-                            Swal.fire(
-                                'Deleted!',
-                                'Document has been deleted.',
-                                'success'
-                            );
-
-                            $("#doc-row-" + docId).fadeOut(300, function(){
-                                $(this).remove();
-                            });
-                        },
-
-                        error:  function () {
-                            Swal.fire(
-                                'Error!',
-                                'Something went wrong. Please try again.',
-                                'error'
-                            );
-                        }
-                    });
-                }
-            })
-        });
-
-        $(document).on("click", "tr[data-url]", function(e) {
-            if(!$(e.target).closest("button, a , form").length){
-                window.open($(this).data("url"), "_self");
-            }
-        });
-    });
-
-</script>
+<link href="~/css/themeIndex.css" rel="stylesheet" />

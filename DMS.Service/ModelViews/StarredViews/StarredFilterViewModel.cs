@@ -17,7 +17,7 @@ namespace DMS.Service.ModelViews.StarredViews
         [Display(Name = "Search")]
         public string? SearchTerm { get; set; }
 
-        [RegularExpression("^(Name|FolderName|Size|ItemCount|AddedAt)?$", ErrorMessage = "Invalid sort field.")]
+        [RegularExpression("^(Name|FolderName|Size|ItemCount|AddedAt|TotalSize)?$", ErrorMessage = "Invalid sort field.")]
         public string? SortField { get; set; } = "AddedAt";
 
         [RegularExpression("^(asc|desc)?$", ErrorMessage = "Sort order must be either 'asc' or 'desc'.")]
@@ -27,6 +27,6 @@ namespace DMS.Service.ModelViews.StarredViews
         public int PageNum { get; set; } = 1;
 
         [Range(1, 100, ErrorMessage = "Page size must be between 1 and 100.")]
-        public int PageSize { get; set; } = 5;
+        public int PageSize { get; set; } = 6;
     }
 }
