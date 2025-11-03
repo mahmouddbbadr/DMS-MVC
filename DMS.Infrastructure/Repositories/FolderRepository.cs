@@ -94,5 +94,15 @@ namespace DMS.Infrastructure.Repository
             }
             return totalSize;
         }
+
+        public async Task<bool> FolderNameExistAsync(string userId, string newName, string? execludeId = null)
+        {
+            var exist = await _context.Folders
+                .Where(f => f.OwnerId == userId && f.Name == newName)
+                .Where(f => execludeId == null || f.Id != execludeId)
+                .AnyAsync();
+
+            return exist;
+        }
     }
 }

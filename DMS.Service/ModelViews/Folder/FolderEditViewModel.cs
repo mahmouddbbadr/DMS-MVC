@@ -15,4 +15,5 @@ namespace DMS.Service.ModelViews.Folder
         [StringLength(50, ErrorMessage = "Folder name cannot exceed 50 characters.")]
         public string Name { get; set; } = string.Empty;
     }
+
 }

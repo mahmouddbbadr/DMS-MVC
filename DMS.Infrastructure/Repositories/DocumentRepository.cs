@@ -69,5 +69,17 @@ namespace DMS.Infrastructure.Repository
                 .Where(d => EF.Functions.Like(d.Name, $"%{searchName}%"));
         }
 
+        public async Task<bool> DocumentNameExistAsync(string userId, string folderId, string newName, string? execludeId = null)
+        {
+            bool exists = await _context.Documents
+            .Where(d => d.OwnerId == userId
+                        && d.FolderId == folderId
+                        && d.Name.ToLower() == newName.ToLower())
+            .Where(d => execludeId == null || d.Id != execludeId)
+            .AnyAsync();
+
+            return exists;
+        }
+
     }
 }

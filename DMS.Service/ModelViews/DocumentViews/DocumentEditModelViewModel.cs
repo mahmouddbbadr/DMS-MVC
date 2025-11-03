@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,8 @@ namespace DMS.Service.ModelViews.DocumentViews
     {
         public string Id { get; set; }
         public string Name { get; set; }
+        [ValidateNever]
+        public string OwnerId { get; set; }
         public IFormFile? File { get; set; }
     }
 }

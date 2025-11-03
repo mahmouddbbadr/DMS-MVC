@@ -4,6 +4,7 @@ using DMS.Infrastructure.UnitOfWorks;
 using DMS.Service.IService;
 using DMS.Service.ModelViews.DocumentViews;
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
 using Document = DMS.Domain.Models.Document;
 
 namespace DMS.Service.Service
@@ -55,7 +56,7 @@ namespace DMS.Service.Service
             {
                 query = _unit.DocumentRepository
                     .SearchDocumentByFolderAsQueryable(modelQuery.FolderId, modelQuery.OwnerId, modelQuery.SearchName);
-            }else
+            } else
             {
                 query = _unit.DocumentRepository
                 .GetDocumentsByFolderIdAsQueryable(modelQuery.FolderId, modelQuery.OwnerId);
@@ -119,7 +120,7 @@ namespace DMS.Service.Service
         public async Task DeleteDocumentAsync(string docId, string userId)
         {
             Document? doc = await _unit.DocumentRepository.GetByOwnerAsync(docId, userId);
-            if(doc == null)
+            if (doc == null)
                 throw new Exception("Document Not Found Or You Don't Have Access");
             try
             {
@@ -148,8 +149,8 @@ namespace DMS.Service.Service
         public async Task<bool> StarDocumentAsync(string docId, string userId, bool isStar)
         {
             Document? doc = await _unit.DocumentRepository.GetByOwnerAsync(docId, userId);
-            
-            if(doc != null)
+
+            if (doc != null)
             {
                 doc.IsStarred = isStar;
                 _unit.DocumentRepository.Update(doc);
@@ -161,7 +162,7 @@ namespace DMS.Service.Service
         public async Task<DocumentFileResultViewModel?> GetFileToDownloadAsync
             (string docId, string userId, string wwwroot)
         {
-            if(docId != null)
+            if (docId != null)
             {
                 Document? doc = await _unit.DocumentRepository.GetByOwnerAsync(docId, userId);
 
@@ -179,7 +180,7 @@ namespace DMS.Service.Service
                 }
 
                 byte[] bytes = await File.ReadAllBytesAsync(filePath);
-                
+
                 string contentType = GetContentType(filePath);
 
                 return new DocumentFileResultViewModel()
@@ -189,7 +190,7 @@ namespace DMS.Service.Service
                     FileName = doc.Name + Path.GetExtension(filePath)
                 };
             }
-               
+
             return null;
         }
 
@@ -224,8 +225,15 @@ namespace DMS.Service.Service
                 _ => query.OrderByDescending(d => d.AddedAt)
             };
         }
-        public async Task<bool> UploadDocumentAsync(DocumentUploadViewModel model, string wwwroot)
+        public async Task<UploadResult> UploadDocumentAsync(DocumentUploadViewModel model, string wwwroot)
         {
+            model.Name = model.Name?.Trim() ?? "";
+
+            if (await _unit.DocumentRepository
+                .DocumentNameExistAsync(model.OwnerId, model.FolderId, model.Name))
+            {
+                return new UploadResult { Success = false, NameExists = true };
+            }
             try
             {
                 string uploadPath = Path.Combine(wwwroot, "files");
@@ -261,11 +269,11 @@ namespace DMS.Service.Service
                 await _unit.DocumentRepository.AddAsync(doc);
                 _unit.Save();
 
-                return true;
+                return new UploadResult { Success = true };
             }
             catch
             {
-                return false;
+                return new UploadResult { Success = false };
             }
 
         }
@@ -372,13 +380,20 @@ namespace DMS.Service.Service
         }
         public async Task<bool> EditDocumentModelAsync(DocumentEditModelViewModel model, string wwwroot)
         {
-            Document? doc;
             if (model.Id == null) return false;
+
+            Document? doc;
 
             doc = await _unit.DocumentRepository.GetByIdAsync(model.Id);
             if (doc == null) return false;
 
             doc.Name = string.IsNullOrWhiteSpace(model.Name) ? doc.Name : model.Name;
+
+            bool exist = await _unit.DocumentRepository
+                .DocumentNameExistAsync(model.OwnerId, doc.FolderId, doc.Name, execludeId: doc.Id);
+
+            if(exist)
+                throw new Exception("Document Name Already Exists in the Folder");
 
             if (model.File != null || model?.File?.Length > 0)
             {
@@ -411,9 +426,9 @@ namespace DMS.Service.Service
                     doc.FilePath = Path.Combine("files", uniqueFileName).Replace("\\", "/");
                     doc.Size = (int)model.File.Length;
                 }
-                catch
+                catch(Exception ex)
                 {
-                    return false;
+                    throw new Exception(ex.Message);
                 }
             }
 

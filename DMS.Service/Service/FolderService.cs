@@ -102,19 +102,46 @@ namespace DMS.Service.Service
             };
         }
 
-        public async Task CreateAsync(FolderCreateViewModel model)
+        public async Task<CreateFolderResult> CreateAsync(FolderCreateViewModel model)
         {
-            Folder folder = new Folder()
+            model.Name = model.Name.Trim();
+
+            if (await _unit.FolderRepository.FolderNameExistAsync(model.OwnerId, model.Name))
+            {
+                return new CreateFolderResult
+                {
+                    Success = false,
+                    NameExists = true
+                };
+            }
+
+            Folder folder = new()
             {
                 Name = model.Name,
                 OwnerId = model.OwnerId,
                 AddedAt = DateTime.Now,
                 IsDeleted = false,
-                IsStarred = false,
+                IsStarred = false
             };
-            await _unit.FolderRepository.AddAsync(folder);
-            _unit.Save();
-        }   
+
+            try
+            {
+                await _unit.FolderRepository.AddAsync(folder);
+                _unit.Save();
+
+                return new CreateFolderResult { Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new CreateFolderResult
+                {
+                    Success = false,
+                    ErrorMessage = "Error creating folder. Please try again later."
+                };
+            }
+        }
+
+
         public async Task<Folder?> GetFolderAsync(string folId, string userId)
         {
             return await _unit.FolderRepository.GetByOwnerAsync(folId, userId);
@@ -122,12 +149,23 @@ namespace DMS.Service.Service
         
         public async Task<bool> RenameFolderAsync(FolderEditViewModel model, string userId)
         {
+            if(await _unit.FolderRepository.FolderNameExistAsync(userId, model.Name, execludeId: model.Id))
+            {
+                throw new Exception("Folder name already exists.");
+            }
+
             Folder? fol = await _unit.FolderRepository.GetByOwnerAsync(model.Id, userId);
             if (fol != null)
             {
-                fol.Name = model.Name;
-                _unit.FolderRepository.Update(fol);
-                _unit.Save();
+                try
+                {
+                    fol.Name = model.Name;
+                    _unit.FolderRepository.Update(fol);
+                    _unit.Save();
+                }catch(Exception ex)
+                {
+                    throw new Exception("Error renaming folder. Please try again later.");
+                }
                 return true;
             }
             return false;

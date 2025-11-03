@@ -101,6 +101,7 @@
                 e.preventDefault();
                 LoadDocuments($(this).data("pagenum"));
             });
+
             $(document).on("click", ".sort-link", function (e) {
                 e.preventDefault();
 
@@ -134,20 +135,28 @@
                     processData: false,
                     data: formData,
                     success: function (response) {
-                        const modalEl = document.getElementById('editDocumentModal');
-                        const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                        modal.hide();
+                        if(response.success){
+                            const modalEl = document.getElementById('editDocumentModal');
+                            const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                            modal.hide();
 
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Saved Successfully!',
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
+                            Swal.fire({
+                                icon: 'success',
+                                title: response.message,
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
 
-                        LoadDocuments();
+                            LoadDocuments();
+                        }else {
+                            Swal.fire({
+                                icon: 'warning',
+                                title: response.message,
+                                timer: 1500,
+                                showConfirmButton: true
+                            });
+                        }
                     },
-
                     error: function () {
                         Swal.fire('Error!', 'Could not update document.', 'error');
                     }

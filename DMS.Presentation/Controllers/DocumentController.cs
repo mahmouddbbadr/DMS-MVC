@@ -87,13 +87,23 @@ namespace DMS.Presentation.Controllers
         {
             if (ModelState.IsValid)
             {
-                if(await documentService.UploadDocumentAsync(model, directory))
-                    return RedirectToAction("Index", new { folderId = model.FolderId});
+                var result = await documentService.UploadDocumentAsync(model, directory);
+
+                if (result.Success)
+                    return RedirectToAction("Index", new { folderId = model.FolderId });
+
+                if (result.NameExists)
+                {
+                    ModelState.AddModelError("Name", "A document with this name already exists in this folder.");
+                    return View("Upload", model);
+                }
 
                 ModelState.AddModelError("", "Something went wrong while uploading.");
             }
+
             return View("Upload", model);
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Download(string id)
@@ -152,17 +162,22 @@ namespace DMS.Presentation.Controllers
         public async Task<IActionResult> EditModal(DocumentEditModelViewModel model)
         {
             if (!ModelState.IsValid)
-                return View("Edit", model);
+                return Json(new { success = false, message = "Invalid Document"});
 
-            bool updated = await documentService.EditDocumentModelAsync(model, directory);
+            model.OwnerId = UserId;
 
-            if (!updated)
+            try
             {
-                ModelState.AddModelError("", "Something went wrong while updating.");
-                return RedirectToAction("Index");
-            }
+                bool updated = await documentService.EditDocumentModelAsync(model, directory);
 
-            return Ok();
+                if (updated)
+                    return Json(new { success = true, message = "Document updated successfully." });
+                return Json(new { success = false, message = "Document Not Found." });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         [HttpPost]

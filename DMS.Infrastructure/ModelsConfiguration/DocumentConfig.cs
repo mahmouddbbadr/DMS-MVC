@@ -1,6 +1,7 @@
 ﻿using DMS.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Reflection.Emit;
 
 namespace DMS.Infrastructure.ModelsConfiguration
 {
@@ -9,6 +10,9 @@ namespace DMS.Infrastructure.ModelsConfiguration
         public void Configure(EntityTypeBuilder<Document> builder)
         {
             builder.ToTable("Documents");
+
+            builder.HasIndex(d => new { d.OwnerId, d.FolderId, d.Name })
+                .IsUnique();
 
             builder.HasQueryFilter(d => !d.IsDeleted);
 

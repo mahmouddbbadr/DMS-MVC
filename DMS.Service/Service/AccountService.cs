@@ -71,6 +71,9 @@ namespace DMS.Service.Service
                 lockoutOnFailure: true
             );
 
+            await userManager.AddClaimAsync(user, new Claim("FName", user.FName ?? ""));
+            await userManager.AddClaimAsync(user, new Claim("LName", user.LName ?? ""));
+
             return result;
         }
 

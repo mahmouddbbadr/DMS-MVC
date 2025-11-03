@@ -202,7 +202,6 @@
 
             // Create Folder
             $(document).on("click", "#saveFolderBtn", function () {
-
                 let form = $("#createFolderForm");
                 let folderName = form.find("input[name='Name']").val().trim();
 
@@ -215,23 +214,41 @@
                     url: "/Folder/Create",
                     type: "POST",
                     data: form.serialize(),
-                    success: function () {
-                        $("#createFolderModal").modal("hide");
+                    success: function (res) {
 
-                        Swal.fire({
-                            icon: "success",
-                            title: "Folder created!",
-                            timer: 1400,
-                            showConfirmButton: false
-                        });
+                        if (res.success) {
 
-                        LoadFolders();
+                            const modalEl = document.getElementById('createFolderModal');
+                            const modalInstance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                            modalInstance.hide();
+
+                            $(".modal-backdrop").remove();
+                            $("body").removeClass("modal-open").css("padding-right", "");
+
+                            Swal.fire({
+                                icon: "success",
+                                title: "Folder created!",
+                                timer: 1400,
+                                showConfirmButton: false
+                            });
+
+                            LoadFolders();
+                        }
+                        else {
+                            Swal.fire({
+                                icon: "warning",
+                                title: res.message || "Something went wrong.",
+                                showConfirmButton: true
+                            });
+                        }
+
                     },
                     error: function () {
                         Swal.fire("Error", "Could not create folder.", "error");
                     }
                 });
             });
+
 
 
             // Star/Unstar Toggle
@@ -368,19 +385,30 @@
                     url: "/Folder/Edit",
                     type: "POST",
                     data: form.serialize(),
-                    success: function () {
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (res) {
 
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Folder updated successfully',
-                            timer: 1200,
-                            showConfirmButton: false
-                        });
+                        if(res.success){
+                            Swal.fire({
+                                icon: 'success',
+                                title: res.message,
+                                timer: 1200,
+                                showConfirmButton: false
+                            });
 
-                        const modalEl = document.getElementById('editFolderModal');
-                        bootstrap.Modal.getInstance(modalEl).hide();
+                            const modalEl = document.getElementById('editFolderModal');
+                            bootstrap.Modal.getInstance(modalEl).hide();
 
-                        LoadFolders();
+                            LoadFolders();
+                        }else {
+                                Swal.fire({
+                                icon: 'warning',
+                                title: res.message || 'Something went wrong.',
+                                showConfirmButton: true
+                            });
+                        }
                     },
                     error: function () {
                         Swal.fire("Error", "Update failed", "error");

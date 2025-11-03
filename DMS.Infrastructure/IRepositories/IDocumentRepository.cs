@@ -17,5 +17,7 @@ namespace DMS.Infrastructure.IRepositories
         IQueryable<Document> GetDocumentsBySharedFolderIdAsQueryable(string folderId);
         IQueryable<Document> SearchDocumentsBySharedFolderAsQueryable
             (string folderId, string searchName);
+        Task<bool> DocumentNameExistAsync
+            (string userId, string folderId, string newName, string? execludeId = null);
     }
 }

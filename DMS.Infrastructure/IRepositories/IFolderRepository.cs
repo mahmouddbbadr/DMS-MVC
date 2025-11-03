@@ -16,5 +16,6 @@ namespace DMS.Infrastructure.IRepositories
         IQueryable<Folder> SearchFoldersAsQueryable
             (string? parentFolderId, string userId, string searchName);
         long FolderTotalSize(string folderId);
+        Task<bool> FolderNameExistAsync(string userId, string newName, string? execludeId = null);
     }
 }

@@ -86,7 +86,7 @@
             color: var(--accent);
             border-left-color: var(--accent);
         }
-
+       
         .submenu {
             display: none;
             margin-left: 35px;
@@ -94,6 +94,21 @@
 
         .show-submenu > .submenu {
             display: block;
+        }
+
+        .submenu {
+            display: none;
+            padding-left: 25px;
+        }
+
+        .submenu.show {
+            display: block;
+        }
+
+        .sidebar a.active {
+            background: #0d6efd;
+            color: #fff !important;
+            border-radius: 6px;
         }
 
         /* ========== CONTENT ========== */
@@ -142,7 +157,12 @@
         <div class="dropdown">
             <button class="d-flex align-items-center text-white text-decoration-none dropdown-toggle bg-transparent border-0"
                     data-bs-toggle="dropdown" type="button">
-                <span class="me-2">@User.Identity.Name</span>
+                @{
+                    var fName = User.FindFirst("FName")?.Value;
+                    var lName = User.FindFirst("LName")?.Value;
+                    var fullName = $"{fName} {lName}".Trim();
+                }
+                <span class="me-2">@fullName</span>
                 <img src="/img/undraw_profile.svg" class="profile-img" style="width:38px;border-radius:50%;">
             </button>
 
@@ -167,11 +187,17 @@
             <i class="fa fa-folder"></i> My Folders
         </a>
 
-        <a href="#" class="toggle-submenu"><i class="fa fa-share-alt"></i> Shared <i class="fa fa-chevron-down ms-auto"></i></a>
-        <div class="submenu">
-            <a asp-controller="sharing" asp-action="SharedWithMe">Shared With Me</a>
-            <a asp-controller="sharing" asp-action="SharedByMe">Shared By Me</a>
+        <div class="menu-group">
+            <a href="#" class="toggle-submenu d-flex align-items-center">
+                <i class="fa fa-share-alt me-2"></i> Shared
+                <i class="fa fa-chevron-down ms-auto"></i>
+            </a>
+            <div class="submenu">
+                <a asp-controller="sharing" asp-action="SharedWithMe">Shared With Me</a>
+                <a asp-controller="sharing" asp-action="SharedByMe">Shared By Me</a>
+            </div>
         </div>
+
 
         <a asp-controller="Starred" asp-action="Index"><i class="fa fa-star"></i> Starred</a>
         <a asp-controller="Trash" asp-action="Index"><i class="fa fa-trash"></i> Trash</a>
@@ -195,13 +221,48 @@
         document.getElementById("toggleSidebar").onclick =
             () => document.getElementById("sidebar").classList.toggle("active");
 
-        document.querySelectorAll(".toggle-submenu").forEach(btn => {
-            btn.addEventListener("click", function (e) {
+                // Toggle submenu
+        document.querySelectorAll('.toggle-submenu').forEach(toggle => {
+            toggle.addEventListener('click', function (e) {
                 e.preventDefault();
-                this.parentElement.classList.toggle("show-submenu");
+                const submenu = this.nextElementSibling;
+                submenu.classList.toggle('show');
             });
         });
 
+        // Set active link on click
+        document.querySelectorAll('.sidebar a:not(.toggle-submenu)').forEach(link => {
+            link.addEventListener("click", function () {
+                document.querySelectorAll('.sidebar a.active').forEach(a => a.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Set active link based on current page (when page loads)
+        const currentUrl = window.location.pathname.toLowerCase();
+        document.querySelectorAll('.submenu a').forEach(link => {
+            const linkUrl = (link.getAttribute("href") || "").toLowerCase();
+
+            if (currentUrl.includes(linkUrl) && linkUrl !== "#") {
+                link.classList.add("active");
+                link.closest('.submenu').classList.add("show");
+            }
+        });
+
+
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener("click", function () {
+
+                document.querySelectorAll('.sidebar a.active')
+                    .forEach(a => a.classList.remove('active'));
+
+                this.classList.add('active');
+
+                // highlight parent menu if exists
+                let parent = this.closest('.has-submenu');
+                if (parent) parent.querySelector('a.main-link').classList.add('active');
+            });
+        });
 
         // Theme Toggle
         const body = document.body;
@@ -212,6 +273,23 @@
             localStorage.setItem("theme", body.classList.contains("dark-theme") ? "dark" : "light");
             btn.innerHTML = body.classList.contains("dark-theme") ? `<i class="fa fa-sun"></i>` : `<i class="fa fa-moon"></i>`;
         };
+
+        const currentPath = window.location.pathname.toLowerCase();
+
+        document.querySelectorAll('.sidebar > a').forEach(link => {
+            let href = (link.getAttribute("href") || "").toLowerCase();
+
+            if ((href === "/" || href === "/home" || href === "/home/index") &&
+                (currentPath === "/" || currentPath === "/home" || currentPath === "/home/index")) {
+                link.classList.add("active");
+                return;
+            }
+
+            if (href !== "/" && currentPath.startsWith(href)) {
+                link.classList.add("active");
+            }
+        });
+
     </script>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

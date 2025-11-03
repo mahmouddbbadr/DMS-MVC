@@ -53,10 +53,17 @@ namespace DMS.Presentation.Controllers
             model.OwnerId = UserId;
 
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return Json(new { success = false, message = "Invalid data submitted." });
 
-            await folderService.CreateAsync(model);
-            return Json(new { success = true });
+            var result = await folderService.CreateAsync(model);
+
+            if (result.Success)
+                return Json(new { success = true });
+
+            if (result.NameExists)
+                return Json(new { success = false, message = "A folder with this name already exists." });
+
+            return Json(new { success = false, message = result.ErrorMessage ?? "Something went wrong." });
         }
 
 
@@ -64,8 +71,10 @@ namespace DMS.Presentation.Controllers
         public async Task<IActionResult> Edit(string id)
         {
             var folder = await folderService.GetFolderAsync(id, UserId);
-            if (folder == null) return NotFound();
-            return Json(new { folder.Id, folder.Name });
+            if (folder == null)
+                return NotFound();
+
+            return Json(new { id = folder.Id, name = folder.Name });
         }
 
         [HttpPost]
@@ -73,13 +82,22 @@ namespace DMS.Presentation.Controllers
         public async Task<IActionResult> Edit(FolderEditViewModel fromRequest)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return Json(new { success = false, message = "Invalid data submitted." });
 
-            var result = await folderService.RenameFolderAsync(fromRequest, UserId);
+            try
+            {
+                var result = await folderService.RenameFolderAsync(fromRequest, UserId);
 
-            if (result)
-                return Ok();
-            return BadRequest();
+                if (result)
+                    return Json(new { success = true, message = "Folder renamed successfully." });
+
+                return Json(new { success = false, message = "Folder not Found" });
+
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
 
         [HttpPost]

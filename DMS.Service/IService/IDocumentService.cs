@@ -11,7 +11,7 @@ namespace DMS.Service.IService
         Task<bool> StarDocumentAsync(string docId, string userId, bool isStar);
         Task<DocumentFileResultViewModel?> GetFileToDownloadAsync
             (string docId, string userId, string wwwroot);
-        Task<bool> UploadDocumentAsync(DocumentUploadViewModel model, string wwwroot);
+        Task<UploadResult> UploadDocumentAsync(DocumentUploadViewModel model, string wwwroot);
         Task<Document?> GetDocumentByIdAsync(string docId, string userId);
         Task<bool> EditDocumentAsync(DocumentUploadViewModel model, string wwwroot);
         Task<DocumentDetailsViewModel?> GetDocumentDetailsAsync(string id, string userId);
